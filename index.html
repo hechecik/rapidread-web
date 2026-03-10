@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RapidRead</title>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="header">
+        <h1>RapidRead</h1>
+        <p>Upload TXT, PDF, or DOCX and read with RSVP speed reading.</p>
+      </header>
+
+      <section class="card upload-card">
+        <h2>1) Upload File</h2>
+        <div class="upload-row">
+          <input id="fileInput" type="file" accept=".txt,.pdf,.docx" />
+          <button id="loadDemoBtn" type="button">Load Demo Text</button>
+        </div>
+        <p id="fileStatus" class="muted">No file loaded yet.</p>
+      </section>
+
+      <section class="card controls-card">
+        <h2>2) Reader Controls</h2>
+        <div class="controls-grid">
+          <label for="speedRange">Speed (WPM): <span id="speedValue">300</span></label>
+          <input id="speedRange" type="range" min="100" max="1000" step="10" value="300" />
+
+          <label for="wordPositionRange">Focus letter position: <span id="wordPositionValue">35%</span></label>
+          <input id="wordPositionRange" type="range" min="20" max="60" step="1" value="35" />
+        </div>
+
+        <div class="button-row">
+          <button id="playBtn" type="button">Play</button>
+          <button id="pauseBtn" type="button">Pause</button>
+          <button id="resumeBtn" type="button">Resume</button>
+          <button id="restartBtn" type="button">Restart</button>
+        </div>
+
+        <div class="stats-row muted">
+          <span>Word: <strong id="wordIndex">0</strong>/<span id="wordTotal">0</span></span>
+          <span>State: <strong id="readerState">idle</strong></span>
+        </div>
+      </section>
+
+      <section class="card reader-card">
+        <h2>3) RSVP Reader</h2>
+        <div id="rsvpContainer" class="rsvp-container" aria-live="polite">
+          <span id="rsvpWord" class="rsvp-word">Upload a document to begin</span>
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
