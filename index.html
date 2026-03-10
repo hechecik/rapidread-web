@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hızlı Okuma Sistemi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <header class="card hero">
+        <p class="eyebrow">RSVP TEKNİĞİ</p>
+        <h1>Hızlı Okuma Sistemi</h1>
+        <p class="subtitle">TXT, PDF veya DOCX dosyanızı yükleyin ya da metin yapıştırın. Sistem metni temizler, kelimelere ayırır ve odak harfiyle hızlı okuma sunar.</p>
+      </header>
+
+      <main class="layout">
+        <section id="girdiPaneli" class="card">
+          <h2>Metin Girişi</h2>
+
+          <div id="dropZone" class="drop-zone" tabindex="0" aria-label="Dosya yükleme alanı">
+            <p><strong>Dosyayı sürükleyip bırakın</strong> veya</p>
+            <button id="dosyaSecBtn" class="btn btn-primary" type="button">Dosya Seç</button>
+            <input id="dosyaInput" type="file" accept=".txt,.pdf,.docx" hidden />
+            <small>Desteklenen formatlar: TXT, PDF, DOCX</small>
+          </div>
+
+          <label for="metinAlani" class="label">Metni buraya yapıştırın</label>
+          <textarea id="metinAlani" placeholder="Örn: Bugün odaklı bir şekilde öğrenmeye başladım..."></textarea>
+
+          <div class="actions">
+            <button id="metniBaslatBtn" class="btn btn-primary" type="button">Metni Başlat</button>
+            <button id="demoBtn" class="btn btn-secondary" type="button">Demo Metni Yükle</button>
+          </div>
+
+          <p id="dosyaBilgisi" class="info">Yüklenen dosya: Yok</p>
+          <p id="durumMesaji" class="status" aria-live="polite">Hazır</p>
+        </section>
+
+        <section class="card">
+          <h2>Kontroller</h2>
+          <div class="control">
+            <label for="hizSlider">Hız: <span id="hizDegeri">300</span> WPM</label>
+            <input id="hizSlider" type="range" min="150" max="800" value="300" step="10" />
+          </div>
+
+          <div class="controls-grid">
+            <button id="oynatBtn" class="btn btn-primary" type="button">Oynat</button>
+            <button id="duraklatBtn" class="btn btn-secondary" type="button">Duraklat</button>
+            <button id="devamBtn" class="btn btn-secondary" type="button">Devam Et</button>
+            <button id="yenidenBaslatBtn" class="btn btn-secondary" type="button">Yeniden Başlat</button>
+          </div>
+
+          <div class="metrics">
+            <p>Durum: <strong id="durumDegeri">Bekliyor</strong></p>
+            <p>İlerleme: <strong id="ilerlemeDegeri">0%</strong></p>
+            <p>Kelime: <strong id="kelimeDegeri">0 / 0</strong></p>
+          </div>
+        </section>
+
+        <section class="card reader">
+          <h2>RSVP Okuyucu</h2>
+          <div class="focus-line" aria-hidden="true"></div>
+          <div id="okuyucu" class="reader-screen" aria-live="polite">Başlamak için metin yükleyin veya yapıştırın</div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
