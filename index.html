@@ -1,57 +1,969 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RapidRead</title>
-  </head>
-  <body>
-    <div id="app" class="app">
-      <header class="header">
-        <h1>RapidRead</h1>
-        <p>Upload TXT, PDF, or DOCX and read with RSVP speed reading.</p>
-      </header>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>hechecik — Oku, Oluştur, Çevir</title>
+<meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: RSVP hızlı okuma, CV oluşturucu ve dosya çevirici. Sunucu yok, veri kaydedilmez, internetsiz bile çalışır."/>
+<meta name="keywords" content="hızlı okuma, RSVP okuma, CV oluşturucu, dosya çevirici, PDF dönüştürücü, DOCX çevirici, çevrimdışı araçlar, ücretsiz CV, oku oluştur çevir"/>
+<meta name="author" content="hechecik"/>
+<meta property="og:title" content="hechecik — Oku, Oluştur, Çevir"/>
+<meta property="og:description" content="Hızlı okuma, CV oluşturma ve dosya dönüştürme — tamamen tarayıcıda, sunucu olmadan."/>
+<meta property="og:type" content="website"/>
+<meta name="robots" content="index, follow"/>
 
-      <section class="card upload-card">
-        <h2>1) Upload File</h2>
-        <div class="upload-row">
-          <input id="fileInput" type="file" accept=".txt,.pdf,.docx" />
-          <button id="loadDemoBtn" type="button">Load Demo Text</button>
-        </div>
-        <p id="fileStatus" class="muted">No file loaded yet.</p>
-      </section>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-      <section class="card controls-card">
-        <h2>2) Reader Controls</h2>
-        <div class="controls-grid">
-          <label for="speedRange">Speed (WPM): <span id="speedValue">300</span></label>
-          <input id="speedRange" type="range" min="100" max="1000" step="10" value="300" />
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-          <label for="wordPositionRange">Focus letter position: <span id="wordPositionValue">35%</span></label>
-          <input id="wordPositionRange" type="range" min="20" max="60" step="1" value="35" />
-        </div>
+:root {
+  --bg:#F7F6F3; --surface:#FFFFFF; --surface2:#F0EEE9;
+  --border:#E4E2DC; --border2:#CCC9C0;
+  --text:#18181B; --text2:#52525B; --text3:#A1A1AA;
+  --accent:#18181B; --fg:#FFFFFF;
+  --red:#E11D48; --green:#16A34A; --blue:#2563EB; --amber:#D97706;
+  --sh:0 1px 2px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08);
+  --sh-md:0 4px 16px rgba(0,0,0,.10);
+  --r:7px; --r-lg:12px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --nh:54px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;}
+button{cursor:pointer;font-family:var(--font);}
+input,textarea,select{font-family:var(--font);}
+a{color:var(--blue);text-decoration:none;}
 
-        <div class="button-row">
-          <button id="playBtn" type="button">Play</button>
-          <button id="pauseBtn" type="button">Pause</button>
-          <button id="resumeBtn" type="button">Resume</button>
-          <button id="restartBtn" type="button">Restart</button>
-        </div>
+/* NAV */
+#nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;height:var(--nh);box-shadow:var(--sh);}
+.nav-brand{font-size:15px;font-weight:700;letter-spacing:-.4px;color:var(--text);margin-right:18px;white-space:nowrap;flex-shrink:0;}
+.nav-brand em{font-style:normal;color:var(--red);}
+.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:6px 13px;border-radius:var(--r);border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s;flex-shrink:0;}
+.nav-tab:hover{background:var(--surface2);color:var(--text);}
+.nav-tab.active{background:var(--accent);color:var(--fg);}
+.nav-bmc{margin-left:8px;flex-shrink:0;display:flex;align-items:center;}
 
-        <div class="stats-row muted">
-          <span>Word: <strong id="wordIndex">0</strong>/<span id="wordTotal">0</span></span>
-          <span>State: <strong id="readerState">idle</strong></span>
-        </div>
-      </section>
+/* OFFLINE */
+#offline-badge{display:none;position:fixed;top:calc(var(--nh)+8px);right:12px;z-index:300;background:#18181B;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
+#offline-badge.show{display:block;}
 
-      <section class="card reader-card">
-        <h2>3) RSVP Reader</h2>
-        <div id="rsvpContainer" class="rsvp-container" aria-live="polite">
-          <span id="rsvpWord" class="rsvp-word">Upload a document to begin</span>
-        </div>
-      </section>
+/* ERR */
+.err{display:none;color:var(--red);font-size:12px;font-weight:500;margin-top:5px;padding:6px 10px;background:#FFF1F2;border:1px solid #FECDD3;border-radius:var(--r);}
+.err.show{display:block;}
+
+/* PAGES */
+.page{display:none;padding:22px 20px;max-width:1120px;margin:0 auto;}
+.page.active{display:block;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh);}
+.card+.card{margin-top:14px;}
+.ctitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:13px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);border:none;font-size:13px;font-weight:500;transition:all .15s;white-space:nowrap;line-height:1;}
+.btn-p{background:var(--accent);color:var(--fg);}
+.btn-p:hover{opacity:.82;}
+.btn-g{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-g:hover{background:var(--surface2);color:var(--text);}
+.btn-d{background:transparent;color:var(--red);border:1px solid #FECDD3;}
+.btn-d:hover{background:#FFF1F2;}
+.btn-sm{padding:5px 10px;font-size:12px;}
+.btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
+
+/* FORM */
+.fg{margin-bottom:11px;}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.fi,.fta,.fse{width:100%;padding:7px 11px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--text);font-size:13px;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none;}
+.fi:focus,.fta:focus,.fse:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(24,24,27,.08);}
+.fta{resize:vertical;min-height:78px;line-height:1.5;}
+.fr{display:grid;gap:10px;}
+.fr.c2{grid-template-columns:1fr 1fr;}
+.fr.c3{grid-template-columns:1fr 1fr 1fr;}
+
+/* TAGS */
+.tc{display:flex;flex-wrap:wrap;gap:5px;padding:5px 9px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);min-height:38px;cursor:text;}
+.tc:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(24,24,27,.08);}
+.tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);color:var(--text);border-radius:4px;padding:2px 7px;font-size:11px;font-weight:500;}
+.tr{background:none;border:none;color:var(--text3);padding:0;line-height:1;font-size:13px;cursor:pointer;}
+.tr:hover{color:var(--red);}
+.ti{border:none;outline:none;font-size:13px;font-family:var(--font);flex:1;min-width:80px;background:transparent;}
+
+/* DROP */
+.dz{border:2px dashed var(--border2);border-radius:var(--r-lg);padding:26px 20px;text-align:center;transition:all .2s;cursor:pointer;user-select:none;}
+.dz:hover,.dz.over{border-color:var(--accent);background:var(--surface2);}
+
+/* RSVP display */
+#rdisp{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);height:148px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;margin:14px 0;}
+#rdisp::before{content:'';position:absolute;width:1px;height:55%;background:#E4E2DC;left:50%;transform:translateX(-50%);pointer-events:none;}
+#rword{position:relative;display:inline-block;font-weight:400;letter-spacing:-.3px;}
+.ob{color:var(--text2);}
+.om{color:var(--red);font-weight:700;}
+.oa{color:var(--text);}
+#rph{color:var(--text3);font-size:14px;font-weight:400;}
+.rstat{font-size:11px;color:var(--text2);font-family:var(--mono);}
+.rstat strong{color:var(--text);font-weight:600;}
+.pb{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin:8px 0;}
+.pf{height:100%;background:var(--accent);border-radius:2px;transition:width .2s linear;}
+
+/* CV */
+#cvsplit{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
+#cved{overflow-y:auto;max-height:calc(100vh - 110px);padding-right:2px;}
+#cvpw{position:sticky;top:calc(var(--nh)+14px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-md);}
+#cvpt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--surface2);}
+#cvpt span{font-size:11px;color:var(--text2);font-weight:600;flex:1;text-transform:uppercase;letter-spacing:.5px;}
+#cvps{padding:10px;overflow-y:auto;max-height:calc(100vh - 190px);}
+
+/* CV doc */
+#cvdoc{width:100%;background:#fff;font-family:'Inter',sans-serif;font-size:10px;line-height:1.55;color:#18181B;padding:26px 28px;border-radius:4px;}
+#cvdoc .cn{font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:2px;}
+#cvdoc .ct{font-size:11px;color:#52525B;margin-bottom:8px;}
+#cvdoc .cc{font-size:9.5px;color:#71717A;display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:12px;padding-bottom:10px;border-bottom:1.5px solid #18181B;}
+#cvdoc .cs{margin-bottom:12px;}
+#cvdoc .cst{font-size:8.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:#18181B;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid #E4E4E7;}
+#cvdoc .ce{margin-bottom:7px;}
+#cvdoc .ceh{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:3px;}
+#cvdoc .cet{font-weight:600;font-size:10px;}
+#cvdoc .ces{font-size:9.5px;color:#52525B;}
+#cvdoc .ced{font-size:9px;color:#71717A;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+#cvdoc .cbl{margin-top:3px;padding-left:12px;}
+#cvdoc .cbl li{font-size:9.5px;margin-bottom:1.5px;color:#3F3F46;}
+#cvdoc .csu{font-size:10px;color:#3F3F46;}
+#cvdoc .csg{display:flex;flex-wrap:wrap;gap:3px 6px;}
+#cvdoc .csk{background:#F4F4F5;color:#18181B;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:600;border:1px solid #E4E4E7;}
+#cvdoc .cempty{color:#A1A1AA;text-align:center;padding:30px;font-size:12px;}
+
+/* Section items */
+.si{border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;}
+.sh{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);cursor:pointer;user-select:none;}
+.sh:hover{background:var(--border);}
+.sv{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.sh.open .sv{transform:rotate(90deg);}
+.sb{padding:14px;background:var(--surface);display:none;}
+.sb.open{display:block;}
+.ec{border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;position:relative;}
+.ea{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;}
+.shb{font-size:10px;background:var(--border);color:var(--text3);padding:1px 6px;border-radius:4px;flex-shrink:0;}
+
+/* PDF FAB */
+#pfab{position:fixed;bottom:24px;right:24px;z-index:500;display:none;align-items:center;gap:8px;background:var(--accent);color:var(--fg);border:none;border-radius:50px;padding:13px 22px;font-size:14px;font-weight:600;font-family:var(--font);box-shadow:0 4px 20px rgba(0,0,0,.25);cursor:pointer;transition:all .2s;}
+#pfab:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,0,0,.30);}
+#pfab.vis{display:flex;}
+
+/* Converter */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fb{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.fp{background:#FFF1F2;color:#E11D48;}
+.fd{background:#EFF6FF;color:#2563EB;}
+.fx{background:#F0FDF4;color:#16A34A;}
+.ft{background:#FFF7ED;color:#D97706;}
+.fn{background:#F4F4F5;color:#52525B;}
+.fc{background:#F0FDF4;color:#16A34A;}
+.fh{background:#FFF7ED;color:#D97706;}
+.fj{background:#F5F3FF;color:#7C3AED;}
+.fm{background:#F4F4F5;color:#374151;}
+.cout{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11.5px;font-family:var(--mono);max-height:240px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;color:var(--text2);}
+
+/* Toast */
+#tw{position:fixed;bottom:74px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+.toast{background:var(--text);color:#fff;padding:9px 14px;border-radius:var(--r);font-size:12px;font-weight:500;animation:si .2s ease;box-shadow:var(--sh-md);max-width:260px;}
+.tok{background:var(--green);}
+.ter{background:var(--red);}
+.twn{background:var(--amber);}
+@keyframes si{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
+
+/* Loading */
+#ldo{display:none;position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+#ldo.show{display:flex;}
+.spn{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* Home */
+.hero{padding:56px 20px 44px;text-align:center;}
+.hero-ey{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
+.hero-h1{font-size:clamp(30px,6vw,52px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
+.hero-h1 em{font-style:normal;color:var(--red);}
+.hero-sl{font-size:clamp(14px,2.5vw,18px);color:var(--text2);margin-bottom:30px;letter-spacing:-.2px;}
+.hcards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.hcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 18px;cursor:pointer;transition:all .2s;text-align:left;}
+.hcard:hover{border-color:var(--text);box-shadow:var(--sh-md);transform:translateY(-2px);}
+.hci{font-size:26px;margin-bottom:10px;}
+.hct{font-size:15px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px;}
+.hcd{font-size:12px;color:var(--text2);line-height:1.6;}
+.htags{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
+.htag{font-size:10px;font-weight:600;background:var(--surface2);color:var(--text2);padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px;}
+.tbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;}
+.ti2{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);}
+.ti2 strong{color:var(--text);font-weight:600;}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
+
+/* Privacy banner */
+.pvb{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--r);padding:7px 12px;font-size:11px;color:#15803D;font-weight:500;display:inline-flex;align-items:center;gap:6px;}
+
+/* Footer */
+.foot{border-top:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--text3);max-width:1120px;margin:0 auto;}
+.foot a{color:var(--text3);transition:color .15s;}
+.foot a:hover{color:var(--text);}
+
+/* Misc */
+.fb2{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.fg2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.mt8{margin-top:8px;}
+.mt12{margin-top:12px;}
+.mt14{margin-top:14px;}
+.tsm{font-size:12px;color:var(--text2);}
+.txs{font-size:11px;color:var(--text3);}
+kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;font-size:11px;font-family:var(--mono);}
+
+/* Responsive */
+@media(max-width:860px){#cvsplit{grid-template-columns:1fr;}#cvpw{position:static;}#cved{max-height:none;}.hcards{grid-template-columns:1fr;}}
+@media(max-width:640px){.page{padding:12px 12px;}#nav{padding:0 12px;}.nav-brand{font-size:13px;margin-right:8px;}.nav-tab{padding:5px 9px;font-size:11px;}.cgrid{grid-template-columns:1fr;}.fr.c2,.fr.c3{grid-template-columns:1fr;}#pfab{bottom:14px;right:14px;padding:11px 18px;font-size:13px;}.hero{padding:34px 14px 24px;}.tbar{gap:12px;}}
+</style>
+</head>
+<body>
+
+<div id="ldo"><div class="spn"></div><div id="ldm" style="font-size:13px;font-weight:500;color:var(--text2);">İşleniyor...</div></div>
+<div id="offline-badge">● Çevrimdışı</div>
+<div id="tw"></div>
+<button id="pfab" onclick="dlPDF()">⬇ PDF İndir</button>
+
+<nav id="nav">
+  <div class="nav-brand">hec<em>h</em>ecik</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="sp('home')">Ana Sayfa</button>
+    <button class="nav-tab" onclick="sp('rsvp')">Hızlı Okuma</button>
+    <button class="nav-tab" onclick="sp('cv')">CV Oluşturucu</button>
+    <button class="nav-tab" onclick="sp('conv')">Dosya Çevirici</button>
+  </div>
+  <div class="nav-bmc">
+    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+  </div>
+</nav>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-ey">hechecik araçları</div>
+    <h1 class="hero-h1">Oku<em>.</em> Oluştur<em>.</em> Çevir<em>.</em></h1>
+    <p class="hero-sl">Tamamen tarayıcınızda çalışır — sunucu yok, veri kaydedilmez, <strong>internetsiz bile</strong> kullanılabilir.</p>
+    <div class="fg2" style="justify-content:center;">
+      <button class="btn btn-p" style="font-size:14px;padding:11px 24px;" onclick="sp('rsvp')">Başla →</button>
+      <a href="mailto:hecgoran@gmail.com" class="btn btn-g" style="font-size:14px;padding:11px 24px;">İletişim</a>
     </div>
+  </div>
+  <div class="tbar">
+    <div class="ti2"><span class="tdot"></span><strong>Sunucu yok</strong> — tüm işlemler tarayıcınızda</div>
+    <div class="ti2"><span class="tdot"></span><strong>Veri kaydedilmez</strong> — dosyalarınız hiçbir yere gitmez</div>
+    <div class="ti2"><span class="tdot"></span><strong>Çevrimdışı çalışır</strong> — internet kesilse bile devam eder</div>
+    <div class="ti2"><span class="tdot"></span><a href="https://github.com/hechecik" target="_blank" style="color:var(--blue);">github.com/hechecik</a></div>
+  </div>
+  <div class="hcards">
+    <div class="hcard" onclick="sp('rsvp')">
+      <div class="hci">👁</div>
+      <div class="hct">Hızlı Okuma</div>
+      <div class="hcd">RSVP tekniğiyle kelimeleri odak noktasında göstererek okuma hızınızı artırın.</div>
+      <div class="htags"><span class="htag">PDF</span><span class="htag">DOCX</span><span class="htag">XLSX</span><span class="htag">PPTX</span><span class="htag">TXT</span></div>
+    </div>
+    <div class="hcard" onclick="sp('cv')">
+      <div class="hci">📄</div>
+      <div class="hct">CV Oluşturucu</div>
+      <div class="hcd">Mevcut CV'nizi yükleyin veya sıfırdan oluşturun. PDF ve TXT olarak indirin.</div>
+      <div class="htags"><span class="htag">PDF Yükle</span><span class="htag">DOCX Yükle</span><span class="htag">PDF İndir</span><span class="htag">JSON Kaydet</span></div>
+    </div>
+    <div class="hcard" onclick="sp('conv')">
+      <div class="hci">🔄</div>
+      <div class="hct">Dosya Çevirici</div>
+      <div class="hcd">PDF, DOCX, XLSX, PPTX ve daha fazlasını dönüştürün. Hiçbir dosya sunucuya gitmez.</div>
+      <div class="htags"><span class="htag">10+ Format</span><span class="htag">Sürükle-Bırak</span><span class="htag">Anlık</span></div>
+    </div>
+  </div>
+  <div class="card" style="text-align:center;padding:26px 20px;">
+    <div style="font-size:13px;font-weight:600;margin-bottom:3px;">Bu araçlar işinize yaradıysa</div>
+    <div class="tsm" style="margin-bottom:14px;">Geliştirmeye devam etmem için destek olabilirsiniz.</div>
+    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="☕" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+  </div>
+</div>
 
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<!-- RSVP -->
+<div class="page" id="page-rsvp">
+  <div style="display:grid;grid-template-columns:1fr 318px;gap:16px;align-items:start;" id="rl">
+    <div>
+      <div class="card">
+        <div class="fb2" style="margin-bottom:12px;">
+          <div class="ctitle" style="margin:0;">Metin Girişi</div>
+          <span class="pvb">🔒 Dosyanız tarayıcıdan çıkmaz</span>
+        </div>
+        <div class="dz" id="rdz" onclick="document.getElementById('rfi').click()">
+          <div style="font-size:26px;margin-bottom:8px;">📂</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text2);">Dosyayı sürükleyin veya tıklayın</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">TXT · PDF · DOCX · XLSX · PPTX · ODT · RTF · HTML · MD · JSON</div>
+        </div>
+        <input type="file" id="rfi" accept=".txt,.pdf,.docx,.xlsx,.xls,.pptx,.odt,.rtf,.html,.htm,.md,.json" style="display:none" onchange="rLoad(this)"/>
+        <div id="rferr" class="err"></div>
+        <div style="text-align:center;margin:7px 0;font-size:11px;color:var(--text3);">— ya da yapıştırın —</div>
+        <textarea class="fta" id="rtxt" placeholder="Metni buraya yapıştırın..." style="min-height:96px;" oninput="rInit()"></textarea>
+        <div class="fg2 mt8">
+          <span id="rfname" class="txs">Dosya seçilmedi</span>
+          <span id="rwc" class="txs"></span>
+          <button class="btn btn-g btn-sm" onclick="rDemo()">Demo</button>
+          <button class="btn btn-d btn-sm" onclick="rClear()">Temizle</button>
+        </div>
+      </div>
+      <div class="card mt14">
+        <div class="ctitle">RSVP Okuyucu</div>
+        <div id="rdisp" style="font-size:42px;">
+          <div id="rph">Metin yükleyin</div>
+          <div id="rword" style="display:none;"></div>
+        </div>
+        <div class="pb"><div class="pf" id="rprog" style="width:0%"></div></div>
+        <div class="fb2">
+          <span class="rstat">İlerleme <strong id="spct">0%</strong></span>
+          <span class="rstat">Kelime <strong id="swrd">0/0</strong></span>
+          <span class="rstat">Kalan <strong id="stm">—</strong></span>
+        </div>
+      </div>
+    </div>
+    <div id="rcp" style="position:sticky;top:calc(var(--nh)+14px);">
+      <div class="card">
+        <div class="ctitle">Kontroller</div>
+        <div class="fg">
+          <div class="fb2" style="margin-bottom:5px;"><label class="fl" style="margin:0;">Hız</label><span class="rstat"><strong id="wv">300</strong> WPM</span></div>
+          <input type="range" style="width:100%;accent-color:var(--accent);" min="60" max="1200" step="20" value="300" oninput="setWPM(this.value)"/>
+          <div class="fb2 mt8" style="font-size:10px;color:var(--text3);"><span>Yavaş</span><span>Normal</span><span>Hızlı</span><span>Uzman</span></div>
+        </div>
+        <div class="fg">
+          <div class="fb2" style="margin-bottom:5px;"><label class="fl" style="margin:0;">Font</label><span class="rstat"><strong id="fv">42</strong>px</span></div>
+          <input type="range" style="width:100%;accent-color:var(--accent);" min="20" max="80" step="2" value="42" oninput="setFS(this.value)"/>
+        </div>
+        <div class="fg">
+          <label class="fl">Kelime / Gösterim</label>
+          <select class="fse" id="csel" onchange="rInit()"><option value="1">1 kelime</option><option value="2">2 kelime</option><option value="3">3 kelime</option></select>
+        </div>
+        <div class="fg2" style="margin-bottom:10px;">
+          <button class="btn btn-p" id="bplay" onclick="rPlay()" style="flex:1;">▶ Oynat</button>
+          <button class="btn btn-g" id="bpause" onclick="rPause()" disabled style="flex:1;">⏸ Duraklat</button>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="rRestart()" style="width:100%;margin-bottom:10px;">↺ Başa Al</button>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:10px;font-size:12px;">
+          <div style="font-weight:600;margin-bottom:4px;">Durum: <span id="rst" style="color:var(--text2);font-weight:400;">Bekliyor</span></div>
+          <div class="txs"><kbd>Space</kbd> oynat/duraklat &nbsp;·&nbsp; <kbd>R</kbd> başa al</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CV -->
+<div class="page" id="page-cv">
+  <div class="fb2" style="margin-bottom:14px;">
+    <div>
+      <div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">CV Oluşturucu</div>
+      <div class="txs mt8">PDF veya DOCX yükleyin → bilgileri düzenleyin → PDF / TXT indirin</div>
+    </div>
+    <div class="fg2">
+      <button class="btn btn-g btn-sm" onclick="document.getElementById('cvif').click()">📂 CV Yükle</button>
+      <button class="btn btn-g btn-sm" onclick="cvJSON()">💾 JSON</button>
+      <button class="btn btn-d btn-sm" onclick="cvReset()">🗑 Sıfırla</button>
+      <button class="btn btn-g btn-sm" onclick="dlTXT()">⬇ TXT</button>
+      <button class="btn btn-p btn-sm" onclick="dlPDF()">⬇ PDF</button>
+    </div>
+  </div>
+  <input type="file" id="cvif" accept=".pdf,.docx,.doc,.json" style="display:none" onchange="cvImport(this)"/>
+  <div id="cverr" class="err" style="margin-bottom:10px;"></div>
+  <div id="cvinfo" style="display:none;margin-bottom:10px;" class="pvb"><span id="cvinfomsg"></span></div>
+
+  <div id="cvsplit">
+    <div id="cved">
+      <div class="si">
+        <div class="sh open" onclick="tgSec(this)">
+          <span class="sv">▶</span>
+          <span style="font-size:13px;font-weight:600;flex:1;">Kişisel Bilgiler</span>
+        </div>
+        <div class="sb open">
+          <div class="fr c2">
+            <div class="fg"><label class="fl">Ad Soyad *</label><input class="fi" id="cn" placeholder="Ahmet Yılmaz" oninput="rCV()"/></div>
+            <div class="fg"><label class="fl">Unvan</label><input class="fi" id="cti" placeholder="Yazılım Mühendisi" oninput="rCV()"/></div>
+          </div>
+          <div class="fr c2">
+            <div class="fg"><label class="fl">E-posta</label><input class="fi" id="cem" type="email" placeholder="ahmet@ornek.com" oninput="rCV()"/></div>
+            <div class="fg"><label class="fl">Telefon</label><input class="fi" id="cph" type="tel" placeholder="+90 555 000 0000" oninput="rCV()"/></div>
+          </div>
+          <div class="fr c2">
+            <div class="fg"><label class="fl">Konum</label><input class="fi" id="clo" placeholder="İstanbul, Türkiye" oninput="rCV()"/></div>
+            <div class="fg"><label class="fl">LinkedIn</label><input class="fi" id="cwb" placeholder="linkedin.com/in/ahmet" oninput="rCV()"/></div>
+          </div>
+          <div class="fr c2">
+            <div class="fg"><label class="fl">GitHub</label><input class="fi" id="cgh" placeholder="github.com/ahmet" oninput="rCV()"/></div>
+            <div class="fg"><label class="fl">Portfolio</label><input class="fi" id="cot" placeholder="portfolio.dev" oninput="rCV()"/></div>
+          </div>
+        </div>
+      </div>
+      <div id="cvsc"></div>
+      <div class="card mt12">
+        <div class="ctitle">Bölüm Ekle</div>
+        <div class="fg2">
+          <button class="btn btn-g btn-sm" onclick="addSec('summary')">+ Özet</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('experience')">+ Deneyim</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('education')">+ Eğitim</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('skills')">+ Beceriler</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('languages')">+ Diller</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('projects')">+ Projeler</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('certifications')">+ Sertifikalar</button>
+          <button class="btn btn-g btn-sm" onclick="addSec('custom')">+ Özel</button>
+        </div>
+      </div>
+      <div style="margin-top:14px;text-align:center;">
+        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+      </div>
+    </div>
+    <div id="cvpw">
+      <div id="cvpt">
+        <span>Önizleme</span>
+        <button class="btn btn-g btn-sm" onclick="dlTXT()">⬇ TXT</button>
+        <button class="btn btn-p btn-sm" onclick="dlPDF()">⬇ PDF</button>
+      </div>
+      <div id="cvps"><div id="cvdoc"><div class="cempty">Sol taraftan bilgileri doldurun veya CV yükleyin</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CONVERTER -->
+<div class="page" id="page-conv">
+  <div class="fb2" style="margin-bottom:14px;">
+    <div>
+      <div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Dosya Çevirici</div>
+      <div class="txs mt8">Tüm işlemler tarayıcıda · Dosyalarınız sunucuya gitmez · Çevrimdışı çalışır</div>
+    </div>
+    <span class="pvb">🔒 %100 gizli · sunucu yok</span>
+  </div>
+  <div class="cgrid">
+    <div class="card">
+      <div class="ctitle">Kaynak Dosya</div>
+      <div class="dz" id="cdz" onclick="document.getElementById('cfi').click()">
+        <div style="font-size:26px;margin-bottom:8px;">📂</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text2);">Sürükleyin veya tıklayın</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">PDF · DOCX · XLSX · PPTX · CSV · TXT · HTML · MD · JSON · RTF · ODT</div>
+      </div>
+      <input type="file" id="cfi" style="display:none" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.txt,.html,.htm,.md,.json,.rtf,.odt" onchange="cLoad(this)"/>
+      <div id="cferr" class="err"></div>
+      <div id="cfinfo" style="display:none;margin-top:10px;">
+        <div class="fb2">
+          <div class="fg2"><span id="cfname" style="font-weight:600;font-size:13px;"></span><span id="cftype" class="fb"></span></div>
+          <span id="cfsize" class="txs"></span>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Hedef Format</div>
+      <div id="ctarg" class="fg2" style="margin-bottom:12px;"><span class="txs">Önce dosya seçin</span></div>
+      <button class="btn btn-p" id="cbtn" onclick="doConv()" disabled style="width:100%;">⚡ Dönüştür</button>
+    </div>
+  </div>
+  <div class="card mt14" id="cocard" style="display:none;margin-top:14px;">
+    <div class="fb2" style="margin-bottom:10px;">
+      <div class="ctitle" style="margin:0;">Sonuç <span id="cochars" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span></div>
+      <div class="fg2">
+        <button class="btn btn-g btn-sm" onclick="cCopy()">📋 Kopyala</button>
+        <button class="btn btn-p btn-sm" id="cdlbtn" onclick="cDL()">⬇ İndir</button>
+      </div>
+    </div>
+    <div class="cout" id="cout"></div>
+  </div>
+  <div class="card mt14" style="margin-top:14px;">
+    <div class="ctitle">Desteklenen Dönüşümler</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:5px 18px;font-size:11.5px;color:var(--text2);">
+      <div><strong style="color:var(--text);">PDF</strong> → TXT, HTML</div>
+      <div><strong style="color:var(--text);">DOCX / DOC / ODT</strong> → TXT, HTML, MD</div>
+      <div><strong style="color:var(--text);">XLSX / XLS</strong> → CSV, JSON, TXT</div>
+      <div><strong style="color:var(--text);">CSV</strong> → JSON, HTML tablo, TXT</div>
+      <div><strong style="color:var(--text);">PPTX</strong> → TXT</div>
+      <div><strong style="color:var(--text);">TXT / RTF</strong> → HTML, MD</div>
+      <div><strong style="color:var(--text);">HTML</strong> → TXT, MD</div>
+      <div><strong style="color:var(--text);">MD</strong> → HTML, TXT</div>
+      <div><strong style="color:var(--text);">JSON</strong> → TXT (pretty)</div>
+    </div>
+    <div style="margin-top:14px;text-align:center;">
+      <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div>© 2025 <a href="https://github.com/hechecik" target="_blank">hechecik</a> — Oku, Oluştur, Çevir</div>
+  <div class="fg2">
+    <a href="mailto:hecgoran@gmail.com">hecgoran@gmail.com</a>
+    <span>·</span>
+    <a href="https://github.com/hechecik/rapidread-web" target="_blank">GitHub</a>
+    <span>·</span>
+    <span style="color:var(--green);font-weight:600;">Sunucu Yok · Gizlilik Garantili</span>
+  </div>
+</div>
+
+<script>
+/* ===== UTILS ===== */
+const ge=id=>document.getElementById(id);
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escA(s){return(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function fmtB(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+
+function toast(msg,type=''){
+  const el=document.createElement('div');
+  el.className='toast'+(type==='ok'?' tok':type==='err'?' ter':type==='warn'?' twn':'');
+  el.textContent=msg; ge('tw').appendChild(el);
+  setTimeout(()=>el.remove(),type==='err'?4500:3000);
+}
+function showErr(id,msg){const el=ge(id);if(!el)return;el.textContent=msg;el.classList.toggle('show',!!msg);}
+function load(on,msg='İşleniyor...'){ge('ldo').classList.toggle('show',on);ge('ldm').textContent=msg;}
+
+window.addEventListener('online',()=>ge('offline-badge').classList.remove('show'));
+window.addEventListener('offline',()=>ge('offline-badge').classList.add('show'));
+if(!navigator.onLine)ge('offline-badge').classList.add('show');
+
+/* ===== NAV ===== */
+function sp(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  ge('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.classList.add('active');});
+  ge('pfab').classList.toggle('vis',id==='cv');
+  window.scrollTo(0,0);
+}
+
+/* ===== TEXT EXTRACTION ===== */
+async function exText(file){
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(['txt','rtf','md','csv'].includes(ext))return file.text();
+  if(['html','htm'].includes(ext)){const h=await file.text();return new DOMParser().parseFromString(h,'text/html').body.innerText;}
+  if(ext==='json'){const j=await file.text();try{return JSON.stringify(JSON.parse(j),null,2);}catch{return j;}}
+  if(ext==='pdf')return exPDF(file);
+  if(['docx','doc','odt'].includes(ext))return exDOCX(file);
+  if(['xlsx','xls'].includes(ext))return exXLSX(file);
+  if(ext==='pptx')return exPPTX(file);
+  throw new Error('Desteklenmeyen format: .'+ext);
+}
+async function exPDF(file){
+  if(!window.pdfjsLib)throw new Error('PDF kütüphanesi yüklenemedi (internet bağlantısı gerekebilir)');
+  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
+  let t='';
+  for(let i=1;i<=pdf.numPages;i++){
+    const pg=await pdf.getPage(i);
+    const c=await pg.getTextContent();
+    t+=c.items.map(s=>s.str).join(' ')+'\n';
+  }
+  return t.trim();
+}
+async function exDOCX(file){
+  if(!window.mammoth)throw new Error('DOCX kütüphanesi yüklenemedi');
+  const r=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});
+  return r.value;
+}
+function exXLSX(file){return new Promise((res,rej)=>{
+  const rd=new FileReader();
+  rd.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});let o='';wb.SheetNames.forEach(s=>{o+=`=== ${s} ===\n`+XLSX.utils.sheet_to_csv(wb.Sheets[s])+'\n';});res(o);}catch(err){rej(err);}};
+  rd.onerror=()=>rej(new Error('Dosya okunamadı'));
+  rd.readAsBinaryString(file);
+});}
+async function exPPTX(file){
+  if(!window.JSZip)throw new Error('PPTX kütüphanesi yüklenemedi');
+  const zip=await JSZip.loadAsync(await file.arrayBuffer());
+  const slides=Object.keys(zip.files).filter(n=>/ppt\/slides\/slide\d+\.xml/.test(n)).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
+  let t='';
+  for(const sf of slides){
+    const xml=await zip.files[sf].async('text');
+    const m=xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g)||[];
+    const s=m.map(x=>x.replace(/<[^>]+>/g,'')).join(' ').trim();
+    if(s)t+=s+'\n';
+  }
+  return t||'Slayt içeriği okunamadı.';
+}
+
+/* ===== RSVP ===== */
+let rW=[],rI=0,rT=null,rWPM=300,rCH=1,rFS=42;
+const DEMO='Hızlı okuma tekniği olan RSVP, kelimeleri tek tek ekranın ortasında göstererek göz hareketini sıfıra indirir. Bu sayede okuma hızınız önemli ölçüde artar. Kırmızı harf, gözün odaklanması gereken optimal noktayı gösterir. Hız ve font boyutunu dilediğiniz gibi ayarlayabilirsiniz. Uzun belgeler için dosya yükleme özelliğini kullanın.';
+
+function rDemo(){ge('rtxt').value=DEMO;rInit();}
+function rClear(){
+  ge('rtxt').value='';ge('rfname').textContent='Dosya seçilmedi';ge('rwc').textContent='';
+  showErr('rferr','');rW=[];rI=0;rStop();
+  ge('rph').style.display='';ge('rword').style.display='none';rStats();
+}
+async function rLoad(inp){
+  const f=inp.files[0];if(!f)return;
+  showErr('rferr','');ge('rfname').textContent=f.name+' ('+fmtB(f.size)+')';
+  load(true,'Dosya okunuyor...');
+  try{
+    const t=await exText(f);
+    if(!t.trim())throw new Error('Dosyadan metin çıkarılamadı. Şifreli veya görsel PDF olabilir.');
+    ge('rtxt').value=t;rInit();toast('Yüklendi ✓','ok');
+  }catch(e){showErr('rferr',e.message);toast(e.message,'err');}
+  finally{load(false);}
+}
+function rInit(){
+  const raw=ge('rtxt').value.trim();if(!raw)return;
+  rCH=parseInt(ge('csel').value);
+  const aw=raw.split(/\s+/).filter(w=>w.length>0);
+  rW=[];for(let i=0;i<aw.length;i+=rCH)rW.push(aw.slice(i,i+rCH).join(' '));
+  rI=0;rStop();
+  ge('rph').style.display='none';ge('rword').style.display='';
+  ge('rwc').textContent=aw.length+' kelime';
+  rShow(0);rStats();ge('rst').textContent='Hazır';
+}
+function orpI(w){const c=w.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g,'');const l=c.length;if(l<=1)return 0;if(l<=5)return 1;if(l<=9)return 2;return 3;}
+function rShow(i){
+  if(!rW.length)return;
+  const ch=rW[Math.min(i,rW.length-1)]||'';
+  const co=ge('rword');co.style.fontSize=rFS+'px';
+  if(rCH===1){
+    const p=orpI(ch);
+    co.innerHTML=`<span class="ob">${esc(ch.slice(0,p))}</span><span class="om">${esc(ch[p]||'')}</span><span class="oa">${esc(ch.slice(p+1))}</span>`;
+  }else{
+    co.innerHTML=`<span class="oa">${esc(ch)}</span>`;
+  }
+  rStats();
+}
+function rPlay(){
+  if(!rW.length){toast('Önce metin yükleyin','warn');return;}
+  if(rT)return;if(rI>=rW.length)rI=0;
+  rT=setInterval(()=>{if(rI>=rW.length){rStop();ge('rst').textContent='Tamamlandı ✓';return;}rShow(rI++);},Math.round(60000/rWPM));
+  ge('bplay').disabled=true;ge('bpause').disabled=false;ge('rst').textContent='Oynatılıyor';
+}
+function rPause(){rStop();ge('rst').textContent='Duraklatıldı';}
+function rRestart(){rStop();rI=0;rShow(0);rStats();ge('rst').textContent='Hazır';}
+function rStop(){clearInterval(rT);rT=null;ge('bplay').disabled=false;ge('bpause').disabled=true;}
+function setWPM(v){rWPM=parseInt(v);ge('wv').textContent=v;if(rT){rStop();rPlay();}}
+function setFS(v){rFS=parseInt(v);ge('fv').textContent=v;if(rW.length)rShow(Math.max(0,rI-1));}
+function rStats(){
+  const p=rW.length?Math.round(rI/rW.length*100):0;
+  ge('spct').textContent=p+'%';ge('swrd').textContent=rI+'/'+rW.length;
+  ge('rprog').style.width=p+'%';
+  const rem=rW.length-rI;ge('stm').textContent=Math.ceil(rem/rWPM)+'dk';
+}
+document.addEventListener('keydown',e=>{
+  if(!ge('page-rsvp').classList.contains('active'))return;
+  const t=document.activeElement.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
+  if(e.code==='Space'){e.preventDefault();rT?rPause():rPlay();}
+  if(e.code==='KeyR')rRestart();
+});
+const rdz=ge('rdz');
+rdz.addEventListener('dragover',e=>{e.preventDefault();rdz.classList.add('over');});
+rdz.addEventListener('dragleave',()=>rdz.classList.remove('over'));
+rdz.addEventListener('drop',async e=>{
+  e.preventDefault();rdz.classList.remove('over');
+  const f=e.dataTransfer.files[0];if(!f)return;
+  const dt=new DataTransfer();dt.items.add(f);ge('rfi').files=dt.files;await rLoad(ge('rfi'));
+});
+function applyRL(){const l=ge('rl');if(l)l.style.gridTemplateColumns=window.innerWidth<640?'1fr':'1fr 318px';}
+window.addEventListener('resize',applyRL);applyRL();
+
+/* ===== CV BUILDER ===== */
+let cvS=[],cvN=1;
+const cid=()=>cvN++;
+const STIT={summary:'Özet',experience:'İş Deneyimi',education:'Eğitim',skills:'Teknik Beceriler',languages:'Diller',projects:'Projeler',certifications:'Sertifikalar & Ödüller',custom:'Özel Bölüm'};
+
+function nEntry(t){
+  const id=cid();
+  if(t==='experience')return{id,company:'',role:'',date:'',location:'',bullets:['']};
+  if(t==='education') return{id,institution:'',degree:'',date:'',gpa:''};
+  if(t==='projects')  return{id,name:'',tech:'',url:'',date:'',bullets:['']};
+  if(t==='certifications')return{id,name:'',org:'',date:''};
+  return{id};
+}
+function addSec(type){
+  const id=cid();const s={id,type,title:STIT[type]||'Bölüm',visible:true,entries:[]};
+  if(['experience','education','projects','certifications'].includes(type))s.entries.push(nEntry(type));
+  cvS.push(s);rSecs();rCV();
+}
+function rSecs(){
+  const c=ge('cvsc');c.innerHTML='';
+  cvS.forEach(s=>{const el=document.createElement('div');el.className='si';el.innerHTML=bldSec(s);c.appendChild(el);});
+}
+function bldSec(s){
+  const hid=!s.visible?'<span class="shb">Gizli</span>':'';
+  let b='';
+  if(s.type==='summary'){
+    b=`<div class="fg"><label class="fl">Özet / Profil</label><textarea class="fta" rows="4" oninput="sSD(${s.id},'text',this.value)" placeholder="Kendinizi 2-4 cümleyle tanıtın...">${esc(s.text||'')}</textarea></div>`;
+  }else if(s.type==='experience'){
+    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-g btn-sm" onclick="addBul(${s.id},${e.id})">+ Madde</button><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Şirket</label><input class="fi" value="${escA(e.company)}" oninput="sED(${s.id},${e.id},'company',this.value)" placeholder="Şirket"/></div><div class="fg"><label class="fl">Pozisyon</label><input class="fi" value="${escA(e.role)}" oninput="sED(${s.id},${e.id},'role',this.value)" placeholder="Geliştirici"/></div></div><div class="fr c2"><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="Oca 2022 – Günümüz"/></div><div class="fg"><label class="fl">Konum</label><input class="fi" value="${escA(e.location)}" oninput="sED(${s.id},${e.id},'location',this.value)" placeholder="İstanbul"/></div></div><label class="fl" style="margin-bottom:4px;">Başarılar</label>${e.bullets.map((bl,bi)=>`<div class="fg2 mt8"><input class="fi" style="flex:1" value="${escA(bl)}" placeholder="• Başarı" oninput="sEB(${s.id},${e.id},${bi},this.value)"/>${e.bullets.length>1?`<button class="btn btn-d btn-sm" onclick="rmBul(${s.id},${e.id},${bi})">✕</button>`:''}</div>`).join('')}</div>`).join('')+
+    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Deneyim</button>`;
+  }else if(s.type==='education'){
+    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Okul</label><input class="fi" value="${escA(e.institution)}" oninput="sED(${s.id},${e.id},'institution',this.value)" placeholder="İTÜ"/></div><div class="fg"><label class="fl">Bölüm</label><input class="fi" value="${escA(e.degree)}" oninput="sED(${s.id},${e.id},'degree',this.value)" placeholder="Bilgisayar Müh."/></div></div><div class="fr c2"><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="2018 – 2022"/></div><div class="fg"><label class="fl">GPA</label><input class="fi" value="${escA(e.gpa)}" oninput="sED(${s.id},${e.id},'gpa',this.value)" placeholder="3.6 / 4.0"/></div></div></div>`).join('')+
+    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Eğitim</button>`;
+  }else if(s.type==='skills'){
+    b=`<div class="fg"><label class="fl">Enter veya virgül ile ekleyin</label><div class="tc" id="tc${s.id}" onclick="document.getElementById('ti${s.id}').focus()">${(s.tags||[]).map(t=>`<span class="tag">${esc(t)}<button class="tr" onclick="rmTag(${s.id},'${escA(t)}')">×</button></span>`).join('')}<input class="ti" id="ti${s.id}" placeholder="Beceri..." onkeydown="tkd(event,${s.id})"/></div></div><div class="fg"><label class="fl">Kategori (opsiyonel)</label><input class="fi" value="${escA(s.category||'')}" oninput="sSD(${s.id},'category',this.value)" placeholder="Programlama Dilleri, Araçlar..."/></div>`;
+  }else if(s.type==='languages'){
+    b=`<div id="ll${s.id}">${(s.langs||[]).map((l,li)=>`<div class="fg2 mt8"><input class="fi" style="flex:2" value="${escA(l.name)}" placeholder="Türkçe" oninput="sLD(${s.id},${li},'name',this.value)"/><select class="fse" style="flex:1" onchange="sLD(${s.id},${li},'level',this.value)">${['Ana Dil','C2','C1','B2','B1','A2','A1'].map(v=>`<option${l.level===v?' selected':''}>${v}</option>`).join('')}</select><button class="btn btn-d btn-sm" onclick="rmLng(${s.id},${li})">✕</button></div>`).join('')}</div><button class="btn btn-g btn-sm mt8" onclick="addLng(${s.id})">+ Dil Ekle</button>`;
+  }else if(s.type==='projects'){
+    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-g btn-sm" onclick="addBul(${s.id},${e.id})">+ Madde</button><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Proje Adı</label><input class="fi" value="${escA(e.name)}" oninput="sED(${s.id},${e.id},'name',this.value)" placeholder="Proje adı"/></div><div class="fg"><label class="fl">Teknolojiler</label><input class="fi" value="${escA(e.tech)}" oninput="sED(${s.id},${e.id},'tech',this.value)" placeholder="React, Node.js"/></div></div><div class="fr c2"><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="2024"/></div><div class="fg"><label class="fl">URL</label><input class="fi" value="${escA(e.url||'')}" oninput="sED(${s.id},${e.id},'url',this.value)" placeholder="github.com/..."/></div></div>${e.bullets.map((bl,bi)=>`<div class="fg2 mt8"><input class="fi" style="flex:1" value="${escA(bl)}" placeholder="Proje detayı" oninput="sEB(${s.id},${e.id},${bi},this.value)"/>${e.bullets.length>1?`<button class="btn btn-d btn-sm" onclick="rmBul(${s.id},${e.id},${bi})">✕</button>`:''}</div>`).join('')}</div>`).join('')+
+    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Proje</button>`;
+  }else if(s.type==='certifications'){
+    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Sertifika</label><input class="fi" value="${escA(e.name)}" oninput="sED(${s.id},${e.id},'name',this.value)" placeholder="AWS Certified"/></div><div class="fg"><label class="fl">Kuruluş</label><input class="fi" value="${escA(e.org)}" oninput="sED(${s.id},${e.id},'org',this.value)" placeholder="Amazon"/></div></div><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="Mart 2024"/></div></div>`).join('')+
+    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Sertifika</button>`;
+  }else if(s.type==='custom'){
+    b=`<div class="fg"><label class="fl">İçerik</label><textarea class="fta" oninput="sSD(${s.id},'content',this.value)" placeholder="Serbest metin...">${esc(s.content||'')}</textarea></div>`;
+  }
+  return`<div class="sh open" onclick="tgSec(this)"><span class="sv">▶</span><span style="font-size:13px;font-weight:600;flex:1;display:flex;align-items:center;gap:6px;min-width:0;"><input onclick="event.stopPropagation()" class="fi" style="border:none;background:transparent;padding:0;font-weight:600;font-size:13px;width:180px;max-width:100%;" value="${escA(s.title)}" oninput="sSD(${s.id},'title',this.value)"/>${hid}</span><div style="display:flex;gap:3px;" onclick="event.stopPropagation()"><button class="btn btn-g btn-sm" onclick="sUp(${s.id})">↑</button><button class="btn btn-g btn-sm" onclick="sDn(${s.id})">↓</button><button class="btn btn-g btn-sm" onclick="sVis(${s.id})">${s.visible?'👁':'🚫'}</button><button class="btn btn-d btn-sm" onclick="sRm(${s.id})">✕</button></div></div><div class="sb open">${b}</div>`;
+}
+function tgSec(h){h.classList.toggle('open');h.nextElementSibling.classList.toggle('open');}
+function sRm(id){cvS=cvS.filter(s=>s.id!==id);rSecs();rCV();}
+function sVis(id){const s=cvS.find(s=>s.id===id);if(s){s.visible=!s.visible;rSecs();rCV();}}
+function sUp(id){const i=cvS.findIndex(s=>s.id===id);if(i>0){[cvS[i-1],cvS[i]]=[cvS[i],cvS[i-1]];rSecs();rCV();}}
+function sDn(id){const i=cvS.findIndex(s=>s.id===id);if(i<cvS.length-1){[cvS[i],cvS[i+1]]=[cvS[i+1],cvS[i]];rSecs();rCV();}}
+function sSD(id,k,v){const s=cvS.find(s=>s.id===id);if(s){s[k]=v;rCV();}}
+function sED(si,ei,k,v){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e){e[k]=v;rCV();}}
+function sEB(si,ei,bi,v){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e){e.bullets[bi]=v;rCV();}}
+function addEnt(si){const s=cvS.find(s=>s.id===si);if(s){s.entries.push(nEntry(s.type));rSecs();rCV();}}
+function rmEnt(si,ei){const s=cvS.find(s=>s.id===si);if(s){s.entries=s.entries.filter(e=>e.id!==ei);rSecs();rCV();}}
+function addBul(si,ei){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e){e.bullets.push('');rSecs();rCV();}}
+function rmBul(si,ei,bi){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e&&e.bullets.length>1){e.bullets.splice(bi,1);rSecs();rCV();}}
+function tkd(ev,si){if(ev.key!=='Enter'&&ev.key!==',')return;ev.preventDefault();const v=ev.target.value.trim().replace(/,$/,'');if(!v)return;const s=cvS.find(s=>s.id===si);if(!s)return;if(!s.tags)s.tags=[];if(!s.tags.includes(v)){s.tags.push(v);rSecs();rCV();}ev.target.value='';}
+function rmTag(si,tag){const s=cvS.find(s=>s.id===si);if(s){s.tags=(s.tags||[]).filter(t=>t!==tag);rSecs();rCV();}}
+function addLng(si){const s=cvS.find(s=>s.id===si);if(!s.langs)s.langs=[];s.langs.push({name:'',level:'B2'});rSecs();rCV();}
+function rmLng(si,li){const s=cvS.find(s=>s.id===si);if(s){s.langs.splice(li,1);rSecs();rCV();}}
+function sLD(si,li,k,v){const s=cvS.find(s=>s.id===si);if(s?.langs?.[li]){s.langs[li][k]=v;rCV();}}
+
+function gP(){return{name:ge('cn').value.trim(),title:ge('cti').value.trim(),email:ge('cem').value.trim(),phone:ge('cph').value.trim(),location:ge('clo').value.trim(),website:ge('cwb').value.trim(),github:ge('cgh').value.trim(),other:ge('cot').value.trim()};}
+function sP(p){ge('cn').value=p.name||'';ge('cti').value=p.title||'';ge('cem').value=p.email||'';ge('cph').value=p.phone||'';ge('clo').value=p.location||'';ge('cwb').value=p.website||'';ge('cgh').value=p.github||'';ge('cot').value=p.other||'';}
+
+function rCV(){
+  const p=gP();
+  if(!p.name){ge('cvdoc').innerHTML='<div class="cempty">Sol taraftan bilgileri doldurun veya CV yükleyin</div>';return;}
+  const ct=[p.email,p.phone,p.location,p.website,p.github,p.other].filter(Boolean);
+  let h=`<div class="cn">${esc(p.name)}</div>${p.title?`<div class="ct">${esc(p.title)}</div>`:''}<div class="cc">${ct.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`;
+  cvS.filter(s=>s.visible).forEach(s=>{
+    h+=`<div class="cs"><div class="cst">${esc(s.title)}</div>`;
+    if(s.type==='summary'&&s.text)h+=`<div class="csu">${esc(s.text)}</div>`;
+    else if(['experience','projects'].includes(s.type)){
+      (s.entries||[]).forEach(e=>{
+        const tt=s.type==='experience'?e.role:e.name;
+        const sb=s.type==='experience'?[e.company,e.location].filter(Boolean).join(' · '):[e.tech,e.url].filter(Boolean).join(' · ');
+        h+=`<div class="ce"><div class="ceh"><div>${tt?`<div class="cet">${esc(tt)}</div>`:''} ${sb?`<div class="ces">${esc(sb)}</div>`:''}</div>${e.date?`<div class="ced">${esc(e.date)}</div>`:''}</div>${(e.bullets||[]).filter(b=>b.trim()).length?`<ul class="cbl">${e.bullets.filter(b=>b.trim()).map(b=>`<li>${esc(b)}</li>`).join('')}</ul>`:''}</div>`;
+      });
+    }else if(s.type==='education'){
+      (s.entries||[]).forEach(e=>{
+        h+=`<div class="ce"><div class="ceh"><div>${e.institution?`<div class="cet">${esc(e.institution)}</div>`:''} ${e.degree?`<div class="ces">${esc(e.degree)}${e.gpa?` · ${e.gpa}`:''}</div>`:''}</div>${e.date?`<div class="ced">${esc(e.date)}</div>`:''}</div></div>`;
+      });
+    }else if(s.type==='skills'&&(s.tags?.length||s.category)){
+      if(s.category)h+=`<div class="ces" style="margin-bottom:4px;">${esc(s.category)}</div>`;
+      if(s.tags?.length)h+=`<div class="csg">${s.tags.map(t=>`<span class="csk">${esc(t)}</span>`).join('')}</div>`;
+    }else if(s.type==='languages'&&s.langs?.length){
+      h+=`<div style="font-size:10px;color:#3F3F46;">${s.langs.filter(l=>l.name).map(l=>`<strong>${esc(l.name)}</strong> — ${esc(l.level)}`).join('&nbsp;·&nbsp;')}</div>`;
+    }else if(s.type==='certifications'){
+      (s.entries||[]).forEach(e=>{
+        h+=`<div class="ce"><div class="ceh"><div>${e.name?`<div class="cet">${esc(e.name)}</div>`:''} ${e.org?`<div class="ces">${esc(e.org)}</div>`:''}</div>${e.date?`<div class="ced">${esc(e.date)}</div>`:''}</div></div>`;
+      });
+    }else if(s.type==='custom'&&s.content)h+=`<div class="csu">${esc(s.content)}</div>`;
+    h+=`</div>`;
+  });
+  ge('cvdoc').innerHTML=h;
+}
+
+/* CV Import (PDF/DOCX/JSON) */
+async function cvImport(inp){
+  const f=inp.files[0];if(!f)return;
+  showErr('cverr','');ge('cvinfo').style.display='none';
+  const ext=f.name.split('.').pop().toLowerCase();
+  load(true,'CV okunuyor...');
+  try{
+    if(ext==='json'){
+      const d=JSON.parse(await f.text());
+      if(d.personal)sP(d.personal);
+      if(d.sections){cvS=d.sections;cvN=Math.max(...cvS.map(s=>s.id),cvN)+1;}
+      rSecs();rCV();cvMsg('JSON yüklendi — bilgiler aktarıldı ✓');
+    }else{
+      const t=await exText(f);
+      if(!t.trim())throw new Error('Dosyadan metin çıkarılamadı');
+      cvParse(t);cvMsg('CV okundu — bilgileri kontrol edin ve düzenleyin');
+    }
+    toast('CV yüklendi ✓','ok');
+  }catch(e){showErr('cverr','CV yükleme hatası: '+e.message);toast('Hata: '+e.message,'err');}
+  finally{load(false);inp.value='';}
+}
+function cvMsg(m){ge('cvinfo').style.display='';ge('cvinfomsg').textContent='✓ '+m;}
+function cvParse(text){
+  cvS=[];cvN=1;
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const p={name:'',title:'',email:'',phone:'',location:'',website:'',github:'',other:''};
+  let i=0;
+  if(lines[0]&&lines[0].length<60&&!/[@\d]/.test(lines[0])){p.name=lines[0];i=1;}
+  if(lines[1]&&lines[1].length<80&&!/[@\d]/.test(lines[1])&&i===1){p.title=lines[1];i=2;}
+  lines.forEach(l=>{
+    if(!p.email&&/\S+@\S+\.\S+/.test(l))p.email=(l.match(/\S+@\S+\.\S+/)||[''])[0];
+    if(!p.phone&&/[\+\d][\d\s\-\(\)]{7,}/.test(l))p.phone=(l.match(/[\+\d][\d\s\-\(\)]{7,}/)||[''])[0].trim();
+    if(!p.github&&/github\.com/.test(l))p.github=(l.match(/(?:https?:\/\/)?(?:www\.)?github\.com[^\s]*/)||[''])[0];
+    if(!p.website&&/linkedin\.com/.test(l))p.website=(l.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com[^\s]*/)||[''])[0];
+  });
+  sP(p);
+  cvS.push({id:cvN++,type:'summary',title:'Özet',visible:true,entries:[],text:lines.slice(0,5).join(' ')});
+  cvS.push({id:cvN++,type:'custom',title:'Ham İçerik (Gözden Geçirin)',visible:false,entries:[],content:text.slice(0,3000)+(text.length>3000?'\n...(kesildi)':'')});
+  addSec('experience');addSec('education');addSec('skills');
+}
+
+async function dlPDF(){
+  const p=gP();if(!p.name){toast('Önce ad-soyad girin','warn');return;}
+  load(true,'PDF hazırlanıyor...');
+  try{
+    const doc=ge('cvdoc');
+    const canvas=await html2canvas(doc,{scale:2.8,useCORS:true,backgroundColor:'#ffffff',logging:false});
+    const{jsPDF}=window.jspdf;
+    const pdf=new jsPDF({unit:'pt',format:'a4',orientation:'portrait'});
+    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+    const ih=pw*(canvas.height/canvas.width);
+    const imgData=canvas.toDataURL('image/png');
+    if(ih<=ph){pdf.addImage(imgData,'PNG',0,0,pw,ih);}
+    else{
+      let done=0,first=true;
+      while(done<ih){
+        if(!first)pdf.addPage();
+        const sl=Math.min(ih-done,ph);
+        const sy=done/ih*canvas.height,sh=sl/ih*canvas.height;
+        const tc=document.createElement('canvas');tc.width=canvas.width;tc.height=Math.ceil(sh);
+        tc.getContext('2d').drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);
+        pdf.addImage(tc.toDataURL('image/png'),'PNG',0,0,pw,sl);
+        done+=sl;first=false;
+      }
+    }
+    pdf.save(p.name.replace(/\s+/g,'_')+'_CV.pdf');toast('PDF indirildi ✓','ok');
+  }catch(e){showErr('cverr','PDF hatası: '+e.message);toast('PDF hatası','err');}
+  finally{load(false);}
+}
+
+function dlTXT(){
+  const p=gP();if(!p.name){toast('Önce ad-soyad girin','warn');return;}
+  let t=p.name+'\n';if(p.title)t+=p.title+'\n';
+  const ct=[p.email,p.phone,p.location,p.website,p.github,p.other].filter(Boolean);
+  if(ct.length)t+=ct.join(' | ')+'\n';t+='\n';
+  cvS.filter(s=>s.visible).forEach(s=>{
+    t+=s.title.toUpperCase()+'\n'+'─'.repeat(36)+'\n';
+    if(s.type==='summary'&&s.text)t+=s.text+'\n';
+    else if(['experience','projects'].includes(s.type)){
+      (s.entries||[]).forEach(e=>{
+        const tt=s.type==='experience'?e.role:e.name;
+        const sb=s.type==='experience'?e.company:e.tech;
+        if(tt)t+=tt+(e.date?' | '+e.date:'')+'\n';
+        if(sb)t+=sb+(e.location?' | '+e.location:'')+'\n';
+        (e.bullets||[]).filter(b=>b.trim()).forEach(b=>{t+='• '+b+'\n';});
+        t+='\n';
+      });
+    }else if(s.type==='education'){
+      (s.entries||[]).forEach(e=>{
+        if(e.institution)t+=e.institution+(e.date?' | '+e.date:'')+'\n';
+        if(e.degree)t+=e.degree+(e.gpa?' | GPA: '+e.gpa:'')+'\n';t+='\n';
+      });
+    }else if(s.type==='skills'&&s.tags?.length){
+      if(s.category)t+=s.category+': ';t+=s.tags.join(', ')+'\n';
+    }else if(s.type==='languages'&&s.langs?.length){
+      t+=s.langs.filter(l=>l.name).map(l=>l.name+' ('+l.level+')').join(', ')+'\n';
+    }else if(s.type==='certifications'){
+      (s.entries||[]).forEach(e=>{if(e.name)t+=e.name+(e.org?' — '+e.org:'')+(e.date?' | '+e.date:'')+'\n';});
+    }else if(s.type==='custom'&&s.content)t+=s.content+'\n';
+    t+='\n';
+  });
+  const b=new Blob([t],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=p.name.replace(/\s+/g,'_')+'_CV.txt';a.click();URL.revokeObjectURL(a.href);
+  toast('TXT indirildi ✓','ok');
+}
+
+function cvJSON(){
+  const d={personal:gP(),sections:cvS};
+  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(ge('cn').value||'CV').replace(/\s+/g,'_')+'_data.json';a.click();URL.revokeObjectURL(a.href);
+  toast('JSON kaydedildi ✓','ok');
+}
+
+function cvReset(){
+  if(!confirm('CV tamamen sıfırlansın mı?'))return;
+  sP({});cvS=[];cvN=1;ge('cvinfo').style.display='none';showErr('cverr','');
+  addSec('summary');addSec('experience');addSec('education');addSec('skills');
+}
+
+/* ===== CONVERTER ===== */
+let cF=null,cFmt=null,cOut='',cOutF='';
+const CFMT={
+  pdf:{l:'PDF',c:'fp',t:['txt','html']},docx:{l:'DOCX',c:'fd',t:['txt','html','md']},doc:{l:'DOC',c:'fd',t:['txt','html','md']},odt:{l:'ODT',c:'fd',t:['txt','html','md']},
+  xlsx:{l:'XLSX',c:'fx',t:['csv','json','txt']},xls:{l:'XLS',c:'fx',t:['csv','json','txt']},csv:{l:'CSV',c:'fc',t:['json','html','txt']},pptx:{l:'PPTX',c:'ft',t:['txt']},
+  txt:{l:'TXT',c:'fn',t:['html','md']},rtf:{l:'RTF',c:'fn',t:['txt','html','md']},html:{l:'HTML',c:'fh',t:['txt','md']},htm:{l:'HTML',c:'fh',t:['txt','md']},
+  md:{l:'MD',c:'fm',t:['html','txt']},json:{l:'JSON',c:'fj',t:['txt']},
+};
+async function cLoad(inp){
+  cF=inp.files[0];if(!cF)return;showErr('cferr','');
+  const ext=cF.name.split('.').pop().toLowerCase();const info=CFMT[ext];
+  ge('cfinfo').style.display='';ge('cfname').textContent=cF.name;
+  const b=ge('cftype');b.textContent=info?info.l:ext.toUpperCase();b.className='fb '+(info?info.c:'fn');
+  ge('cfsize').textContent=fmtB(cF.size);
+  const tg=ge('ctarg');
+  if(!info){tg.innerHTML='<span style="color:var(--red);font-size:12px;">Desteklenmeyen format: .'+ext+'</span>';showErr('cferr','Bu format desteklenmiyor: .'+ext);return;}
+  tg.innerHTML=info.t.map((t,i)=>`<button class="btn ${i===0?'btn-p':'btn-g'} btn-sm" onclick="selFmt('${t}',this)">.${t.toUpperCase()}</button>`).join('');
+  cFmt=info.t[0];ge('cbtn').disabled=false;ge('cocard').style.display='none';
+}
+function selFmt(f,btn){cFmt=f;document.querySelectorAll('#ctarg .btn').forEach(b=>{b.classList.remove('btn-p');b.classList.add('btn-g');});btn.classList.add('btn-p');btn.classList.remove('btn-g');}
+async function doConv(){
+  if(!cF||!cFmt)return;load(true,'Dönüştürülüyor...');showErr('cferr','');
+  try{
+    const ext=cF.name.split('.').pop().toLowerCase();let r='';
+    const raw=await exText(cF);
+    if(cFmt==='txt'){r=raw;}
+    else if(cFmt==='html'){
+      if(['docx','doc','odt'].includes(ext)){const ab=await cF.arrayBuffer();const res=await mammoth.convertToHtml({arrayBuffer:ab});r=`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Converted</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}</style></head><body>${res.value}</body></html>`;}
+      else if(ext==='md')r=mdHTML(raw);
+      else if(ext==='csv')r=csvTable(raw);
+      else r=`<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><pre style="white-space:pre-wrap;">${esc(raw)}</pre></body></html>`;
+    }else if(cFmt==='md'){
+      if(['html','htm'].includes(ext))r=htmlMD(raw);
+      else r=raw.split('\n').filter(l=>l.trim()).join('\n\n');
+    }else if(cFmt==='csv'){r=raw;}
+    else if(cFmt==='json'){if(['csv','xlsx','xls'].includes(ext))r=csvJSON(raw);else r=JSON.stringify({content:raw},null,2);}
+    if(!r)throw new Error('Dönüşüm sonucu boş');
+    cOut=r;cOutF=cF.name.replace(/\.[^.]+$/,'.'+cFmt);
+    const prev=r.length>12000?r.slice(0,12000)+'\n\n[... '+(r.length-12000)+' karakter daha ...]':r;
+    ge('cout').textContent=prev;ge('cochars').textContent='— '+r.length.toLocaleString()+' karakter';
+    ge('cdlbtn').textContent='⬇ '+cOutF;ge('cocard').style.display='';toast('Dönüşüm tamamlandı ✓','ok');
+  }catch(e){showErr('cferr','Dönüşüm hatası: '+e.message);toast('Hata: '+e.message,'err');}
+  finally{load(false);}
+}
+function mdHTML(md){
+  let h=md.replace(/^### (.+)/gm,'<h3>$1</h3>').replace(/^## (.+)/gm,'<h2>$1</h2>').replace(/^# (.+)/gm,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/^- (.+)/gm,'<li>$1</li>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>').replace(/\n\n/g,'</p><p>');
+  return`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}code{background:#f4f4f4;padding:2px 6px;border-radius:3px;}</style></head><body><p>${h}</p></body></html>`;
+}
+function htmlMD(html){
+  const d=new DOMParser().parseFromString(html,'text/html');
+  function n(nd){if(nd.nodeType===3)return nd.textContent;const t=nd.tagName?.toLowerCase();const i=[...nd.childNodes].map(n).join('');if(t==='h1')return`\n# ${i}\n`;if(t==='h2')return`\n## ${i}\n`;if(t==='h3')return`\n### ${i}\n`;if(t==='strong'||t==='b')return`**${i}**`;if(t==='em'||t==='i')return`*${i}*`;if(t==='a')return`[${i}](${nd.href})`;if(t==='li')return`\n- ${i}`;if(t==='p')return`\n${i}\n`;if(t==='br')return'\n';return i;}
+  return n(d.body).replace(/\n{3,}/g,'\n\n').trim();
+}
+function csvTable(csv){
+  const rows=csv.split('\n').filter(l=>l.trim()).map(r=>{const c=[];let cur='',q=false;for(const ch of r){if(ch==='"'){q=!q;}else if(ch===','&&!q){c.push(cur.trim());cur='';}else cur+=ch;}c.push(cur.trim());return c;});
+  if(!rows.length)return'<p>Veri yok</p>';
+  let t='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>table{border-collapse:collapse;width:100%;font-family:sans-serif;font-size:13px;}th,td{border:1px solid #e4e4e7;padding:6px 10px;}th{background:#f4f4f5;font-weight:600;}tr:nth-child(even){background:#fafafa;}</style></head><body><table><thead><tr>';
+  (rows[0]||[]).forEach(h=>t+=`<th>${esc(h)}</th>`);t+='</tr></thead><tbody>';
+  rows.slice(1).forEach(row=>{t+='<tr>'+row.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>';});
+  return t+'</tbody></table></body></html>';
+}
+function csvJSON(csv){
+  const ls=csv.split('\n').filter(l=>l.trim());if(!ls.length)return'[]';
+  function pLine(l){const c=[];let cur='',q=false;for(const ch of l){if(ch==='"'){q=!q;}else if(ch===','&&!q){c.push(cur.replace(/^"|"$/g,'').trim());cur='';}else cur+=ch;}c.push(cur.replace(/^"|"$/g,'').trim());return c;}
+  const h=pLine(ls[0]);
+  return JSON.stringify(ls.slice(1).map(l=>{const v=pLine(l);const o={};h.forEach((k,i)=>o[k]=v[i]||'');return o;}),null,2);
+}
+function cCopy(){navigator.clipboard.writeText(cOut).then(()=>toast('Kopyalandı ✓','ok')).catch(()=>toast('Kopyalama başarısız','err'));}
+function cDL(){const m=cFmt==='html'?'text/html':cFmt==='json'?'application/json':'text/plain';const b=new Blob([cOut],{type:m+';charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=cOutF;a.click();URL.revokeObjectURL(a.href);toast('İndirildi ✓','ok');}
+
+const cdz=ge('cdz');
+cdz.addEventListener('dragover',e=>{e.preventDefault();cdz.classList.add('over');});
+cdz.addEventListener('dragleave',()=>cdz.classList.remove('over'));
+cdz.addEventListener('drop',e=>{e.preventDefault();cdz.classList.remove('over');const f=e.dataTransfer.files[0];if(!f)return;const dt=new DataTransfer();dt.items.add(f);ge('cfi').files=dt.files;cLoad(ge('cfi'));});
+
+/* ===== INIT ===== */
+addSec('summary');addSec('experience');addSec('education');addSec('skills');
+</script>
+</body>
 </html>
