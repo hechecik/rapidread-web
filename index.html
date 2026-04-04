@@ -919,7 +919,7 @@ function imgToolCanvas(body,opts,applyFn){
     opts.forEach(o=>{
       const d=document.createElement('div');d.className='fg';
       if(o.type==='range'){
-        d.innerHTML=`<label class="fl">${o.label}</label><div class="range-wrap"><input type="range" id="io_${o.id}" min="${o.min}" max="${o.max}" value="${o.def||o.min}" step="${o.step||1}" oninput="document.getElementById('iov_${o.id}').textContent=this.value${o.suffix?'+\''+o.suffix '\'':''}"/><span class="range-val" id="iov_${o.id}">${o.def||o.min}${o.suffix||''}</span></div>`;
+        d.innerHTML=`<label class="fl">${o.label}</label><div class="range-wrap"><input type="range" id="io_${o.id}" min="${o.min}" max="${o.max}" value="${o.def||o.min}" step="${o.step||1}" oninput="document.getElementById('iov_${o.id}').textContent=this.value${o.suffix?"+'"+o.suffix:""}"/><span class="range-val" id="iov_${o.id}">${o.def||o.min}${o.suffix||''}</span></div>`;
       }else if(o.type==='select'){
         d.innerHTML=`<label class="fl">${o.label}</label><select class="fs" id="io_${o.id}">${o.options.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select>`;
       }else if(o.type==='color'){
