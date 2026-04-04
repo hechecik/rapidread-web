@@ -3,12 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-<title>hechecik — Oku, Oluştur, Çevir</title>
-<meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: RSVP hızlı okuma, CV oluşturucu ve dosya çevirici. Sunucu yok, veri kaydedilmez, internetsiz bile çalışır."/>
-<meta name="keywords" content="hızlı okuma, RSVP okuma, CV oluşturucu, dosya çevirici, PDF dönüştürücü, DOCX çevirici, çevrimdışı araçlar, ücretsiz CV, oku oluştur çevir"/>
-<meta name="author" content="hechecik"/>
-<meta property="og:title" content="hechecik — Oku, Oluştur, Çevir"/>
-<meta property="og:description" content="Hızlı okuma, CV oluşturma ve dosya dönüştürme — tamamen tarayıcıda, sunucu olmadan."/>
+<title>hechecik — 36+ Ücretsiz Çevrimiçi Araçlar</title>
+<meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: PDF araçları, görüntü düzenleme, metin araçları, hızlı okuma, CV oluşturucu ve dosya çevirici. Sunucu yok, veri kaydedilmez."/>
+<meta name="keywords" content="PDF birleştir, PDF böl, görüntü dönüştürücü, metin aracı, hızlı okuma, CV oluşturucu, ücretsiz araçlar"/>
+<meta property="og:title" content="hechecik — 36+ Ücretsiz Çevrimiçi Araçlar"/>
+<meta property="og:description" content="PDF, görüntü, metin ve dosya araçları — tamamen tarayıcıda."/>
 <meta property="og:type" content="website"/>
 <meta name="robots" content="index, follow"/>
 
@@ -18,113 +17,137 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-
-:root {
-  --bg:#F7F6F3; --surface:#FFFFFF; --surface2:#F0EEE9;
-  --border:#E4E2DC; --border2:#CCC9C0;
-  --text:#18181B; --text2:#52525B; --text3:#A1A1AA;
-  --accent:#18181B; --fg:#FFFFFF;
-  --red:#E11D48; --green:#16A34A; --blue:#2563EB; --amber:#D97706;
+:root{
+  --bg:#F7F6F3;--sf:#FFFFFF;--sf2:#F0EEE9;--bd:#E4E2DC;--bd2:#CCC9C0;
+  --t1:#18181B;--t2:#52525B;--t3:#A1A1AA;
+  --ac:#18181B;--fg:#FFFFFF;
+  --red:#E11D48;--grn:#16A34A;--blu:#2563EB;--amb:#D97706;--pur:#7C3AED;
   --sh:0 1px 2px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.08);
   --sh-md:0 4px 16px rgba(0,0,0,.10);
-  --r:7px; --r-lg:12px;
-  --font:'Inter',system-ui,sans-serif;
-  --mono:'JetBrains Mono',monospace;
+  --r:7px;--rl:12px;
+  --ff:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
   --nh:54px;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;}
-button{cursor:pointer;font-family:var(--font);}
-input,textarea,select{font-family:var(--font);}
-a{color:var(--blue);text-decoration:none;}
+body{font-family:var(--ff);background:var(--bg);color:var(--t1);font-size:14px;line-height:1.6;min-height:100vh;}
+button{cursor:pointer;font-family:var(--ff);}input,textarea,select{font-family:var(--ff);}
+a{color:var(--blu);text-decoration:none;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:3px;}
 
 /* NAV */
-#nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;height:var(--nh);box-shadow:var(--sh);}
-.nav-brand{font-size:15px;font-weight:700;letter-spacing:-.4px;color:var(--text);margin-right:18px;white-space:nowrap;flex-shrink:0;}
-.nav-brand em{font-style:normal;color:var(--red);}
-.nav-tabs{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;}
-.nav-tabs::-webkit-scrollbar{display:none;}
-.nav-tab{padding:6px 13px;border-radius:var(--r);border:none;background:transparent;color:var(--text2);font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s;flex-shrink:0;}
-.nav-tab:hover{background:var(--surface2);color:var(--text);}
-.nav-tab.active{background:var(--accent);color:var(--fg);}
-.nav-bmc{margin-left:8px;flex-shrink:0;display:flex;align-items:center;}
-
-/* OFFLINE */
-#offline-badge{display:none;position:fixed;top:calc(var(--nh)+8px);right:12px;z-index:300;background:#18181B;color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;}
-#offline-badge.show{display:block;}
-
-/* ERR */
-.err{display:none;color:var(--red);font-size:12px;font-weight:500;margin-top:5px;padding:6px 10px;background:#FFF1F2;border:1px solid #FECDD3;border-radius:var(--r);}
-.err.show{display:block;}
+#nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;height:var(--nh);box-shadow:var(--sh);}
+.nb{font-size:15px;font-weight:700;letter-spacing:-.4px;color:var(--t1);margin-right:18px;white-space:nowrap;flex-shrink:0;cursor:pointer;}
+.nb em{font-style:normal;color:var(--red);}
+.nt{display:flex;gap:2px;flex:1;overflow-x:auto;scrollbar-width:none;}
+.nt::-webkit-scrollbar{display:none;}
+.ntb{padding:6px 13px;border-radius:var(--r);border:none;background:0;color:var(--t2);font-size:13px;font-weight:500;white-space:nowrap;transition:.15s;flex-shrink:0;}
+.ntb:hover{background:var(--sf2);color:var(--t1);}
+.ntb.on{background:var(--ac);color:var(--fg);}
 
 /* PAGES */
-.page{display:none;padding:22px 20px;max-width:1120px;margin:0 auto;}
-.page.active{display:block;}
+.pg{display:none;padding:22px 20px;max-width:1120px;margin:0 auto;}
+.pg.on{display:block;}
 
 /* CARDS */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh);}
-.card+.card{margin-top:14px;}
-.ctitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:13px;}
+.cd{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:20px;box-shadow:var(--sh);}
+.cd+.cd{margin-top:14px;}
+.ct{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t3);margin-bottom:13px;}
 
 /* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);border:none;font-size:13px;font-weight:500;transition:all .15s;white-space:nowrap;line-height:1;}
-.btn-p{background:var(--accent);color:var(--fg);}
-.btn-p:hover{opacity:.82;}
-.btn-g{background:transparent;color:var(--text2);border:1px solid var(--border2);}
-.btn-g:hover{background:var(--surface2);color:var(--text);}
-.btn-d{background:transparent;color:var(--red);border:1px solid #FECDD3;}
-.btn-d:hover{background:#FFF1F2;}
-.btn-sm{padding:5px 10px;font-size:12px;}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r);border:none;font-size:13px;font-weight:500;transition:.15s;white-space:nowrap;line-height:1;}
+.bp{background:var(--ac);color:var(--fg);}.bp:hover{opacity:.85;}
+.bg{background:0;color:var(--t2);border:1px solid var(--bd2);}.bg:hover{background:var(--sf2);color:var(--t1);}
+.bd{background:0;color:var(--red);border:1px solid #FECDD3;}.bd:hover{background:#FFF1F2;}
+.br{background:var(--red);color:#fff;}.br:hover{opacity:.85;}
+.bs{padding:5px 10px;font-size:12px;}
 .btn:disabled{opacity:.35;cursor:not-allowed;pointer-events:none;}
 
 /* FORM */
 .fg{margin-bottom:11px;}
-.fl{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
-.fi,.fta,.fse{width:100%;padding:7px 11px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);color:var(--text);font-size:13px;transition:border-color .15s,box-shadow .15s;outline:none;-webkit-appearance:none;}
-.fi:focus,.fta:focus,.fse:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(24,24,27,.08);}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--t2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+.fi,.fta,.fs{width:100%;padding:7px 11px;border:1px solid var(--bd2);border-radius:var(--r);background:var(--sf);color:var(--t1);font-size:13px;transition:.15s;outline:none;-webkit-appearance:none;}
+.fi:focus,.fta:focus,.fs:focus{border-color:var(--ac);box-shadow:0 0 0 3px rgba(24,24,27,.08);}
 .fta{resize:vertical;min-height:78px;line-height:1.5;}
-.fr{display:grid;gap:10px;}
-.fr.c2{grid-template-columns:1fr 1fr;}
-.fr.c3{grid-template-columns:1fr 1fr 1fr;}
+.fr{display:grid;gap:10px;}.fr.c2{grid-template-columns:1fr 1fr;}.fr.c3{grid-template-columns:1fr 1fr 1fr;}
 
-/* TAGS */
-.tc{display:flex;flex-wrap:wrap;gap:5px;padding:5px 9px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);min-height:38px;cursor:text;}
-.tc:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(24,24,27,.08);}
-.tag{display:inline-flex;align-items:center;gap:4px;background:var(--surface2);color:var(--text);border-radius:4px;padding:2px 7px;font-size:11px;font-weight:500;}
-.tr{background:none;border:none;color:var(--text3);padding:0;line-height:1;font-size:13px;cursor:pointer;}
-.tr:hover{color:var(--red);}
-.ti{border:none;outline:none;font-size:13px;font-family:var(--font);flex:1;min-width:80px;background:transparent;}
+/* DROP ZONE */
+.dz{border:2px dashed var(--bd2);border-radius:var(--rl);padding:26px 20px;text-align:center;transition:.2s;cursor:pointer;user-select:none;}
+.dz:hover,.dz.over{border-color:var(--ac);background:var(--sf2);}
+.dz svg{width:40px;height:40px;color:var(--t3);margin-bottom:8px;}
+.dz-t{font-size:14px;font-weight:600;color:var(--t1);margin-bottom:4px;}
+.dz-h{font-size:12px;color:var(--t3);}
 
-/* DROP */
-.dz{border:2px dashed var(--border2);border-radius:var(--r-lg);padding:26px 20px;text-align:center;transition:all .2s;cursor:pointer;user-select:none;}
-.dz:hover,.dz.over{border-color:var(--accent);background:var(--surface2);}
+/* TOOL GRID */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+.tcard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:18px 16px;cursor:pointer;transition:.2s;text-align:left;}
+.tcard:hover{border-color:var(--t1);box-shadow:var(--sh-md);transform:translateY(-2px);}
+.tci{font-size:24px;margin-bottom:8px;}
+.tcn{font-size:14px;font-weight:600;margin-bottom:3px;letter-spacing:-.2px;}
+.tcd{font-size:12px;color:var(--t2);line-height:1.5;}
 
-/* RSVP display */
-#rdisp{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);height:148px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;margin:14px 0;}
-#rdisp::before{content:'';position:absolute;width:1px;height:55%;background:#E4E2DC;left:50%;transform:translateX(-50%);pointer-events:none;}
-#rword{position:relative;display:inline-block;font-weight:400;letter-spacing:-.3px;}
-.ob{color:var(--text2);}
-.om{color:var(--red);font-weight:700;}
-.oa{color:var(--text);}
-#rph{color:var(--text3);font-size:14px;font-weight:400;}
-.rstat{font-size:11px;color:var(--text2);font-family:var(--mono);}
-.rstat strong{color:var(--text);font-weight:600;}
-.pb{height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin:8px 0;}
-.pf{height:100%;background:var(--accent);border-radius:2px;transition:width .2s linear;}
+/* TOOL PAGE */
+.tp-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;}
+.tp-back{font-size:13px;color:var(--t2);cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 0;}
+.tp-back:hover{color:var(--t1);}
+.tp-icon{font-size:28px;}
+.tp-title{font-size:22px;font-weight:700;letter-spacing:-.5px;}
+.tp-desc{font-size:13px;color:var(--t2);margin-top:2px;}
+.tp-body{display:grid;grid-template-columns:1fr;gap:14px;}
 
-/* CV */
+/* UPLOAD LIST */
+.ulist{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+.ufi{display:flex;align-items:center;gap:6px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:4px 10px;font-size:12px;font-weight:500;}
+.ufi button{background:none;border:none;color:var(--t3);font-size:14px;cursor:pointer;padding:0 2px;line-height:1;}
+.ufi button:hover{color:var(--red);}
+
+/* RESULT */
+.res{margin-top:14px;padding:16px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--rl);display:none;}
+.res.on{display:block;}
+.res canvas,.res img{max-width:100%;border-radius:var(--r);margin-top:8px;}
+
+/* CANVAS EDITOR */
+.cvs-wrap{position:relative;display:inline-block;margin:10px 0;}
+.cvs-wrap canvas{border:1px solid var(--bd);border-radius:var(--r);max-width:100%;cursor:crosshair;}
+
+/* TOAST */
+#tw{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
+.toast{background:var(--t1);color:#fff;padding:9px 14px;border-radius:var(--r);font-size:12px;font-weight:500;animation:si .2s ease;box-shadow:var(--sh-md);max-width:300px;pointer-events:auto;}
+.tok{background:var(--grn);}.ter{background:var(--red);}.twn{background:var(--amb);}
+@keyframes si{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
+
+/* LOADING */
+#ldo{display:none;position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+#ldo.on{display:flex;}
+.spn{width:30px;height:30px;border:3px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:sp .7s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* HOME */
+.hero{padding:48px 20px 36px;text-align:center;}
+.hero-ey{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--t3);margin-bottom:14px;}
+.hero-h1{font-size:clamp(28px,5vw,48px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
+.hero-h1 em{font-style:normal;color:var(--red);}
+.hero-sl{font-size:clamp(14px,2.5vw,18px);color:var(--t2);margin-bottom:24px;}
+.search-box{max-width:480px;margin:0 auto 24px;position:relative;}
+.search-box input{width:100%;padding:10px 16px 10px 40px;border:1px solid var(--bd2);border-radius:50px;font-size:14px;background:var(--sf);outline:none;transition:.15s;}
+.search-box input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(225,29,72,.1);}
+.search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--t3);}
+.cat-head{font-size:16px;font-weight:700;letter-spacing:-.3px;margin:24px 0 12px;display:flex;align-items:center;gap:8px;}
+.cat-head span{font-size:20px;}
+
+/* CV specific */
 #cvsplit{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start;}
 #cved{overflow-y:auto;max-height:calc(100vh - 110px);padding-right:2px;}
-#cvpw{position:sticky;top:calc(var(--nh)+14px);background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-md);}
-#cvpt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);background:var(--surface2);}
-#cvpt span{font-size:11px;color:var(--text2);font-weight:600;flex:1;text-transform:uppercase;letter-spacing:.5px;}
+#cvpw{position:sticky;top:calc(var(--nh)+14px);background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;box-shadow:var(--sh-md);}
+#cvpt{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bd);background:var(--sf2);}
+#cvpt span{font-size:11px;color:var(--t2);font-weight:600;flex:1;text-transform:uppercase;letter-spacing:.5px;}
 #cvps{padding:10px;overflow-y:auto;max-height:calc(100vh - 190px);}
-
-/* CV doc */
 #cvdoc{width:100%;background:#fff;font-family:'Inter',sans-serif;font-size:10px;line-height:1.55;color:#18181B;padding:26px 28px;border-radius:4px;}
 #cvdoc .cn{font-size:20px;font-weight:700;letter-spacing:-.4px;margin-bottom:2px;}
 #cvdoc .ct{font-size:11px;color:#52525B;margin-bottom:8px;}
@@ -138,832 +161,1681 @@ a{color:var(--blue);text-decoration:none;}
 #cvdoc .ced{font-size:9px;color:#71717A;font-family:'JetBrains Mono',monospace;flex-shrink:0;}
 #cvdoc .cbl{margin-top:3px;padding-left:12px;}
 #cvdoc .cbl li{font-size:9.5px;margin-bottom:1.5px;color:#3F3F46;}
-#cvdoc .csu{font-size:10px;color:#3F3F46;}
-#cvdoc .csg{display:flex;flex-wrap:wrap;gap:3px 6px;}
-#cvdoc .csk{background:#F4F4F5;color:#18181B;padding:1px 7px;border-radius:3px;font-size:9px;font-weight:600;border:1px solid #E4E4E7;}
-#cvdoc .cempty{color:#A1A1AA;text-align:center;padding:30px;font-size:12px;}
-
-/* Section items */
-.si{border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden;}
-.sh{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);cursor:pointer;user-select:none;}
-.sh:hover{background:var(--border);}
-.sv{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0;}
+.si{border:1px solid var(--bd);border-radius:var(--rl);margin-bottom:10px;overflow:hidden;}
+.sh{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--sf2);cursor:pointer;user-select:none;}
+.sh:hover{background:var(--bd);}
+.sv{font-size:10px;color:var(--t3);transition:.2s;flex-shrink:0;}
 .sh.open .sv{transform:rotate(90deg);}
-.sb{padding:14px;background:var(--surface);display:none;}
+.sb{padding:14px;background:var(--sf);display:none;}
 .sb.open{display:block;}
-.ec{border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:8px;position:relative;}
+.ec{border:1px solid var(--bd);border-radius:var(--r);padding:12px;margin-bottom:8px;position:relative;}
 .ea{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;}
-.shb{font-size:10px;background:var(--border);color:var(--text3);padding:1px 6px;border-radius:4px;flex-shrink:0;}
+.eab{font-size:10px;background:var(--bd);color:var(--t3);padding:1px 6px;border-radius:4px;flex-shrink:0;}
 
-/* PDF FAB */
-#pfab{position:fixed;bottom:24px;right:24px;z-index:500;display:none;align-items:center;gap:8px;background:var(--accent);color:var(--fg);border:none;border-radius:50px;padding:13px 22px;font-size:14px;font-weight:600;font-family:var(--font);box-shadow:0 4px 20px rgba(0,0,0,.25);cursor:pointer;transition:all .2s;}
-#pfab:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,0,0,.30);}
+/* RSVP */
+#rdisp{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);height:148px;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;margin:14px 0;}
+#rdisp::before{content:'';position:absolute;width:1px;height:55%;background:#E4E2DC;left:50%;transform:translateX(-50%);pointer-events:none;}
+#rword{position:relative;display:inline-block;font-weight:400;letter-spacing:-.3px;}
+.ob{color:var(--t2);}.om{color:var(--red);font-weight:700;}.oa{color:var(--t1);}
+#rph{color:var(--t3);font-size:14px;font-weight:400;}
+.rstat{font-size:11px;color:var(--t2);font-family:var(--mono);}
+.rstat strong{color:var(--t1);font-weight:600;}
+.pb{height:3px;background:var(--bd);border-radius:2px;overflow:hidden;margin:8px 0;}
+.pf{height:100%;background:var(--ac);border-radius:2px;transition:width .2s linear;}
+#pfab{position:fixed;bottom:24px;right:24px;z-index:500;display:none;align-items:center;gap:8px;background:var(--ac);color:var(--fg);border:none;border-radius:50px;padding:13px 22px;font-size:14px;font-weight:600;font-family:var(--ff);box-shadow:0 4px 20px rgba(0,0,0,.25);cursor:pointer;transition:.2s;}
+#pfab:hover{transform:translateY(-2px);}
 #pfab.vis{display:flex;}
 
-/* Converter */
+/* CONVERTER */
 .cgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.fb{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
-.fp{background:#FFF1F2;color:#E11D48;}
-.fd{background:#EFF6FF;color:#2563EB;}
-.fx{background:#F0FDF4;color:#16A34A;}
-.ft{background:#FFF7ED;color:#D97706;}
-.fn{background:#F4F4F5;color:#52525B;}
-.fc{background:#F0FDF4;color:#16A34A;}
-.fh{background:#FFF7ED;color:#D97706;}
-.fj{background:#F5F3FF;color:#7C3AED;}
-.fm{background:#F4F4F5;color:#374151;}
-.cout{background:var(--bg);border:1px solid var(--border);border-radius:var(--r);padding:12px;font-size:11.5px;font-family:var(--mono);max-height:240px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;color:var(--text2);}
+.cout{background:var(--bg);border:1px solid var(--bd);border-radius:var(--r);padding:12px;font-size:11.5px;font-family:var(--mono);max-height:240px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;color:var(--t2);}
 
-/* Toast */
-#tw{position:fixed;bottom:74px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;pointer-events:none;}
-.toast{background:var(--text);color:#fff;padding:9px 14px;border-radius:var(--r);font-size:12px;font-weight:500;animation:si .2s ease;box-shadow:var(--sh-md);max-width:260px;}
-.tok{background:var(--green);}
-.ter{background:var(--red);}
-.twn{background:var(--amber);}
-@keyframes si{from{opacity:0;transform:translateX(14px);}to{opacity:1;transform:translateX(0);}}
-
-/* Loading */
-#ldo{display:none;position:fixed;inset:0;z-index:9999;background:rgba(255,255,255,.82);backdrop-filter:blur(4px);align-items:center;justify-content:center;flex-direction:column;gap:12px;}
-#ldo.show{display:flex;}
-.spn{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;}
-@keyframes sp{to{transform:rotate(360deg);}}
-
-/* Home */
-.hero{padding:56px 20px 44px;text-align:center;}
-.hero-ey{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3);margin-bottom:14px;}
-.hero-h1{font-size:clamp(30px,6vw,52px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
-.hero-h1 em{font-style:normal;color:var(--red);}
-.hero-sl{font-size:clamp(14px,2.5vw,18px);color:var(--text2);margin-bottom:30px;letter-spacing:-.2px;}
-.hcards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
-.hcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:22px 18px;cursor:pointer;transition:all .2s;text-align:left;}
-.hcard:hover{border-color:var(--text);box-shadow:var(--sh-md);transform:translateY(-2px);}
-.hci{font-size:26px;margin-bottom:10px;}
-.hct{font-size:15px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px;}
-.hcd{font-size:12px;color:var(--text2);line-height:1.6;}
-.htags{display:flex;flex-wrap:wrap;gap:4px;margin-top:10px;}
-.htag{font-size:10px;font-weight:600;background:var(--surface2);color:var(--text2);padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.3px;}
-.tbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;}
-.ti2{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);}
-.ti2 strong{color:var(--text);font-weight:600;}
-.tdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;}
-
-/* Privacy banner */
+/* Privacy bar */
 .pvb{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:var(--r);padding:7px 12px;font-size:11px;color:#15803D;font-weight:500;display:inline-flex;align-items:center;gap:6px;}
+.tbar{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:16px 22px;margin-bottom:18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;}
+.ti2{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--t2);}
+.ti2 strong{color:var(--t1);font-weight:600;}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--grn);flex-shrink:0;}
 
-/* Footer */
-.foot{border-top:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--text3);max-width:1120px;margin:0 auto;}
-.foot a{color:var(--text3);transition:color .15s;}
-.foot a:hover{color:var(--text);}
+.foot{border-top:1px solid var(--bd);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11px;color:var(--t3);max-width:1120px;margin:0 auto;}
+.foot a{color:var(--t3);}.foot a:hover{color:var(--t1);}
 
-/* Misc */
-.fb2{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
-.fg2{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.mt8{margin-top:8px;}
-.mt12{margin-top:12px;}
-.mt14{margin-top:14px;}
-.tsm{font-size:12px;color:var(--text2);}
-.txs{font-size:11px;color:var(--text3);}
-kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:1px 6px;font-size:11px;font-family:var(--mono);}
+.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt14{margin-top:14px;}
+.tsm{font-size:12px;color:var(--t2);}.txs{font-size:11px;color:var(--t3);}
+kbd{background:var(--sf2);border:1px solid var(--bd2);border-radius:4px;padding:1px 6px;font-size:11px;font-family:var(--mono);}
+.tab-bar{display:flex;gap:2px;margin-bottom:14px;flex-wrap:wrap;}
+.tab-b{padding:6px 14px;border:1px solid var(--bd);border-radius:var(--r);background:var(--sf);font-size:12px;font-weight:500;color:var(--t2);transition:.15s;}
+.tab-b:hover{background:var(--sf2);}
+.tab-b.on{background:var(--ac);color:var(--fg);border-color:var(--ac);}
+.range-wrap{display:flex;align-items:center;gap:8px;}
+.range-wrap input[type=range]{flex:1;accent-color:var(--red);}
+.range-val{font-size:12px;font-weight:600;min-width:40px;text-align:right;font-family:var(--mono);}
 
-/* Responsive */
-@media(max-width:860px){#cvsplit{grid-template-columns:1fr;}#cvpw{position:static;}#cved{max-height:none;}.hcards{grid-template-columns:1fr;}}
-@media(max-width:640px){.page{padding:12px 12px;}#nav{padding:0 12px;}.nav-brand{font-size:13px;margin-right:8px;}.nav-tab{padding:5px 9px;font-size:11px;}.cgrid{grid-template-columns:1fr;}.fr.c2,.fr.c3{grid-template-columns:1fr;}#pfab{bottom:14px;right:14px;padding:11px 18px;font-size:13px;}.hero{padding:34px 14px 24px;}.tbar{gap:12px;}}
+@media(max-width:860px){
+  #cvsplit{grid-template-columns:1fr;}#cvpw{position:static;}#cved{max-height:none;}
+  .tgrid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+}
+@media(max-width:640px){
+  .pg{padding:12px;}#nav{padding:0 12px;}.nb{font-size:13px;margin-right:8px;}.ntb{padding:5px 9px;font-size:11px;}
+  .cgrid{grid-template-columns:1fr;}.fr.c2,.fr.c3{grid-template-columns:1fr;}
+  #pfab{bottom:14px;right:14px;padding:11px 18px;font-size:13px;}.hero{padding:30px 14px 20px;}
+  .tgrid{grid-template-columns:1fr;}
+  .tp-header{flex-direction:column;align-items:flex-start;}
+}
 </style>
 </head>
 <body>
 
-<div id="ldo"><div class="spn"></div><div id="ldm" style="font-size:13px;font-weight:500;color:var(--text2);">İşleniyor...</div></div>
-<div id="offline-badge">● Çevrimdışı</div>
+<div id="ldo"><div class="spn"></div><div id="ldm" style="font-size:13px;font-weight:500;color:var(--t2);">İşleniyor...</div></div>
 <div id="tw"></div>
 <button id="pfab" onclick="dlPDF()">⬇ PDF İndir</button>
 
 <nav id="nav">
-  <div class="nav-brand">hec<em>h</em>ecik</div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="sp('home')">Ana Sayfa</button>
-    <button class="nav-tab" onclick="sp('rsvp')">Hızlı Okuma</button>
-    <button class="nav-tab" onclick="sp('cv')">CV Oluşturucu</button>
-    <button class="nav-tab" onclick="sp('conv')">Dosya Çevirici</button>
-  </div>
-  <div class="nav-bmc">
-    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+  <div class="nb" onclick="sp('home')">hec<em>h</em>ecik</div>
+  <div class="nt" id="navTabs">
+    <button class="ntb on" data-p="home">Ana Sayfa</button>
+    <button class="ntb" data-p="cat-pdf">PDF</button>
+    <button class="ntb" data-p="cat-img">Görüntü</button>
+    <button class="ntb" data-p="cat-txt">Metin</button>
+    <button class="ntb" data-p="conv">Çevirici</button>
+    <button class="ntb" data-p="rsvp">Okuma</button>
+    <button class="ntb" data-p="cv">CV</button>
   </div>
 </nav>
 
-<!-- HOME -->
-<div class="page active" id="page-home">
+<!-- ============ HOME ============ -->
+<div class="pg on" id="page-home">
   <div class="hero">
     <div class="hero-ey">hechecik araçları</div>
-    <h1 class="hero-h1">Oku<em>.</em> Oluştur<em>.</em> Çevir<em>.</em></h1>
-    <p class="hero-sl">Tamamen tarayıcınızda çalışır — sunucu yok, veri kaydedilmez, <strong>internetsiz bile</strong> kullanılabilir.</p>
-    <div class="fg2" style="justify-content:center;">
-      <button class="btn btn-p" style="font-size:14px;padding:11px 24px;" onclick="sp('rsvp')">Başla →</button>
-      <a href="mailto:hecgoran@gmail.com" class="btn btn-g" style="font-size:14px;padding:11px 24px;">İletişim</a>
+    <h1 class="hero-h1">36+ Ücretsiz <em>Araç</em></h1>
+    <p class="hero-sl">PDF, görüntü, metin ve dosya araçları — tamamen tarayıcınızda, sunucu yok.</p>
+    <div class="search-box">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="homeSearch" placeholder="Araç ara..." oninput="filterHome(this.value)"/>
     </div>
   </div>
   <div class="tbar">
     <div class="ti2"><span class="tdot"></span><strong>Sunucu yok</strong> — tüm işlemler tarayıcınızda</div>
     <div class="ti2"><span class="tdot"></span><strong>Veri kaydedilmez</strong> — dosyalarınız hiçbir yere gitmez</div>
-    <div class="ti2"><span class="tdot"></span><strong>Çevrimdışı çalışır</strong> — internet kesilse bile devam eder</div>
-    <div class="ti2"><span class="tdot"></span><a href="https://github.com/hechecik" target="_blank" style="color:var(--blue);">github.com/hechecik</a></div>
+    <div class="ti2"><span class="tdot"></span><strong>Ücretsiz</strong> — hiçbir limit yok</div>
   </div>
-  <div class="hcards">
-    <div class="hcard" onclick="sp('rsvp')">
-      <div class="hci">👁</div>
-      <div class="hct">Hızlı Okuma</div>
-      <div class="hcd">RSVP tekniğiyle kelimeleri odak noktasında göstererek okuma hızınızı artırın.</div>
-      <div class="htags"><span class="htag">PDF</span><span class="htag">DOCX</span><span class="htag">XLSX</span><span class="htag">PPTX</span><span class="htag">TXT</span></div>
-    </div>
-    <div class="hcard" onclick="sp('cv')">
-      <div class="hci">📄</div>
-      <div class="hct">CV Oluşturucu</div>
-      <div class="hcd">Mevcut CV'nizi yükleyin veya sıfırdan oluşturun. PDF ve TXT olarak indirin.</div>
-      <div class="htags"><span class="htag">PDF Yükle</span><span class="htag">DOCX Yükle</span><span class="htag">PDF İndir</span><span class="htag">JSON Kaydet</span></div>
-    </div>
-    <div class="hcard" onclick="sp('conv')">
-      <div class="hci">🔄</div>
-      <div class="hct">Dosya Çevirici</div>
-      <div class="hcd">PDF, DOCX, XLSX, PPTX ve daha fazlasını dönüştürün. Hiçbir dosya sunucuya gitmez.</div>
-      <div class="htags"><span class="htag">10+ Format</span><span class="htag">Sürükle-Bırak</span><span class="htag">Anlık</span></div>
-    </div>
-  </div>
-  <div class="card" style="text-align:center;padding:26px 20px;">
-    <div style="font-size:13px;font-weight:600;margin-bottom:3px;">Bu araçlar işinize yaradıysa</div>
-    <div class="tsm" style="margin-bottom:14px;">Geliştirmeye devam etmem için destek olabilirsiniz.</div>
-    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="☕" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
-  </div>
+  <div id="homeGrid"></div>
 </div>
 
-<!-- RSVP -->
-<div class="page" id="page-rsvp">
-  <div style="display:grid;grid-template-columns:1fr 318px;gap:16px;align-items:start;" id="rl">
+<!-- ============ CATEGORY PAGES ============ -->
+<div class="pg" id="page-cat-pdf"><div class="tp-header"><div class="tp-back" onclick="sp('home')">← Ana Sayfa</div><div class="tp-icon">📕</div><div><div class="tp-title">PDF Araçları</div><div class="tp-desc">PDF dosyalarınızı düzenleyin, dönüştürün ve optimize edin.</div></div></div><div id="pdfGrid" class="tgrid"></div></div>
+<div class="pg" id="page-cat-img"><div class="tp-header"><div class="tp-back" onclick="sp('home')">← Ana Sayfa</div><div class="tp-icon">🖼</div><div><div class="tp-title">Görüntü Araçları</div><div class="tp-desc">Resimlerinizi düzenleyin, dönüştürün ve optimize edin.</div></div></div><div id="imgGrid" class="tgrid"></div></div>
+<div class="pg" id="page-cat-txt"><div class="tp-header"><div class="tp-back" onclick="sp('home')">← Ana Sayfa</div><div class="tp-icon">📝</div><div><div class="tp-title">Metin Araçları</div><div class="tp-desc">Metin işleme, kodlama ve biçimlendirme araçları.</div></div></div><div id="txtGrid" class="tgrid"></div></div>
+
+<!-- ============ TOOL PAGE SHELL ============ -->
+<div class="pg" id="page-tool">
+  <div class="tp-header">
+    <div class="tp-back" id="toolBack">← Geri</div>
+    <div class="tp-icon" id="toolIcon"></div>
+    <div><div class="tp-title" id="toolTitle"></div><div class="tp-desc" id="toolDesc"></div></div>
+  </div>
+  <div class="tp-body" id="toolBody"></div>
+</div>
+
+<!-- ============ RSVP ============ -->
+<div class="pg" id="page-rsvp">
+  <div class="tp-header"><div class="tp-back" onclick="sp('home')">← Ana Sayfa</div><div class="tp-icon">👁</div><div><div class="tp-title">Hızlı Okuma</div><div class="tp-desc">RSVP tekniğiyle okuma hızınızı artırın.</div></div></div>
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;" id="rl">
     <div>
-      <div class="card">
-        <div class="fb2" style="margin-bottom:12px;">
-          <div class="ctitle" style="margin:0;">Metin Girişi</div>
-          <span class="pvb">🔒 Dosyanız tarayıcıdan çıkmaz</span>
+      <div class="cd">
+        <div class="ct">Metin Kaynağı</div>
+        <div class="dz" id="rsvpDz" onclick="document.getElementById('rsvpFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="rsvpDrop(event)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75z"/></svg>
+          <div class="dz-t">PDF, DOCX, XLSX, PPTX veya TXT yükleyin</div>
+          <div class="dz-h">veya aşağıya metin yapıştırın</div>
         </div>
-        <div class="dz" id="rdz" onclick="document.getElementById('rfi').click()">
-          <div style="font-size:26px;margin-bottom:8px;">📂</div>
-          <div style="font-size:13px;font-weight:500;color:var(--text2);">Dosyayı sürükleyin veya tıklayın</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:3px;">TXT · PDF · DOCX · XLSX · PPTX · ODT · RTF · HTML · MD · JSON</div>
-        </div>
-        <input type="file" id="rfi" accept=".txt,.pdf,.docx,.xlsx,.xls,.pptx,.odt,.rtf,.html,.htm,.md,.json" style="display:none" onchange="rLoad(this)"/>
-        <div id="rferr" class="err"></div>
-        <div style="text-align:center;margin:7px 0;font-size:11px;color:var(--text3);">— ya da yapıştırın —</div>
-        <textarea class="fta" id="rtxt" placeholder="Metni buraya yapıştırın..." style="min-height:96px;" oninput="rInit()"></textarea>
-        <div class="fg2 mt8">
-          <span id="rfname" class="txs">Dosya seçilmedi</span>
-          <span id="rwc" class="txs"></span>
-          <button class="btn btn-g btn-sm" onclick="rDemo()">Demo</button>
-          <button class="btn btn-d btn-sm" onclick="rClear()">Temizle</button>
-        </div>
+        <input type="file" id="rsvpFile" hidden accept=".pdf,.docx,.xlsx,.pptx,.txt" onchange="rsvpFileLoad(this)"/>
+        <textarea class="fta mt8" id="rsvpText" rows="6" placeholder="Metin buraya yapıştırın..."></textarea>
       </div>
-      <div class="card mt14">
-        <div class="ctitle">RSVP Okuyucu</div>
-        <div id="rdisp" style="font-size:42px;">
-          <div id="rph">Metin yükleyin</div>
-          <div id="rword" style="display:none;"></div>
-        </div>
-        <div class="pb"><div class="pf" id="rprog" style="width:0%"></div></div>
-        <div class="fb2">
-          <span class="rstat">İlerleme <strong id="spct">0%</strong></span>
-          <span class="rstat">Kelime <strong id="swrd">0/0</strong></span>
-          <span class="rstat">Kalan <strong id="stm">—</strong></span>
-        </div>
-      </div>
+      <div id="rdisp"><span id="rph">Metin yükleyin veya yapıştırın</span><span id="rword"></span></div>
+      <div class="pb"><div class="pf" id="rprog" style="width:0%"></div></div>
+      <div class="rstat" id="rstat"></div>
     </div>
-    <div id="rcp" style="position:sticky;top:calc(var(--nh)+14px);">
-      <div class="card">
-        <div class="ctitle">Kontroller</div>
-        <div class="fg">
-          <div class="fb2" style="margin-bottom:5px;"><label class="fl" style="margin:0;">Hız</label><span class="rstat"><strong id="wv">300</strong> WPM</span></div>
-          <input type="range" style="width:100%;accent-color:var(--accent);" min="60" max="1200" step="20" value="300" oninput="setWPM(this.value)"/>
-          <div class="fb2 mt8" style="font-size:10px;color:var(--text3);"><span>Yavaş</span><span>Normal</span><span>Hızlı</span><span>Uzman</span></div>
-        </div>
-        <div class="fg">
-          <div class="fb2" style="margin-bottom:5px;"><label class="fl" style="margin:0;">Font</label><span class="rstat"><strong id="fv">42</strong>px</span></div>
-          <input type="range" style="width:100%;accent-color:var(--accent);" min="20" max="80" step="2" value="42" oninput="setFS(this.value)"/>
-        </div>
-        <div class="fg">
-          <label class="fl">Kelime / Gösterim</label>
-          <select class="fse" id="csel" onchange="rInit()"><option value="1">1 kelime</option><option value="2">2 kelime</option><option value="3">3 kelime</option></select>
-        </div>
-        <div class="fg2" style="margin-bottom:10px;">
-          <button class="btn btn-p" id="bplay" onclick="rPlay()" style="flex:1;">▶ Oynat</button>
-          <button class="btn btn-g" id="bpause" onclick="rPause()" disabled style="flex:1;">⏸ Duraklat</button>
-        </div>
-        <button class="btn btn-g btn-sm" onclick="rRestart()" style="width:100%;margin-bottom:10px;">↺ Başa Al</button>
-        <div style="background:var(--surface2);border-radius:var(--r);padding:10px;font-size:12px;">
-          <div style="font-weight:600;margin-bottom:4px;">Durum: <span id="rst" style="color:var(--text2);font-weight:400;">Bekliyor</span></div>
-          <div class="txs"><kbd>Space</kbd> oynat/duraklat &nbsp;·&nbsp; <kbd>R</kbd> başa al</div>
+    <div>
+      <div class="cd">
+        <div class="ct">Ayarlar</div>
+        <div class="fg"><label class="fl">Hız (WPM)</label><input type="range" class="fi" id="rWpm" min="100" max="1000" value="300" oninput="document.getElementById('rWpmV').textContent=this.value;"/><span class="range-val" id="rWpmV">300</span></div>
+        <div class="fg"><label class="fl">Yazı Boyutu</label><input type="range" class="fi" id="rFsz" min="24" max="80" value="42" oninput="document.getElementById('rFszV').textContent=this.value+'px';"/><span class="range-val" id="rFszV">42px</span></div>
+        <div class="fg" style="display:flex;gap:8px;">
+          <button class="btn bp" style="flex:1" id="rPlayBtn" onclick="rsvpToggle()">▶ Başla</button>
+          <button class="btn bg" onclick="rsvpReset()">↺</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CV -->
-<div class="page" id="page-cv">
-  <div class="fb2" style="margin-bottom:14px;">
-    <div>
-      <div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">CV Oluşturucu</div>
-      <div class="txs mt8">PDF veya DOCX yükleyin → bilgileri düzenleyin → PDF / TXT indirin</div>
-    </div>
-    <div class="fg2">
-      <button class="btn btn-g btn-sm" onclick="document.getElementById('cvif').click()">📂 CV Yükle</button>
-      <button class="btn btn-g btn-sm" onclick="cvJSON()">💾 JSON</button>
-      <button class="btn btn-d btn-sm" onclick="cvReset()">🗑 Sıfırla</button>
-      <button class="btn btn-g btn-sm" onclick="dlTXT()">⬇ TXT</button>
-      <button class="btn btn-p btn-sm" onclick="dlPDF()">⬇ PDF</button>
-    </div>
-  </div>
-  <input type="file" id="cvif" accept=".pdf,.docx,.doc,.json" style="display:none" onchange="cvImport(this)"/>
-  <div id="cverr" class="err" style="margin-bottom:10px;"></div>
-  <div id="cvinfo" style="display:none;margin-bottom:10px;" class="pvb"><span id="cvinfomsg"></span></div>
-
+<!-- ============ CV ============ -->
+<div class="pg" id="page-cv">
+  <div class="tp-header"><div class="tp-back" onclick="sp('home')">← Ana Sayfa</div><div class="tp-icon">📄</div><div><div class="tp-title">CV Oluşturucu</div><div class="tp-desc">Profesyonel CV oluşturun, PDF olarak indirin.</div></div></div>
   <div id="cvsplit">
     <div id="cved">
-      <div class="si">
-        <div class="sh open" onclick="tgSec(this)">
-          <span class="sv">▶</span>
-          <span style="font-size:13px;font-weight:600;flex:1;">Kişisel Bilgiler</span>
+      <div class="cd mb12"><div class="ct">Kaynak</div>
+        <div class="dz" onclick="document.getElementById('cvFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="cvFileDrop(event)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75z"/></svg>
+          <div class="dz-t">Mevcut CV'nizi yükleyin (PDF / DOCX)</div>
+          <div class="dz-h">veya sıfırdan oluşturun</div>
         </div>
-        <div class="sb open">
-          <div class="fr c2">
-            <div class="fg"><label class="fl">Ad Soyad *</label><input class="fi" id="cn" placeholder="Ahmet Yılmaz" oninput="rCV()"/></div>
-            <div class="fg"><label class="fl">Unvan</label><input class="fi" id="cti" placeholder="Yazılım Mühendisi" oninput="rCV()"/></div>
-          </div>
-          <div class="fr c2">
-            <div class="fg"><label class="fl">E-posta</label><input class="fi" id="cem" type="email" placeholder="ahmet@ornek.com" oninput="rCV()"/></div>
-            <div class="fg"><label class="fl">Telefon</label><input class="fi" id="cph" type="tel" placeholder="+90 555 000 0000" oninput="rCV()"/></div>
-          </div>
-          <div class="fr c2">
-            <div class="fg"><label class="fl">Konum</label><input class="fi" id="clo" placeholder="İstanbul, Türkiye" oninput="rCV()"/></div>
-            <div class="fg"><label class="fl">LinkedIn</label><input class="fi" id="cwb" placeholder="linkedin.com/in/ahmet" oninput="rCV()"/></div>
-          </div>
-          <div class="fr c2">
-            <div class="fg"><label class="fl">GitHub</label><input class="fi" id="cgh" placeholder="github.com/ahmet" oninput="rCV()"/></div>
-            <div class="fg"><label class="fl">Portfolio</label><input class="fi" id="cot" placeholder="portfolio.dev" oninput="rCV()"/></div>
-          </div>
+        <input type="file" id="cvFile" hidden accept=".pdf,.docx" onchange="cvFileLoad(this)"/>
+      </div>
+      <div class="cd"><div class="ct">Kişisel Bilgiler</div>
+        <div class="fr c2">
+          <div class="fg"><label class="fl">Ad Soyad</label><input class="fi" id="cvName" oninput="cvRender()"/></div>
+          <div class="fg"><label class="fl">Unvan</label><input class="fi" id="cvTitle" oninput="cvRender()"/></div>
         </div>
-      </div>
-      <div id="cvsc"></div>
-      <div class="card mt12">
-        <div class="ctitle">Bölüm Ekle</div>
-        <div class="fg2">
-          <button class="btn btn-g btn-sm" onclick="addSec('summary')">+ Özet</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('experience')">+ Deneyim</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('education')">+ Eğitim</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('skills')">+ Beceriler</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('languages')">+ Diller</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('projects')">+ Projeler</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('certifications')">+ Sertifikalar</button>
-          <button class="btn btn-g btn-sm" onclick="addSec('custom')">+ Özel</button>
+        <div class="fr c2">
+          <div class="fg"><label class="fl">E-posta</label><input class="fi" id="cvEmail" oninput="cvRender()"/></div>
+          <div class="fg"><label class="fl">Telefon</label><input class="fi" id="cvPhone" oninput="cvRender()"/></div>
         </div>
+        <div class="fr c2">
+          <div class="fg"><label class="fl">Konum</label><input class="fi" id="cvLoc" oninput="cvRender()"/></div>
+          <div class="fg"><label class="fl">LinkedIn</label><input class="fi" id="cvLinked" oninput="cvRender()"/></div>
+        </div>
+        <div class="fg"><label class="fl">Özet</label><textarea class="fta" id="cvSummary" rows="3" oninput="cvRender()"></textarea></div>
       </div>
-      <div style="margin-top:14px;text-align:center;">
-        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
-      </div>
+      <div class="si"><div class="sh open" onclick="togSec(this)"><svg class="sv" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"/></svg><strong style="flex:1">Deneyim</strong><button class="btn bs bg" onclick="event.stopPropagation();cvAddExp()">+ Ekle</button></div><div class="sb open" id="cvExpList"></div></div>
+      <div class="si"><div class="sh open" onclick="togSec(this)"><svg class="sv" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"/></svg><strong style="flex:1">Eğitim</strong><button class="btn bs bg" onclick="event.stopPropagation();cvAddEdu()">+ Ekle</button></div><div class="sb open" id="cvEduList"></div></div>
+      <div class="si"><div class="sh" onclick="togSec(this)"><svg class="sv" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"/></svg><strong style="flex:1">Beceriler</strong></div><div class="sb"><div class="fg"><label class="fl">Yetenekler (virgülle ayırın)</label><input class="fi" id="cvSkills" placeholder="JavaScript, Python, Proje Yönetimi..." oninput="cvRender()"/></div></div></div>
+      <div class="si"><div class="sh" onclick="togSec(this)"><svg class="sv" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z"/></svg><strong style="flex:1">Diller</strong></div><div class="sb"><div class="fg"><label class="fl">Diller (virgülle ayırın)</label><input class="fi" id="cvLangs" placeholder="Türkçe (Anadil), İngilizce (İleri)..." oninput="cvRender()"/></div></div></div>
     </div>
-    <div id="cvpw">
-      <div id="cvpt">
-        <span>Önizleme</span>
-        <button class="btn btn-g btn-sm" onclick="dlTXT()">⬇ TXT</button>
-        <button class="btn btn-p btn-sm" onclick="dlPDF()">⬇ PDF</button>
-      </div>
-      <div id="cvps"><div id="cvdoc"><div class="cempty">Sol taraftan bilgileri doldurun veya CV yükleyin</div></div></div>
-    </div>
+    <div id="cvpw"><div id="cvpt"><span>Önizleme</span><button class="btn bs bp" onclick="dlPDF()">PDF</button><button class="btn bs bg" onclick="cvSaveJSON()">JSON</button></div><div id="cvps"><div id="cvdoc"><div class="cempty">CV'nizi sol panelden doldurun</div></div></div></div>
   </div>
 </div>
 
-<!-- CONVERTER -->
-<div class="page" id="page-conv">
-  <div class="fb2" style="margin-bottom:14px;">
-    <div>
-      <div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Dosya Çevirici</div>
-      <div class="txs mt8">Tüm işlemler tarayıcıda · Dosyalarınız sunucuya gitmez · Çevrimdışı çalışır</div>
-    </div>
-    <span class="pvb">🔒 %100 gizli · sunucu yok</span>
-  </div>
+<!-- ============ CONVERTER ============ -->
+<div class="pg" id="page-conv">
+  <div class="tp-header"><div class="tp-back" onclick="sp('home')">← Ana Sayfa</div><div class="tp-icon">🔄</div><div><div class="tp-title">Dosya Çevirici</div><div class="tp-desc">Dosyalarınızı farklı formatlara dönüştürün.</div></div></div>
   <div class="cgrid">
-    <div class="card">
-      <div class="ctitle">Kaynak Dosya</div>
-      <div class="dz" id="cdz" onclick="document.getElementById('cfi').click()">
-        <div style="font-size:26px;margin-bottom:8px;">📂</div>
-        <div style="font-size:13px;font-weight:500;color:var(--text2);">Sürükleyin veya tıklayın</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px;">PDF · DOCX · XLSX · PPTX · CSV · TXT · HTML · MD · JSON · RTF · ODT</div>
+    <div class="cd">
+      <div class="ct">Kaynak Dosya</div>
+      <div class="dz" id="convDz" onclick="document.getElementById('convFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="convDrop(event)">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75z"/></svg>
+        <div class="dz-t">Dosya seçin veya sürükleyin</div>
+        <div class="dz-h">PDF, DOCX, XLSX, PPTX, CSV, HTML, TXT</div>
       </div>
-      <input type="file" id="cfi" style="display:none" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.txt,.html,.htm,.md,.json,.rtf,.odt" onchange="cLoad(this)"/>
-      <div id="cferr" class="err"></div>
-      <div id="cfinfo" style="display:none;margin-top:10px;">
-        <div class="fb2">
-          <div class="fg2"><span id="cfname" style="font-weight:600;font-size:13px;"></span><span id="cftype" class="fb"></span></div>
-          <span id="cfsize" class="txs"></span>
-        </div>
+      <input type="file" id="convFile" hidden onchange="convFileLoad(this)"/>
+      <div class="mt12" id="convInfo" style="display:none;"><div style="font-size:13px;font-weight:600" id="convName"></div><div class="tsm" id="convMeta"></div></div>
+      <div class="mt12" id="convOpts" style="display:none;">
+        <div class="fg"><label class="fl">Hedef Format</label><select class="fs" id="convFmt" onchange="convUpdate()"></select></div>
+        <button class="btn bp mt8" onclick="convConvert()" id="convBtn" disabled>Çevir</button>
       </div>
     </div>
-    <div class="card">
-      <div class="ctitle">Hedef Format</div>
-      <div id="ctarg" class="fg2" style="margin-bottom:12px;"><span class="txs">Önce dosya seçin</span></div>
-      <button class="btn btn-p" id="cbtn" onclick="doConv()" disabled style="width:100%;">⚡ Dönüştür</button>
-    </div>
-  </div>
-  <div class="card mt14" id="cocard" style="display:none;margin-top:14px;">
-    <div class="fb2" style="margin-bottom:10px;">
-      <div class="ctitle" style="margin:0;">Sonuç <span id="cochars" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span></div>
-      <div class="fg2">
-        <button class="btn btn-g btn-sm" onclick="cCopy()">📋 Kopyala</button>
-        <button class="btn btn-p btn-sm" id="cdlbtn" onclick="cDL()">⬇ İndir</button>
-      </div>
-    </div>
-    <div class="cout" id="cout"></div>
-  </div>
-  <div class="card mt14" style="margin-top:14px;">
-    <div class="ctitle">Desteklenen Dönüşümler</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:5px 18px;font-size:11.5px;color:var(--text2);">
-      <div><strong style="color:var(--text);">PDF</strong> → TXT, HTML</div>
-      <div><strong style="color:var(--text);">DOCX / DOC / ODT</strong> → TXT, HTML, MD</div>
-      <div><strong style="color:var(--text);">XLSX / XLS</strong> → CSV, JSON, TXT</div>
-      <div><strong style="color:var(--text);">CSV</strong> → JSON, HTML tablo, TXT</div>
-      <div><strong style="color:var(--text);">PPTX</strong> → TXT</div>
-      <div><strong style="color:var(--text);">TXT / RTF</strong> → HTML, MD</div>
-      <div><strong style="color:var(--text);">HTML</strong> → TXT, MD</div>
-      <div><strong style="color:var(--text);">MD</strong> → HTML, TXT</div>
-      <div><strong style="color:var(--text);">JSON</strong> → TXT (pretty)</div>
-    </div>
-    <div style="margin-top:14px;text-align:center;">
-      <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="hechecik" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff"></script>
+    <div class="cd">
+      <div class="ct">Sonuç</div>
+      <div id="convResult"><div class="tsm" style="padding:20px;text-align:center;color:var(--t3);">Henüz bir dosya yüklenmedi</div></div>
     </div>
   </div>
 </div>
 
-<div class="foot">
-  <div>© 2025 <a href="https://github.com/hechecik" target="_blank">hechecik</a> — Oku, Oluştur, Çevir</div>
-  <div class="fg2">
-    <a href="mailto:hecgoran@gmail.com">hecgoran@gmail.com</a>
-    <span>·</span>
-    <a href="https://github.com/hechecik/rapidread-web" target="_blank">GitHub</a>
-    <span>·</span>
-    <span style="color:var(--green);font-weight:600;">Sunucu Yok · Gizlilik Garantili</span>
-  </div>
-</div>
+<div class="foot"><div>© 2024 hechecik — tüm işlemler tarayıcınızda</div><div><a href="https://github.com/hechecik" target="_blank">GitHub</a></div></div>
 
 <script>
-/* ===== UTILS ===== */
-const ge=id=>document.getElementById(id);
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-function escA(s){return(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function fmtB(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+/* ====== GLOBALS ====== */
+pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+let curPage='home',curTool=null;
 
-function toast(msg,type=''){
-  const el=document.createElement('div');
-  el.className='toast'+(type==='ok'?' tok':type==='err'?' ter':type==='warn'?' twn':'');
-  el.textContent=msg; ge('tw').appendChild(el);
-  setTimeout(()=>el.remove(),type==='err'?4500:3000);
-}
-function showErr(id,msg){const el=ge(id);if(!el)return;el.textContent=msg;el.classList.toggle('show',!!msg);}
-function load(on,msg='İşleniyor...'){ge('ldo').classList.toggle('show',on);ge('ldm').textContent=msg;}
+/* ====== TOAST ====== */
+function toast(m,t=''){const c=document.getElementById('tw');const d=document.createElement('div');d.className='toast'+(t?' '+t:'');d.textContent=m;c.appendChild(d);setTimeout(()=>d.remove(),3500);}
+function showLd(m){document.getElementById('ldo').classList.add('on');if(m)document.getElementById('ldm').textContent=m;}
+function hideLd(){document.getElementById('ldo').classList.remove('on');}
+function dzOver(e,el){e.preventDefault();el.classList.add('over');}
+function dzLeave(e,el){e.preventDefault();el.classList.remove('over');}
+function fmtSize(b){if(b<1024)return b+' B';if(b<1048576)return(b/1024).toFixed(1)+' KB';return(b/1048576).toFixed(1)+' MB';}
+function dlBlob(blob,name){const u=URL.createObjectURL(blob);const a=document.createElement('a');a.href=u;a.download=name;a.click();URL.revokeObjectURL(u);}
 
-window.addEventListener('online',()=>ge('offline-badge').classList.remove('show'));
-window.addEventListener('offline',()=>ge('offline-badge').classList.add('show'));
-if(!navigator.onLine)ge('offline-badge').classList.add('show');
-
-/* ===== NAV ===== */
-function sp(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  ge('page-'+id).classList.add('active');
-  document.querySelectorAll('.nav-tab').forEach(t=>{if(t.getAttribute('onclick').includes("'"+id+"'"))t.classList.add('active');});
-  ge('pfab').classList.toggle('vis',id==='cv');
+/* ====== NAVIGATION ====== */
+function sp(p){
+  curPage=p;curTool=null;
+  document.querySelectorAll('.pg').forEach(e=>e.classList.remove('on'));
+  const el=document.getElementById('page-'+p);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('.ntb').forEach(b=>{b.classList.toggle('on',b.dataset.p===p);});
   window.scrollTo(0,0);
 }
+document.querySelectorAll('.ntb').forEach(b=>b.addEventListener('click',()=>sp(b.dataset.p)));
 
-/* ===== TEXT EXTRACTION ===== */
-async function exText(file){
-  const ext=file.name.split('.').pop().toLowerCase();
-  if(['txt','rtf','md','csv'].includes(ext))return file.text();
-  if(['html','htm'].includes(ext)){const h=await file.text();return new DOMParser().parseFromString(h,'text/html').body.innerText;}
-  if(ext==='json'){const j=await file.text();try{return JSON.stringify(JSON.parse(j),null,2);}catch{return j;}}
-  if(ext==='pdf')return exPDF(file);
-  if(['docx','doc','odt'].includes(ext))return exDOCX(file);
-  if(['xlsx','xls'].includes(ext))return exXLSX(file);
-  if(ext==='pptx')return exPPTX(file);
-  throw new Error('Desteklenmeyen format: .'+ext);
-}
-async function exPDF(file){
-  if(!window.pdfjsLib)throw new Error('PDF kütüphanesi yüklenemedi (internet bağlantısı gerekebilir)');
-  pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-  const pdf=await pdfjsLib.getDocument({data:await file.arrayBuffer()}).promise;
-  let t='';
-  for(let i=1;i<=pdf.numPages;i++){
-    const pg=await pdf.getPage(i);
-    const c=await pg.getTextContent();
-    t+=c.items.map(s=>s.str).join(' ')+'\n';
-  }
-  return t.trim();
-}
-async function exDOCX(file){
-  if(!window.mammoth)throw new Error('DOCX kütüphanesi yüklenemedi');
-  const r=await mammoth.extractRawText({arrayBuffer:await file.arrayBuffer()});
-  return r.value;
-}
-function exXLSX(file){return new Promise((res,rej)=>{
-  const rd=new FileReader();
-  rd.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:'binary'});let o='';wb.SheetNames.forEach(s=>{o+=`=== ${s} ===\n`+XLSX.utils.sheet_to_csv(wb.Sheets[s])+'\n';});res(o);}catch(err){rej(err);}};
-  rd.onerror=()=>rej(new Error('Dosya okunamadı'));
-  rd.readAsBinaryString(file);
-});}
-async function exPPTX(file){
-  if(!window.JSZip)throw new Error('PPTX kütüphanesi yüklenemedi');
-  const zip=await JSZip.loadAsync(await file.arrayBuffer());
-  const slides=Object.keys(zip.files).filter(n=>/ppt\/slides\/slide\d+\.xml/.test(n)).sort((a,b)=>parseInt(a.match(/\d+/)[0])-parseInt(b.match(/\d+/)[0]));
-  let t='';
-  for(const sf of slides){
-    const xml=await zip.files[sf].async('text');
-    const m=xml.match(/<a:t[^>]*>([^<]*)<\/a:t>/g)||[];
-    const s=m.map(x=>x.replace(/<[^>]+>/g,'')).join(' ').trim();
-    if(s)t+=s+'\n';
-  }
-  return t||'Slayt içeriği okunamadı.';
+function openTool(id){
+  const t=TOOLS[id];if(!t)return;
+  curTool=id;
+  document.querySelectorAll('.pg').forEach(e=>e.classList.remove('on'));
+  document.getElementById('page-tool').classList.add('on');
+  document.getElementById('toolIcon').textContent=t.icon;
+  document.getElementById('toolTitle').textContent=t.name;
+  document.getElementById('toolDesc').textContent=t.desc;
+  document.getElementById('toolBack').onclick=()=>{if(t.cat)sp('cat-'+t.cat);else sp('home');};
+  document.querySelectorAll('.ntb').forEach(b=>b.classList.remove('on'));
+  window.scrollTo(0,0);
+  const body=document.getElementById('toolBody');
+  body.innerHTML='';
+  t.render(body);
 }
 
-/* ===== RSVP ===== */
-let rW=[],rI=0,rT=null,rWPM=300,rCH=1,rFS=42;
-const DEMO='Hızlı okuma tekniği olan RSVP, kelimeleri tek tek ekranın ortasında göstererek göz hareketini sıfıra indirir. Bu sayede okuma hızınız önemli ölçüde artar. Kırmızı harf, gözün odaklanması gereken optimal noktayı gösterir. Hız ve font boyutunu dilediğiniz gibi ayarlayabilirsiniz. Uzun belgeler için dosya yükleme özelliğini kullanın.';
+/* ====== TOOL REGISTRY ====== */
+const TOOLS={};
 
-function rDemo(){ge('rtxt').value=DEMO;rInit();}
-function rClear(){
-  ge('rtxt').value='';ge('rfname').textContent='Dosya seçilmedi';ge('rwc').textContent='';
-  showErr('rferr','');rW=[];rI=0;rStop();
-  ge('rph').style.display='';ge('rword').style.display='none';rStats();
+function regTool(id,icon,name,desc,cat,renderFn){
+  TOOLS[id]={id,icon,name,desc,cat,render:renderFn};
 }
-async function rLoad(inp){
-  const f=inp.files[0];if(!f)return;
-  showErr('rferr','');ge('rfname').textContent=f.name+' ('+fmtB(f.size)+')';
-  load(true,'Dosya okunuyor...');
-  try{
-    const t=await exText(f);
-    if(!t.trim())throw new Error('Dosyadan metin çıkarılamadı. Şifreli veya görsel PDF olabilir.');
-    ge('rtxt').value=t;rInit();toast('Yüklendi ✓','ok');
-  }catch(e){showErr('rferr',e.message);toast(e.message,'err');}
-  finally{load(false);}
-}
-function rInit(){
-  const raw=ge('rtxt').value.trim();if(!raw)return;
-  rCH=parseInt(ge('csel').value);
-  const aw=raw.split(/\s+/).filter(w=>w.length>0);
-  rW=[];for(let i=0;i<aw.length;i+=rCH)rW.push(aw.slice(i,i+rCH).join(' '));
-  rI=0;rStop();
-  ge('rph').style.display='none';ge('rword').style.display='';
-  ge('rwc').textContent=aw.length+' kelime';
-  rShow(0);rStats();ge('rst').textContent='Hazır';
-}
-function orpI(w){const c=w.replace(/[^a-zA-ZğüşıöçĞÜŞİÖÇ]/g,'');const l=c.length;if(l<=1)return 0;if(l<=5)return 1;if(l<=9)return 2;return 3;}
-function rShow(i){
-  if(!rW.length)return;
-  const ch=rW[Math.min(i,rW.length-1)]||'';
-  const co=ge('rword');co.style.fontSize=rFS+'px';
-  if(rCH===1){
-    const p=orpI(ch);
-    co.innerHTML=`<span class="ob">${esc(ch.slice(0,p))}</span><span class="om">${esc(ch[p]||'')}</span><span class="oa">${esc(ch.slice(p+1))}</span>`;
-  }else{
-    co.innerHTML=`<span class="oa">${esc(ch)}</span>`;
-  }
-  rStats();
-}
-function rPlay(){
-  if(!rW.length){toast('Önce metin yükleyin','warn');return;}
-  if(rT)return;if(rI>=rW.length)rI=0;
-  rT=setInterval(()=>{if(rI>=rW.length){rStop();ge('rst').textContent='Tamamlandı ✓';return;}rShow(rI++);},Math.round(60000/rWPM));
-  ge('bplay').disabled=true;ge('bpause').disabled=false;ge('rst').textContent='Oynatılıyor';
-}
-function rPause(){rStop();ge('rst').textContent='Duraklatıldı';}
-function rRestart(){rStop();rI=0;rShow(0);rStats();ge('rst').textContent='Hazır';}
-function rStop(){clearInterval(rT);rT=null;ge('bplay').disabled=false;ge('bpause').disabled=true;}
-function setWPM(v){rWPM=parseInt(v);ge('wv').textContent=v;if(rT){rStop();rPlay();}}
-function setFS(v){rFS=parseInt(v);ge('fv').textContent=v;if(rW.length)rShow(Math.max(0,rI-1));}
-function rStats(){
-  const p=rW.length?Math.round(rI/rW.length*100):0;
-  ge('spct').textContent=p+'%';ge('swrd').textContent=rI+'/'+rW.length;
-  ge('rprog').style.width=p+'%';
-  const rem=rW.length-rI;ge('stm').textContent=Math.ceil(rem/rWPM)+'dk';
-}
-document.addEventListener('keydown',e=>{
-  if(!ge('page-rsvp').classList.contains('active'))return;
-  const t=document.activeElement.tagName;if(t==='INPUT'||t==='TEXTAREA'||t==='SELECT')return;
-  if(e.code==='Space'){e.preventDefault();rT?rPause():rPlay();}
-  if(e.code==='KeyR')rRestart();
-});
-const rdz=ge('rdz');
-rdz.addEventListener('dragover',e=>{e.preventDefault();rdz.classList.add('over');});
-rdz.addEventListener('dragleave',()=>rdz.classList.remove('over'));
-rdz.addEventListener('drop',async e=>{
-  e.preventDefault();rdz.classList.remove('over');
-  const f=e.dataTransfer.files[0];if(!f)return;
-  const dt=new DataTransfer();dt.items.add(f);ge('rfi').files=dt.files;await rLoad(ge('rfi'));
-});
-function applyRL(){const l=ge('rl');if(l)l.style.gridTemplateColumns=window.innerWidth<640?'1fr':'1fr 318px';}
-window.addEventListener('resize',applyRL);applyRL();
 
-/* ===== CV BUILDER ===== */
-let cvS=[],cvN=1;
-const cid=()=>cvN++;
-const STIT={summary:'Özet',experience:'İş Deneyimi',education:'Eğitim',skills:'Teknik Beceriler',languages:'Diller',projects:'Projeler',certifications:'Sertifikalar & Ödüller',custom:'Özel Bölüm'};
-
-function nEntry(t){
-  const id=cid();
-  if(t==='experience')return{id,company:'',role:'',date:'',location:'',bullets:['']};
-  if(t==='education') return{id,institution:'',degree:'',date:'',gpa:''};
-  if(t==='projects')  return{id,name:'',tech:'',url:'',date:'',bullets:['']};
-  if(t==='certifications')return{id,name:'',org:'',date:''};
-  return{id};
-}
-function addSec(type){
-  const id=cid();const s={id,type,title:STIT[type]||'Bölüm',visible:true,entries:[]};
-  if(['experience','education','projects','certifications'].includes(type))s.entries.push(nEntry(type));
-  cvS.push(s);rSecs();rCV();
-}
-function rSecs(){
-  const c=ge('cvsc');c.innerHTML='';
-  cvS.forEach(s=>{const el=document.createElement('div');el.className='si';el.innerHTML=bldSec(s);c.appendChild(el);});
-}
-function bldSec(s){
-  const hid=!s.visible?'<span class="shb">Gizli</span>':'';
-  let b='';
-  if(s.type==='summary'){
-    b=`<div class="fg"><label class="fl">Özet / Profil</label><textarea class="fta" rows="4" oninput="sSD(${s.id},'text',this.value)" placeholder="Kendinizi 2-4 cümleyle tanıtın...">${esc(s.text||'')}</textarea></div>`;
-  }else if(s.type==='experience'){
-    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-g btn-sm" onclick="addBul(${s.id},${e.id})">+ Madde</button><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Şirket</label><input class="fi" value="${escA(e.company)}" oninput="sED(${s.id},${e.id},'company',this.value)" placeholder="Şirket"/></div><div class="fg"><label class="fl">Pozisyon</label><input class="fi" value="${escA(e.role)}" oninput="sED(${s.id},${e.id},'role',this.value)" placeholder="Geliştirici"/></div></div><div class="fr c2"><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="Oca 2022 – Günümüz"/></div><div class="fg"><label class="fl">Konum</label><input class="fi" value="${escA(e.location)}" oninput="sED(${s.id},${e.id},'location',this.value)" placeholder="İstanbul"/></div></div><label class="fl" style="margin-bottom:4px;">Başarılar</label>${e.bullets.map((bl,bi)=>`<div class="fg2 mt8"><input class="fi" style="flex:1" value="${escA(bl)}" placeholder="• Başarı" oninput="sEB(${s.id},${e.id},${bi},this.value)"/>${e.bullets.length>1?`<button class="btn btn-d btn-sm" onclick="rmBul(${s.id},${e.id},${bi})">✕</button>`:''}</div>`).join('')}</div>`).join('')+
-    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Deneyim</button>`;
-  }else if(s.type==='education'){
-    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Okul</label><input class="fi" value="${escA(e.institution)}" oninput="sED(${s.id},${e.id},'institution',this.value)" placeholder="İTÜ"/></div><div class="fg"><label class="fl">Bölüm</label><input class="fi" value="${escA(e.degree)}" oninput="sED(${s.id},${e.id},'degree',this.value)" placeholder="Bilgisayar Müh."/></div></div><div class="fr c2"><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="2018 – 2022"/></div><div class="fg"><label class="fl">GPA</label><input class="fi" value="${escA(e.gpa)}" oninput="sED(${s.id},${e.id},'gpa',this.value)" placeholder="3.6 / 4.0"/></div></div></div>`).join('')+
-    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Eğitim</button>`;
-  }else if(s.type==='skills'){
-    b=`<div class="fg"><label class="fl">Enter veya virgül ile ekleyin</label><div class="tc" id="tc${s.id}" onclick="document.getElementById('ti${s.id}').focus()">${(s.tags||[]).map(t=>`<span class="tag">${esc(t)}<button class="tr" onclick="rmTag(${s.id},'${escA(t)}')">×</button></span>`).join('')}<input class="ti" id="ti${s.id}" placeholder="Beceri..." onkeydown="tkd(event,${s.id})"/></div></div><div class="fg"><label class="fl">Kategori (opsiyonel)</label><input class="fi" value="${escA(s.category||'')}" oninput="sSD(${s.id},'category',this.value)" placeholder="Programlama Dilleri, Araçlar..."/></div>`;
-  }else if(s.type==='languages'){
-    b=`<div id="ll${s.id}">${(s.langs||[]).map((l,li)=>`<div class="fg2 mt8"><input class="fi" style="flex:2" value="${escA(l.name)}" placeholder="Türkçe" oninput="sLD(${s.id},${li},'name',this.value)"/><select class="fse" style="flex:1" onchange="sLD(${s.id},${li},'level',this.value)">${['Ana Dil','C2','C1','B2','B1','A2','A1'].map(v=>`<option${l.level===v?' selected':''}>${v}</option>`).join('')}</select><button class="btn btn-d btn-sm" onclick="rmLng(${s.id},${li})">✕</button></div>`).join('')}</div><button class="btn btn-g btn-sm mt8" onclick="addLng(${s.id})">+ Dil Ekle</button>`;
-  }else if(s.type==='projects'){
-    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-g btn-sm" onclick="addBul(${s.id},${e.id})">+ Madde</button><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Proje Adı</label><input class="fi" value="${escA(e.name)}" oninput="sED(${s.id},${e.id},'name',this.value)" placeholder="Proje adı"/></div><div class="fg"><label class="fl">Teknolojiler</label><input class="fi" value="${escA(e.tech)}" oninput="sED(${s.id},${e.id},'tech',this.value)" placeholder="React, Node.js"/></div></div><div class="fr c2"><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="2024"/></div><div class="fg"><label class="fl">URL</label><input class="fi" value="${escA(e.url||'')}" oninput="sED(${s.id},${e.id},'url',this.value)" placeholder="github.com/..."/></div></div>${e.bullets.map((bl,bi)=>`<div class="fg2 mt8"><input class="fi" style="flex:1" value="${escA(bl)}" placeholder="Proje detayı" oninput="sEB(${s.id},${e.id},${bi},this.value)"/>${e.bullets.length>1?`<button class="btn btn-d btn-sm" onclick="rmBul(${s.id},${e.id},${bi})">✕</button>`:''}</div>`).join('')}</div>`).join('')+
-    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Proje</button>`;
-  }else if(s.type==='certifications'){
-    b=s.entries.map(e=>`<div class="ec"><div class="ea"><button class="btn btn-d btn-sm" onclick="rmEnt(${s.id},${e.id})">✕ Kaldır</button></div><div class="fr c2"><div class="fg"><label class="fl">Sertifika</label><input class="fi" value="${escA(e.name)}" oninput="sED(${s.id},${e.id},'name',this.value)" placeholder="AWS Certified"/></div><div class="fg"><label class="fl">Kuruluş</label><input class="fi" value="${escA(e.org)}" oninput="sED(${s.id},${e.id},'org',this.value)" placeholder="Amazon"/></div></div><div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escA(e.date)}" oninput="sED(${s.id},${e.id},'date',this.value)" placeholder="Mart 2024"/></div></div>`).join('')+
-    `<button class="btn btn-g btn-sm mt8" onclick="addEnt(${s.id})">+ Yeni Sertifika</button>`;
-  }else if(s.type==='custom'){
-    b=`<div class="fg"><label class="fl">İçerik</label><textarea class="fta" oninput="sSD(${s.id},'content',this.value)" placeholder="Serbest metin...">${esc(s.content||'')}</textarea></div>`;
-  }
-  return`<div class="sh open" onclick="tgSec(this)"><span class="sv">▶</span><span style="font-size:13px;font-weight:600;flex:1;display:flex;align-items:center;gap:6px;min-width:0;"><input onclick="event.stopPropagation()" class="fi" style="border:none;background:transparent;padding:0;font-weight:600;font-size:13px;width:180px;max-width:100%;" value="${escA(s.title)}" oninput="sSD(${s.id},'title',this.value)"/>${hid}</span><div style="display:flex;gap:3px;" onclick="event.stopPropagation()"><button class="btn btn-g btn-sm" onclick="sUp(${s.id})">↑</button><button class="btn btn-g btn-sm" onclick="sDn(${s.id})">↓</button><button class="btn btn-g btn-sm" onclick="sVis(${s.id})">${s.visible?'👁':'🚫'}</button><button class="btn btn-d btn-sm" onclick="sRm(${s.id})">✕</button></div></div><div class="sb open">${b}</div>`;
-}
-function tgSec(h){h.classList.toggle('open');h.nextElementSibling.classList.toggle('open');}
-function sRm(id){cvS=cvS.filter(s=>s.id!==id);rSecs();rCV();}
-function sVis(id){const s=cvS.find(s=>s.id===id);if(s){s.visible=!s.visible;rSecs();rCV();}}
-function sUp(id){const i=cvS.findIndex(s=>s.id===id);if(i>0){[cvS[i-1],cvS[i]]=[cvS[i],cvS[i-1]];rSecs();rCV();}}
-function sDn(id){const i=cvS.findIndex(s=>s.id===id);if(i<cvS.length-1){[cvS[i],cvS[i+1]]=[cvS[i+1],cvS[i]];rSecs();rCV();}}
-function sSD(id,k,v){const s=cvS.find(s=>s.id===id);if(s){s[k]=v;rCV();}}
-function sED(si,ei,k,v){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e){e[k]=v;rCV();}}
-function sEB(si,ei,bi,v){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e){e.bullets[bi]=v;rCV();}}
-function addEnt(si){const s=cvS.find(s=>s.id===si);if(s){s.entries.push(nEntry(s.type));rSecs();rCV();}}
-function rmEnt(si,ei){const s=cvS.find(s=>s.id===si);if(s){s.entries=s.entries.filter(e=>e.id!==ei);rSecs();rCV();}}
-function addBul(si,ei){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e){e.bullets.push('');rSecs();rCV();}}
-function rmBul(si,ei,bi){const s=cvS.find(s=>s.id===si);const e=s?.entries.find(e=>e.id===ei);if(e&&e.bullets.length>1){e.bullets.splice(bi,1);rSecs();rCV();}}
-function tkd(ev,si){if(ev.key!=='Enter'&&ev.key!==',')return;ev.preventDefault();const v=ev.target.value.trim().replace(/,$/,'');if(!v)return;const s=cvS.find(s=>s.id===si);if(!s)return;if(!s.tags)s.tags=[];if(!s.tags.includes(v)){s.tags.push(v);rSecs();rCV();}ev.target.value='';}
-function rmTag(si,tag){const s=cvS.find(s=>s.id===si);if(s){s.tags=(s.tags||[]).filter(t=>t!==tag);rSecs();rCV();}}
-function addLng(si){const s=cvS.find(s=>s.id===si);if(!s.langs)s.langs=[];s.langs.push({name:'',level:'B2'});rSecs();rCV();}
-function rmLng(si,li){const s=cvS.find(s=>s.id===si);if(s){s.langs.splice(li,1);rSecs();rCV();}}
-function sLD(si,li,k,v){const s=cvS.find(s=>s.id===si);if(s?.langs?.[li]){s.langs[li][k]=v;rCV();}}
-
-function gP(){return{name:ge('cn').value.trim(),title:ge('cti').value.trim(),email:ge('cem').value.trim(),phone:ge('cph').value.trim(),location:ge('clo').value.trim(),website:ge('cwb').value.trim(),github:ge('cgh').value.trim(),other:ge('cot').value.trim()};}
-function sP(p){ge('cn').value=p.name||'';ge('cti').value=p.title||'';ge('cem').value=p.email||'';ge('cph').value=p.phone||'';ge('clo').value=p.location||'';ge('cwb').value=p.website||'';ge('cgh').value=p.github||'';ge('cot').value=p.other||'';}
-
-function rCV(){
-  const p=gP();
-  if(!p.name){ge('cvdoc').innerHTML='<div class="cempty">Sol taraftan bilgileri doldurun veya CV yükleyin</div>';return;}
-  const ct=[p.email,p.phone,p.location,p.website,p.github,p.other].filter(Boolean);
-  let h=`<div class="cn">${esc(p.name)}</div>${p.title?`<div class="ct">${esc(p.title)}</div>`:''}<div class="cc">${ct.map(c=>`<span>${esc(c)}</span>`).join('')}</div>`;
-  cvS.filter(s=>s.visible).forEach(s=>{
-    h+=`<div class="cs"><div class="cst">${esc(s.title)}</div>`;
-    if(s.type==='summary'&&s.text)h+=`<div class="csu">${esc(s.text)}</div>`;
-    else if(['experience','projects'].includes(s.type)){
-      (s.entries||[]).forEach(e=>{
-        const tt=s.type==='experience'?e.role:e.name;
-        const sb=s.type==='experience'?[e.company,e.location].filter(Boolean).join(' · '):[e.tech,e.url].filter(Boolean).join(' · ');
-        h+=`<div class="ce"><div class="ceh"><div>${tt?`<div class="cet">${esc(tt)}</div>`:''} ${sb?`<div class="ces">${esc(sb)}</div>`:''}</div>${e.date?`<div class="ced">${esc(e.date)}</div>`:''}</div>${(e.bullets||[]).filter(b=>b.trim()).length?`<ul class="cbl">${e.bullets.filter(b=>b.trim()).map(b=>`<li>${esc(b)}</li>`).join('')}</ul>`:''}</div>`;
-      });
-    }else if(s.type==='education'){
-      (s.entries||[]).forEach(e=>{
-        h+=`<div class="ce"><div class="ceh"><div>${e.institution?`<div class="cet">${esc(e.institution)}</div>`:''} ${e.degree?`<div class="ces">${esc(e.degree)}${e.gpa?` · ${e.gpa}`:''}</div>`:''}</div>${e.date?`<div class="ced">${esc(e.date)}</div>`:''}</div></div>`;
-      });
-    }else if(s.type==='skills'&&(s.tags?.length||s.category)){
-      if(s.category)h+=`<div class="ces" style="margin-bottom:4px;">${esc(s.category)}</div>`;
-      if(s.tags?.length)h+=`<div class="csg">${s.tags.map(t=>`<span class="csk">${esc(t)}</span>`).join('')}</div>`;
-    }else if(s.type==='languages'&&s.langs?.length){
-      h+=`<div style="font-size:10px;color:#3F3F46;">${s.langs.filter(l=>l.name).map(l=>`<strong>${esc(l.name)}</strong> — ${esc(l.level)}`).join('&nbsp;·&nbsp;')}</div>`;
-    }else if(s.type==='certifications'){
-      (s.entries||[]).forEach(e=>{
-        h+=`<div class="ce"><div class="ceh"><div>${e.name?`<div class="cet">${esc(e.name)}</div>`:''} ${e.org?`<div class="ces">${esc(e.org)}</div>`:''}</div>${e.date?`<div class="ced">${esc(e.date)}</div>`:''}</div></div>`;
-      });
-    }else if(s.type==='custom'&&s.content)h+=`<div class="csu">${esc(s.content)}</div>`;
-    h+=`</div>`;
+/* ====== HOME GRID BUILDER ====== */
+function buildHome(){
+  const grid=document.getElementById('homeGrid');
+  const cats=[
+    {key:'pdf',label:'PDF Araçları',icon:'📕',filter:t=>t.cat==='pdf'},
+    {key:'img',label:'Görüntü Araçları',icon:'🖼',filter:t=>t.cat==='img'},
+    {key:'txt',label:'Metin Araçları',icon:'📝',filter:t=>t.cat==='txt'},
+    {key:'extra',label:'Diğer Araçlar',icon:'⚡',filter:t=>!t.cat||t.cat==='extra'}
+  ];
+  let html='';
+  cats.forEach(c=>{
+    const items=Object.values(TOOLS).filter(c.filter);
+    if(!items.length)return;
+    html+=`<div class="cat-head" data-cat="${c.key}"><span>${c.icon}</span>${c.label}</div>`;
+    html+=`<div class="tgrid" data-cat="${c.key}">`;
+    items.forEach(t=>{
+      html+=`<div class="tcard" onclick="openTool('${t.id}')" data-search="${t.name.toLowerCase()} ${t.desc.toLowerCase()}"><div class="tci">${t.icon}</div><div class="tcn">${t.name}</div><div class="tcd">${t.desc}</div></div>`;
+    });
+    html+=`</div>`;
   });
-  ge('cvdoc').innerHTML=h;
+  grid.innerHTML=html;
 }
 
-/* CV Import (PDF/DOCX/JSON) */
-async function cvImport(inp){
-  const f=inp.files[0];if(!f)return;
-  showErr('cverr','');ge('cvinfo').style.display='none';
-  const ext=f.name.split('.').pop().toLowerCase();
-  load(true,'CV okunuyor...');
-  try{
-    if(ext==='json'){
-      const d=JSON.parse(await f.text());
-      if(d.personal)sP(d.personal);
-      if(d.sections){cvS=d.sections;cvN=Math.max(...cvS.map(s=>s.id),cvN)+1;}
-      rSecs();rCV();cvMsg('JSON yüklendi — bilgiler aktarıldı ✓');
-    }else{
-      const t=await exText(f);
-      if(!t.trim())throw new Error('Dosyadan metin çıkarılamadı');
-      cvParse(t);cvMsg('CV okundu — bilgileri kontrol edin ve düzenleyin');
+function buildCatGrids(){
+  ['pdf','img','txt'].forEach(cat=>{
+    const el=document.getElementById(cat+'Grid');
+    if(!el)return;
+    const items=Object.values(TOOLS).filter(t=>t.cat===cat);
+    el.innerHTML=items.map(t=>`<div class="tcard" onclick="openTool('${t.id}')"><div class="tci">${t.icon}</div><div class="tcn">${t.name}</div><div class="tcd">${t.desc}</div></div>`).join('');
+  });
+}
+
+function filterHome(q){
+  q=q.toLowerCase().trim();
+  document.querySelectorAll('#homeGrid .tcard').forEach(c=>{
+    c.style.display=!q||c.dataset.search.includes(q)?'':'none';
+  });
+  document.querySelectorAll('#homeGrid .cat-head').forEach(h=>{
+    const cat=h.dataset.cat;
+    const next=h.nextElementSibling;
+    if(!next)return;
+    const vis=next.querySelectorAll('.tcard[style=""], .tcard:not([style])');
+    h.style.display=vis.length||!q?'':'none';
+    if(!q)next.querySelectorAll('.tcard').forEach(c=>c.style.display='');
+  });
+}
+
+/* ============================================================
+   PDF TOOLS
+   ============================================================ */
+
+/* --- PDF Merge --- */
+regTool('pdf-merge','🔗','PDF Birleştir','Birden fazla PDF dosyasını tek bir dosyada birleştirin.','pdf',function(body){
+  let files=[];
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">PDF Dosyaları</div>
+      <div class="dz" onclick="document.getElementById('pmFiles').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="pmDrop(event)">
+        <div class="dz-t">PDF dosyalarını sürükleyin veya seçin</div><div class="dz-h">Birden fazla dosya seçebilirsiniz</div>
+      </div>
+      <input type="file" id="pmFiles" hidden accept=".pdf" multiple onchange="pmLoad(this)"/>
+      <div class="ulist" id="pmList"></div>
+      <div class="mt12"><button class="btn bp" onclick="pmMerge()" id="pmBtn" disabled>Birleştir ve İndir</button></div>
+    </div>`;
+  window.pmFiles=files;
+  window.pmLoad=function(inp){for(const f of inp.files){files.push(f);}pmRender();};
+  window.pmDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');for(const f of e.dataTransfer.files){if(f.type==='application/pdf')files.push(f);}pmRender();};
+  window.pmRender=function(){const l=document.getElementById('pmList');l.innerHTML=files.map((f,i)=>`<div class="ufi">${i+1}. ${f.name} (${fmtSize(f.size)})<button onclick="pmRm(${i})">×</button></div>`).join('');document.getElementById('pmBtn').disabled=files.length<2;};
+  window.pmRm=function(i){files.splice(i,1);pmRender();};
+  window.pmMerge=async function(){
+    showLd('PDF\'ler birleştiriliyor...');
+    try{
+      const merged=await PDFLib.PDFDocument.create();
+      for(const f of files){
+        const buf=await f.arrayBuffer();
+        const doc=await PDFLib.PDFDocument.load(buf);
+        const pages=await merged.copyPages(doc,doc.getPageIndices());
+        pages.forEach(p=>merged.addPage(p));
+      }
+      const out=await merged.save();
+      dlBlob(new Blob([out],{type:'application/pdf'}),'birlesik.pdf');
+      toast('PDF\'ler birleştirildi!','tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Split --- */
+regTool('pdf-split','✂️','PDF Böl','PDF dosyasını sayfa aralıklarına bölün.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('psFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="psDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin veya seçin</div>
+      </div>
+      <input type="file" id="psFile" hidden accept=".pdf" onchange="psLoad(this)"/>
+      <div class="mt12" id="psInfo" style="display:none;">
+        <div class="tsm" id="psPages"></div>
+        <div class="fr c2 mt8">
+          <div class="fg"><label class="fl">Başlangıç Sayfası</label><input type="number" class="fi" id="psFrom" min="1" value="1"/></div>
+          <div class="fg"><label class="fl">Bitiş Sayfası</label><input type="number" class="fi" id="psTo" min="1" value="1"/></div>
+        </div>
+        <button class="btn bp mt8" onclick="psSplit()">Böl ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null,totalPages=0;
+  window.psLoad=async function(inp){
+    const f=inp.files[0];if(!f)return;
+    srcBuf=await f.arrayBuffer();
+    const doc=await PDFLib.PDFDocument.load(srcBuf);
+    totalPages=doc.getPageCount();
+    document.getElementById('psInfo').style.display='block';
+    document.getElementById('psPages').textContent=`${f.name} — ${totalPages} sayfa`;
+    document.getElementById('psTo').value=totalPages;
+  };
+  window.psDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const inp=document.getElementById('psFile');const dt=new DataTransfer();dt.items.add(f);inp.files=dt.files;psLoad(inp);}};
+  window.psSplit=async function(){
+    if(!srcBuf)return;
+    const from=parseInt(document.getElementById('psFrom').value)-1;
+    const to=parseInt(document.getElementById('psTo').value)-1;
+    if(from<0||to>=totalPages||from>to){toast('Geçersiz sayfa aralığı','ter');return;}
+    showLd('Bölünüyor...');
+    try{
+      const src=await PDFLib.PDFDocument.load(srcBuf);
+      const newDoc=await PDFLib.PDFDocument.create();
+      const pages=await newDoc.copyPages(src,Array.from({length:to-from+1},(_,i)=>from+i));
+      pages.forEach(p=>newDoc.addPage(p));
+      const out=await newDoc.save();
+      dlBlob(new Blob([out],{type:'application/pdf'}),`sayfa_${from+1}-${to+1}.pdf`);
+      toast('PDF bölündü!','tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Compress --- */
+regTool('pdf-compress','📦','PDF Sıkıştır','PDF dosyasını sıkıştırarak boyutunu küçültün.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('pcFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="pcDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="pcFile" hidden accept=".pdf" onchange="pcLoad(this)"/>
+      <div class="mt12" id="pcInfo" style="display:none;">
+        <div class="tsm" id="pcMeta"></div>
+        <div class="fg mt8"><label class="fl">Kalite (düşük = küçük dosya)</label>
+          <select class="fs" id="pcQ"><option value="0.3">Düşük (en küçük)</option><option value="0.5">Orta</option><option value="0.7" selected>Yüksek</option></select>
+        </div>
+        <button class="btn bp mt8" onclick="pcCompress()">Sıkıştır ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null,srcSize=0;
+  window.pcLoad=async function(inp){
+    const f=inp.files[0];if(!f)return;
+    srcBuf=await f.arrayBuffer();srcSize=f.size;
+    document.getElementById('pcInfo').style.display='block';
+    document.getElementById('pcMeta').textContent=`${f.name} — ${fmtSize(f.size)}`;
+  };
+  window.pcDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('pcFile').files=dt.files;pcLoad(document.getElementById('pcFile'));}};
+  window.pcCompress=async function(){
+    if(!srcBuf)return;
+    showLd('Sıkıştırılıyor...');
+    try{
+      const q=parseFloat(document.getElementById('pcQ').value);
+      const doc=await pdfjsLib.getDocument({data:srcBuf.slice(0)}).promise;
+      const {PDFDocument}=PDFLib;
+      const newDoc=await PDFDocument.create();
+      for(let i=1;i<=doc.numPages;i++){
+        const pg=await doc.getPage(i);
+        const vp=pg.getViewport({scale:2});
+        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+        const ctx=canvas.getContext('2d');
+        await pg.render({canvasContext:ctx,viewport:vp}).promise;
+        const dataUrl=canvas.toDataURL('image/jpeg',q);
+        const img=await newDoc.embedJpg(dataUrl);
+        const page=newDoc.addPage([vp.width,vp.height]);
+        page.drawImage(img,{x:0,y:0,width:vp.width,height:vp.height});
+      }
+      const out=await newDoc.save();
+      const newSize=out.byteLength;
+      const pct=((1-newSize/srcSize)*100).toFixed(1);
+      dlBlob(new Blob([out],{type:'application/pdf'}),'sikistirilmis.pdf');
+      toast(`${pct>0?pct+' küçültüldü':'Boyut değişmedi'} (${fmtSize(srcSize)} → ${fmtSize(newSize)})`,'tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Watermark --- */
+regTool('pdf-watermark','💧','PDF Filigran','PDF sayfalarına metin filigranı ekleyin.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('pwFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="pwDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="pwFile" hidden accept=".pdf" onchange="pwLoad(this)"/>
+      <div class="mt12" id="pwInfo" style="display:none;">
+        <div class="fr c2">
+          <div class="fg"><label class="fl">Filigran Metni</label><input class="fi" id="pwText" value="GİZLİ"/></div>
+          <div class="fg"><label class="fl">Boyut</label><input type="number" class="fi" id="pwSize" value="50" min="10" max="200"/></div>
+        </div>
+        <div class="fr c2">
+          <div class="fg"><label class="fl">Opaklık (0-1)</label><input type="number" class="fi" id="pwOp" value="0.15" min="0" max="1" step="0.05"/></div>
+          <div class="fg"><label class="fl">Renk</label><input type="color" class="fi" id="pwColor" value="#888888"/></div>
+        </div>
+        <button class="btn bp mt8" onclick="pwApply()">Filigran Ekle ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null;
+  window.pwLoad=async function(inp){const f=inp.files[0];if(!f)return;srcBuf=await f.arrayBuffer();document.getElementById('pwInfo').style.display='block';};
+  window.pwDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('pwFile').files=dt.files;pwLoad(document.getElementById('pwFile'));}};
+  window.pwApply=async function(){
+    if(!srcBuf)return;showLd('Filigran ekleniyor...');
+    try{
+      const text=document.getElementById('pwText').value||'WATERMARK';
+      const size=parseInt(document.getElementById('pwSize').value);
+      const opacity=parseFloat(document.getElementById('pwOp').value);
+      const color=document.getElementById('pwColor').value;
+      const doc=await pdfjsLib.getDocument({data:srcBuf.slice(0)}).promise;
+      const {PDFDocument}=PDFLib;
+      const newDoc=await PDFDocument.create();
+      const r=parseInt(color.slice(1,3),16)/255,g=parseInt(color.slice(3,5),16)/255,b=parseInt(color.slice(5,7),16)/255;
+      for(let i=1;i<=doc.numPages;i++){
+        const pg=await doc.getPage(i);const vp=pg.getViewport({scale:2});
+        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+        const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,vp.width,vp.height);
+        await pg.render({canvasContext:ctx,viewport:vp}).promise;
+        ctx.save();ctx.globalAlpha=opacity;ctx.font=`bold ${size}px Inter, sans-serif`;ctx.fillStyle=color;
+        ctx.translate(vp.width/2,vp.height/2);ctx.rotate(-Math.PI/6);
+        ctx.textAlign='center';ctx.fillText(text,0,0);ctx.restore();
+        const jpgData=canvas.toDataURL('image/jpeg',0.92);
+        const img=await newDoc.embedJpg(jpgData);
+        const page=newDoc.addPage([vp.width,vp.height]);
+        page.drawImage(img,{x:0,y:0,width:vp.width,height:vp.height});
+      }
+      const out=await newDoc.save();
+      dlBlob(new Blob([out],{type:'application/pdf'}),'filigranli.pdf');
+      toast('Filigran eklendi!','tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Page Delete --- */
+regTool('pdf-pagedel','🗑','Sayfa Sil','PDF\'den belirli sayfaları silin.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('pdFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="pdDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="pdFile" hidden accept=".pdf" onchange="pdLoad(this)"/>
+      <div class="mt12" id="pdInfo" style="display:none;">
+        <div class="tsm" id="pdMeta"></div>
+        <div class="fg mt8"><label class="fl">Silinecek Sayfalar (virgülle ayırın, örn: 1,3,5-7)</label><input class="fi" id="pdPages" placeholder="1, 3, 5-7"/></div>
+        <button class="btn bp mt8" onclick="pdDel()">Sayfaları Sil ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null,totalPages=0;
+  window.pdLoad=async function(inp){const f=inp.files[0];if(!f)return;srcBuf=await f.arrayBuffer();const doc=await PDFLib.PDFDocument.load(srcBuf);totalPages=doc.getPageCount();document.getElementById('pdInfo').style.display='block';document.getElementById('pdMeta').textContent=`${f.name} — ${totalPages} sayfa`;};
+  window.pdDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('pdFile').files=dt.files;pdLoad(document.getElementById('pdFile'));}};
+  function parsePages(s,max){const set=new Set();s.split(',').forEach(p=>{p=p.trim();if(p.includes('-')){const[a,b]=p.split('-').map(Number);for(let i=Math.max(1,a);i<=Math.min(max,b);i++)set.add(i-1);}else{const n=parseInt(p)-1;if(n>=0&&n<max)set.add(n);}});return set;}
+  window.pdDel=async function(){
+    if(!srcBuf)return;const del=parsePages(document.getElementById('pdPages').value,totalPages);if(!del.size){toast('Geçerli sayfa girin','ter');return;}
+    showLd('Sayfalar siliniyor...');
+    try{const src=await PDFLib.PDFDocument.load(srcBuf);const nd=await PDFLib.PDFDocument.create();const keep=[];for(let i=0;i<totalPages;i++)if(!del.has(i))keep.push(i);const pages=await nd.copyPages(src,keep);pages.forEach(p=>nd.addPage(p));const out=await nd.save();dlBlob(new Blob([out],{type:'application/pdf'}),'sayfa_silindi.pdf');toast(`${del.size} sayfa silindi!`,'tok');}catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Page Reorder --- */
+regTool('pdf-reorder','↕️','Sayfa Sırala','PDF sayfalarının sırasını değiştirin.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('prFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="prDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="prFile" hidden accept=".pdf" onchange="prLoad(this)"/>
+      <div class="mt12" id="prInfo" style="display:none;">
+        <div class="tsm mb8" id="prMeta"></div>
+        <div class="fg"><label class="fl">Yeni Sıra (sayfa numaraları, virgülle ayırın)</label><input class="fi" id="prOrder" placeholder="3, 1, 2, 5, 4"/></div>
+        <div class="fg"><label class="fl">Veya ters çevir</label><button class="btn bg bs" onclick="prReverse()">Tersine Çevir</button></div>
+        <button class="btn bp mt8" onclick="prApply()">Yeniden Sırala ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null,totalPages=0;
+  window.prLoad=async function(inp){const f=inp.files[0];if(!f)return;srcBuf=await f.arrayBuffer();const doc=await PDFLib.PDFDocument.load(srcBuf);totalPages=doc.getPageCount();document.getElementById('prInfo').style.display='block';document.getElementById('prMeta').textContent=`${f.name} — ${totalPages} sayfa`;const arr=[];for(let i=1;i<=totalPages;i++)arr.push(i);document.getElementById('prOrder').value=arr.join(', ');};
+  window.prDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('prFile').files=dt.files;prLoad(document.getElementById('prFile'));}};
+  window.prReverse=function(){const arr=[];for(let i=totalPages;i>=1;i--)arr.push(i);document.getElementById('prOrder').value=arr.join(', ');};
+  window.prApply=async function(){
+    if(!srcBuf)return;
+    const order=document.getElementById('prOrder').value.split(',').map(s=>parseInt(s.trim())-1).filter(n=>n>=0&&n<totalPages);
+    if(!order.length){toast('Geçerli sıra girin','ter');return;}
+    showLd('Sıralanıyor...');
+    try{const src=await PDFLib.PDFDocument.load(srcBuf);const nd=await PDFLib.PDFDocument.create();const pages=await nd.copyPages(src,order);pages.forEach(p=>nd.addPage(p));const out=await nd.save();dlBlob(new Blob([out],{type:'application/pdf'}),'yeniden_sirali.pdf');toast('Sayfalar yeniden sıralandı!','tok');}catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Rotate --- */
+regTool('pdf-rotate','🔄','PDF Döndür','PDF sayfalarını döndürün.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('prtFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="prtDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="prtFile" hidden accept=".pdf" onchange="prtLoad(this)"/>
+      <div class="mt12" id="prtInfo" style="display:none;">
+        <div class="fg"><label class="fl">Döndürme Açısı</label>
+          <select class="fs" id="prtAngle"><option value="90">90° Saat Yönü</option><option value="180">180°</option><option value="270">90° Saat Yönünün Tersi</option></select>
+        </div>
+        <div class="fg"><label class="fl">Sayfalar (boş = tümü, yoksa 1,3,5)</label><input class="fi" id="prtPages" placeholder="Tüm sayfalar"/></div>
+        <button class="btn bp mt8" onclick="prtApply()">Döndür ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null,totalPages=0;
+  window.prtLoad=async function(inp){const f=inp.files[0];if(!f)return;srcBuf=await f.arrayBuffer();const doc=await PDFLib.PDFDocument.load(srcBuf);totalPages=doc.getPageCount();document.getElementById('prtInfo').style.display='block';};
+  window.prtDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('prtFile').files=dt.files;prtLoad(document.getElementById('prtFile'));}};
+  window.prtApply=async function(){
+    if(!srcBuf)return;
+    const angle=parseInt(document.getElementById('prtAngle').value);
+    const pagesStr=document.getElementById('prtPages').value.trim();
+    let pageSet=null;
+    if(pagesStr){pageSet=new Set(pagesStr.split(',').map(s=>parseInt(s.trim())-1).filter(n=>n>=0&&n<totalPages));}
+    showLd('Döndürülüyor...');
+    try{
+      const doc=await PDFLib.PDFDocument.load(srcBuf);
+      const pages=doc.getPages();
+      pages.forEach((p,i)=>{
+        if(!pageSet||pageSet.has(i)){
+          const cur=p.getRotation().angle;
+          p.setRotation(PDFLib.degrees(cur+angle));
+        }
+      });
+      const out=await doc.save();
+      dlBlob(new Blob([out],{type:'application/pdf'}),'dondurulmus.pdf');
+      toast('PDF döndürüldü!','tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF Page Numbers --- */
+regTool('pdf-pagenums','🔢','Sayfa Numarası','PDF sayfalarına numara ekleyin.','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('ppnFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="ppnDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="ppnFile" hidden accept=".pdf" onchange="ppnLoad(this)"/>
+      <div class="mt12" id="ppnInfo" style="display:none;">
+        <div class="fr c2">
+          <div class="fg"><label class="fl">Konum</label><select class="fs" id="ppnPos"><option value="bottom-center">Alt Orta</option><option value="bottom-left">Alt Sol</option><option value="bottom-right">Alt Sağ</option><option value="top-center">Üst Orta</option></select></div>
+          <div class="fg"><label class="fl">Başlangıç Numarası</label><input type="number" class="fi" id="ppnStart" value="1" min="0"/></div>
+        </div>
+        <button class="btn bp mt8" onclick="ppnApply()">Numara Ekle ve İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null;
+  window.ppnLoad=async function(inp){const f=inp.files[0];if(!f)return;srcBuf=await f.arrayBuffer();document.getElementById('ppnInfo').style.display='block';};
+  window.ppnDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('ppnFile').files=dt.files;ppnLoad(document.getElementById('ppnFile'));}};
+  window.ppnApply=async function(){
+    if(!srcBuf)return;showLd('Numaralar ekleniyor...');
+    try{
+      const pos=document.getElementById('ppnPos').value;
+      const start=parseInt(document.getElementById('ppnStart').value);
+      const doc=await pdfjsLib.getDocument({data:srcBuf.slice(0)}).promise;
+      const {PDFDocument}=PDFLib;
+      const newDoc=await PDFDocument.create();
+      for(let i=0;i<doc.numPages;i++){
+        const pg=await doc.getPage(i+1);const vp=pg.getViewport({scale:2});
+        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+        const ctx=canvas.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,vp.width,vp.height);
+        await pg.render({canvasContext:ctx,viewport:vp}).promise;
+        ctx.fillStyle='#333';ctx.font='14px Inter, sans-serif';ctx.textAlign='center';
+        const num=String(start+i);
+        let x=vp.width/2,y=vp.height-30;
+        if(pos.includes('left')){x=40;ctx.textAlign='left';}
+        if(pos.includes('right')){x=vp.width-40;ctx.textAlign='right';}
+        if(pos.includes('top'))y=30;
+        ctx.fillText(num,x,y);
+        const jpgData=canvas.toDataURL('image/jpeg',0.95);
+        const img=await newDoc.embedJpg(jpgData);
+        const page=newDoc.addPage([vp.width,vp.height]);
+        page.drawImage(img,{x:0,y:0,width:vp.width,height:vp.height});
+      }
+      const out=await newDoc.save();dlBlob(new Blob([out],{type:'application/pdf'}),'numarali.pdf');toast('Sayfa numaraları eklendi!','tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- PDF to Image --- */
+regTool('pdf-to-img','🖼','PDF → Görüntü','PDF sayfalarını görüntülere dönüştürün (ZIP).','pdf',function(body){
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Kaynak PDF</div>
+      <div class="dz" onclick="document.getElementById('ptiFile').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="ptiDrop(event)">
+        <div class="dz-t">PDF dosyasını sürükleyin</div>
+      </div>
+      <input type="file" id="ptiFile" hidden accept=".pdf" onchange="ptiLoad(this)"/>
+      <div class="mt12" id="ptiInfo" style="display:none;">
+        <div class="fr c2">
+          <div class="fg"><label class="fl">Format</label><select class="fs" id="ptiFmt"><option value="png">PNG</option><option value="jpeg">JPEG</option></select></div>
+          <div class="fg"><label class="fl">Kalite (JPEG)</label><input type="number" class="fi" id="ptiQ" value="90" min="10" max="100"/></div>
+        </div>
+        <button class="btn bp mt8" onclick="ptiConvert()">Dönüştür ve ZIP İndir</button>
+      </div>
+    </div>`;
+  let srcBuf=null;
+  window.ptiLoad=async function(inp){const f=inp.files[0];if(!f)return;srcBuf=await f.arrayBuffer();document.getElementById('ptiInfo').style.display='block';};
+  window.ptiDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type==='application/pdf'){const dt=new DataTransfer();dt.items.add(f);document.getElementById('ptiFile').files=dt.files;ptiLoad(document.getElementById('ptiFile'));}};
+  window.ptiConvert=async function(){
+    if(!srcBuf)return;showLd('Dönüştürülüyor...');
+    try{
+      const fmt=document.getElementById('ptiFmt').value;
+      const q=parseInt(document.getElementById('ptiQ').value)/100;
+      const doc=await pdfjsLib.getDocument({data:srcBuf.slice(0)}).promise;
+      const zip=new JSZip();
+      for(let i=1;i<=doc.numPages;i++){
+        document.getElementById('ldm').textContent=`Sayfa ${i}/${doc.numPages}...`;
+        const pg=await doc.getPage(i);const vp=pg.getViewport({scale:2});
+        const canvas=document.createElement('canvas');canvas.width=vp.width;canvas.height=vp.height;
+        await pg.render({canvasContext:canvas.getContext('2d'),viewport:vp}).promise;
+        const mime=fmt==='png'?'image/png':'image/jpeg';
+        const ext=fmt==='png'?'png':'jpg';
+        const dataUrl=canvas.toDataURL(mime,fmt==='jpeg'?q:undefined);
+        const base64=dataUrl.split(',')[1];
+        zip.file(`sayfa_${i}.${ext}`,base64,{base64:true});
+      }
+      const blob=await zip.generateAsync({type:'blob'});dlBlob(blob,'pdf_gorseller.zip');toast(`${doc.numPages} sayfa dönüştürüldü!`,'tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* --- Image to PDF --- */
+regTool('img-to-pdf','📄','Görüntü → PDF','Görüntüleri PDF dosyasına dönüştürün.','pdf',function(body){
+  let files=[];
+  body.innerHTML=`
+    <div class="cd">
+      <div class="ct">Görüntüler</div>
+      <div class="dz" onclick="document.getElementById('itpFiles').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="itpDrop(event)">
+        <div class="dz-t">Görüntüleri sürükleyin veya seçin</div><div class="dz-h">JPG, PNG, WebP desteklenir</div>
+      </div>
+      <input type="file" id="itpFiles" hidden accept="image/*" multiple onchange="itpLoad(this)"/>
+      <div class="ulist" id="itpList"></div>
+      <button class="btn bp mt12" onclick="itpConvert()" id="itpBtn" disabled>PDF Oluştur</button>
+    </div>`;
+  window.itpLoad=function(inp){for(const f of inp.files)files.push(f);itpRender();};
+  window.itpDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');for(const f of e.dataTransfer.files){if(f.type.startsWith('image/'))files.push(f);}itpRender();};
+  window.itpRender=function(){document.getElementById('itpList').innerHTML=files.map((f,i)=>`<div class="ufi">${i+1}. ${f.name}<button onclick="files.splice(${i},1);itpRender()">×</button></div>`).join('');document.getElementById('itpBtn').disabled=!files.length;};
+  window.itpConvert=async function(){
+    showLd('PDF oluşturuluyor...');
+    try{
+      const {PDFDocument}=PDFLib;const doc=await PDFDocument.create();
+      for(const f of files){
+        const buf=await f.arrayBuffer();const bytes=new Uint8Array(buf);
+        let img;
+        if(f.type==='image/png')img=await doc.embedPng(bytes);
+        else img=await doc.embedJpg(bytes);
+        const dims=img.scale(1);const page=doc.addPage([dims.width,dims.height]);
+        page.drawImage(img,{x:0,y:0,width:dims.width,height:dims.height});
+      }
+      const out=await doc.save();dlBlob(new Blob([out],{type:'application/pdf'}),'goruntu_pdf.pdf');toast('PDF oluşturuldu!','tok');
+    }catch(err){toast('Hata: '+err.message,'ter');}
+    hideLd();
+  };
+});
+
+/* ============================================================
+   IMAGE TOOLS
+   ============================================================ */
+
+function imgToolCanvas(body,opts,applyFn){
+  let img=null;const canv=document.createElement('canvas');const ctx=canv.getContext('2d');
+  body.innerHTML='';
+  const wrap=document.createElement('div');wrap.className='cd';
+  wrap.innerHTML=`<div class="ct">Kaynak Görüntü</div>
+    <div class="dz" onclick="document.getElementById('imgInp').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="imgDrop(event)">
+      <div class="dz-t">Görüntüyü sürükleyin veya seçin</div><div class="dz-h">JPG, PNG, WebP, GIF, BMP</div>
+    </div>
+    <input type="file" id="imgInp" hidden accept="image/*" onchange="imgFileLoad(this)"/>`;
+  body.appendChild(wrap);
+
+  if(opts&&opts.length){
+    const optCard=document.createElement('div');optCard.className='cd mt14';optCard.innerHTML=`<div class="ct">Ayarlar</div><div id="imgOpts"></div><div class="mt8"><button class="btn bp" onclick="imgApply()">Uygula</button></div>`;
+    body.appendChild(optCard);
+    const optsDiv=optCard.querySelector('#imgOpts');
+    opts.forEach(o=>{
+      const d=document.createElement('div');d.className='fg';
+      if(o.type==='range'){
+        d.innerHTML=`<label class="fl">${o.label}</label><div class="range-wrap"><input type="range" id="io_${o.id}" min="${o.min}" max="${o.max}" value="${o.def||o.min}" step="${o.step||1}" oninput="document.getElementById('iov_${o.id}').textContent=this.value${o.suffix?'+\''+o.suffix '\'':''}"/><span class="range-val" id="iov_${o.id}">${o.def||o.min}${o.suffix||''}</span></div>`;
+      }else if(o.type==='select'){
+        d.innerHTML=`<label class="fl">${o.label}</label><select class="fs" id="io_${o.id}">${o.options.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join('')}</select>`;
+      }else if(o.type==='color'){
+        d.innerHTML=`<label class="fl">${o.label}</label><input type="color" class="fi" id="io_${o.id}" value="${o.def||'#000000'}"/>`;
+      }else if(o.type==='text'){
+        d.innerHTML=`<label class="fl">${o.label}</label><input class="fi" id="io_${o.id}" placeholder="${o.ph||''}" value="${o.def||''}"/>`;
+      }
+      optsDiv.appendChild(d);
+    });
+  }
+
+  const resCard=document.createElement('div');resCard.className='res';resCard.id='imgRes';
+  resCard.innerHTML='<div class="ct">Sonuç</div><div class="cvs-wrap" id="imgCvsWrap"></div><div class="mt8"><button class="btn bp" onclick="imgDl()" id="imgDlBtn" style="display:none">İndir</button></div>';
+  body.appendChild(resCard);
+
+  window.imgFileLoad=function(inp){const f=inp.files[0];if(!f)return;loadImg(f);};
+  window.imgDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadImg(f);};
+  function loadImg(f){
+    const r=new FileReader();r.onload=function(){const i=new Image();i.onload=function(){img=i;canv.width=i.width;canv.height=i.height;ctx.drawImage(i,0,0);document.getElementById('imgCvsWrap').appendChild(canv);document.getElementById('imgDlBtn').style.display='';};i.src=r.result;};r.readAsDataURL(f);
+  }
+  window.imgApply=function(){if(!img)return;applyFn(ctx,canv,img);};
+  window.imgDl=function(){
+    const ext=document.getElementById('io_outFmt')?document.getElementById('io_outFmt').value:'png';
+    const mime=ext==='jpg'?'image/jpeg':ext==='webp'?'image/webp':'image/png';
+    canv.toBlob(b=>dlBlob(b,'image.'+ext),mime,0.92);
+  };
+}
+
+/* --- Format Convert --- */
+regTool('img-convert','🔄','Format Dönüştür','Görüntü formatını değiştirin (JPG, PNG, WebP).','img',function(body){
+  imgToolCanvas(body,[
+    {id:'outFmt',type:'select',label:'Hedef Format',options:[['png','PNG'],['jpg','JPEG'],['webp','WebP']]}
+  ],function(ctx,canv,img){ctx.clearRect(0,0,canv.width,canv.height);ctx.drawImage(img,0,0);});
+});
+
+/* --- Resize --- */
+regTool('img-resize','📐','Yeniden Boyutlandır','Görüntünün boyutunu değiştirin.','img',function(body){
+  let storedImg=null;
+  imgToolCanvas(body,[
+    {id:'mode',type:'select',label:'Mod',options:[['pct','Yüzde'],['px','Piksel']]},
+    {id:'w',type:'range',label:'Genişlik',min:10,max:4000,def:100,suffix:'%'},
+    {id:'h',type:'range',label:'Yükseklik',min:10,max:4000,def:100,suffix:'%'},
+    {id:'outFmt',type:'select',label:'Format',options:[['png','PNG'],['jpg','JPEG'],['webp','WebP']]}
+  ],function(ctx,canv,img){
+    storedImg=img;
+    const mode=document.getElementById('io_mode').value;
+    let w,h;
+    if(mode==='pct'){w=Math.round(img.width*parseInt(document.getElementById('io_w').value)/100);h=Math.round(img.height*parseInt(document.getElementById('io_h').value)/100);}
+    else{w=parseInt(document.getElementById('io_w').value);h=parseInt(document.getElementById('io_h').value);}
+    canv.width=w;canv.height=h;ctx.drawImage(img,0,0,w,h);
+  });
+});
+
+/* --- Crop --- */
+regTool('img-crop','✂️','Kırp','Görüntünün bir bölümünü kırpın.','img',function(body){
+  let storedImg=null,startX=0,startY=0,endX=0,endY=0,drawing=false;
+  imgToolCanvas(body,[],function(){});
+  setTimeout(()=>{
+    const fileInp=document.getElementById('imgInp');
+    const origOnchange=fileInp.onchange;
+    fileInp.onchange=function(inp){
+      origOnchange(inp);
+      const f=inp.files[0];if(!f)return;
+      const r=new FileReader();r.onload=function(){
+        const i=new Image();i.onload=function(){
+          storedImg=i;
+          const canv=document.querySelector('#imgCvsWrap canvas');
+          canv.addEventListener('mousedown',e=>{const rect=canv.getBoundingClientRect();const sx=canv.width/rect.width;startX=(e.clientX-rect.left)*sx;startY=(e.clientY-rect.top)*sx;drawing=true;});
+          canv.addEventListener('mousemove',e=>{if(!drawing)return;const rect=canv.getBoundingClientRect();const sx=canv.width/rect.width;const sy=canv.height/rect.height;endX=(e.clientX-rect.left)*sx;endY=(e.clientY-rect.top)*sy;canv.getContext('2d').clearRect(0,0,canv.width,canv.height);canv.getContext('2d').drawImage(storedImg,0,0);canv.getContext('2d').strokeStyle='#E11D48';canv.getContext('2d').lineWidth=2;canv.getContext('2d').setLineDash([5,5]);canv.getContext('2d').strokeRect(startX,startY,endX-startX,endY-startY);canv.getContext('2d').setLineDash([]);});
+          canv.addEventListener('mouseup',e=>{if(!drawing)return;drawing=false;});
+        };i.src=r.result;
+      };r.readAsDataURL(f);
+    };
+  },100);
+
+  const cropBtn=document.createElement('div');cropBtn.className='cd mt14';
+  cropBtn.innerHTML=`<div class="ct">Kırpma</div><div class="tsm">Görüntü üzerinde sürükleyerek alan seçin, sonra Kırp butonuna basın.</div><button class="btn bp mt8" onclick="doCrop()">Kırp</button>`;
+  body.appendChild(cropBtn);
+  window.doCrop=function(){
+    if(!storedImg)return;
+    const canv=document.querySelector('#imgCvsWrap canvas');
+    const x=Math.min(startX,endX),y=Math.min(startY,endY);
+    const w=Math.abs(endX-startX),h=Math.abs(endY-startY);
+    if(w<10||h<10){toast('Geçerli bir alan seçin','ter');return;}
+    const tc=document.createElement('canvas');tc.width=w;tc.height=h;
+    tc.getContext('2d').drawImage(storedImg,x,y,w,h,0,0,w,h);
+    canv.width=w;canv.height=h;canv.getContext('2d').drawImage(tc,0,0);
+    storedImg=new Image();storedImg.src=canv.toDataURL();
+    toast('Kırpıldı!','tok');
+  };
+});
+
+/* --- Rotate/Flip --- */
+regTool('img-rotateflip','🔃','Döndür/Çevir','Görüntüyü döndürün veya yansıtıın.','img',function(body){
+  let storedImg=null;
+  imgToolCanvas(body,[
+    {id:'rot',type:'select',label:'Döndürme',options:[['0','Yok'],['90','90°'],['180','180°'],['270','270°']]},
+    {id:'flip',type:'select',label:'Yansıtma',options:[['none','Yok'],['h','Yatay'],['v','Dikey']]}
+  ],function(ctx,canv,img){
+    const rot=parseInt(document.getElementById('io_rot').value);
+    const flip=document.getElementById('io_flip').value;
+    let w=img.width,h=img.height;
+    if(rot===90||rot===270){w=img.height;h=img.width;}
+    canv.width=w;canv.height=h;
+    ctx.save();ctx.translate(w/2,h/2);ctx.rotate(rot*Math.PI/180);
+    if(flip==='h')ctx.scale(-1,1);if(flip==='v')ctx.scale(1,-1);
+    ctx.drawImage(img,-img.width/2,-img.height/2);ctx.restore();
+  });
+});
+
+/* --- Compress --- */
+regTool('img-compress','📦','Görüntü Sıkıştır','Görüntü kalitesini ayarlayarak sıkıştırın.','img',function(body){
+  imgToolCanvas(body,[
+    {id:'q',type:'range',label:'Kalite',min:1,max:100,def:70,suffix:'%'},
+    {id:'outFmt',type:'select',label:'Format',options:[['jpg','JPEG'],['png','PNG'],['webp','WebP']]}
+  ],function(ctx,canv,img){ctx.clearRect(0,0,canv.width,canv.height);ctx.drawImage(img,0,0);});
+  // Override download to use quality
+  setTimeout(()=>{
+    const origDl=window.imgDl;
+    window.imgDl=function(){
+      const fmt=document.getElementById('io_outFmt').value;
+      const q=parseInt(document.getElementById('io_q').value)/100;
+      const mime=fmt==='jpg'?'image/jpeg':fmt==='webp'?'image/webp':'image/png';
+      const canv=document.querySelector('#imgCvsWrap canvas');
+      canv.toBlob(b=>{dlBlob(b,'compressed.'+fmt);toast('Sıkıştırıldı!','tok');},mime,q);
+    };
+  },50);
+});
+
+/* --- Grayscale --- */
+regTool('img-grayscale','⬛','Gri Tonlama','Görüntüyü siyah-beyaz yapın.','img',function(body){
+  imgToolCanvas(body,[],function(ctx,canv,img){ctx.drawImage(img,0,0);const d=ctx.getImageData(0,0,canv.width,canv.height);const p=d.data;for(let i=0;i<p.length;i+=4){const g=p[i]*0.299+p[i+1]*0.587+p[i+2]*0.114;p[i]=p[i+1]=p[i+2]=g;}ctx.putImageData(d,0,0);});
+});
+
+/* --- Blur --- */
+regTool('img-blur','🌫','Bulanıklaştır','Görüntüye bulanıklık efekti uygulayın.','img',function(body){
+  imgToolCanvas(body,[
+    {id:'r',type:'range',label:'Bulanıklık Yarıçapı',min:1,max:20,def:5,suffix:'px'}
+  ],function(ctx,canv,img){
+    ctx.filter=`blur(${document.getElementById('io_r').value}px)`;
+    ctx.drawImage(img,0,0);ctx.filter='none';
+  });
+});
+
+/* --- Brightness/Contrast --- */
+regTool('img-brightcon','☀️','Parlaklık/Kontrast','Parlaklık ve kontrast ayarlayın.','img',function(body){
+  imgToolCanvas(body,[
+    {id:'br',type:'range',label:'Parlaklık',min:-100,max:100,def:0,suffix:''},
+    {id:'co',type:'range',label:'Kontrast',min:-100,max:100,def:0,suffix:''}
+  ],function(ctx,canv,img){
+    const br=parseInt(document.getElementById('io_br').value);
+    const co=parseInt(document.getElementById('io_co').value);
+    ctx.filter=`brightness(${1+br/100}) contrast(${1+co/100})`;
+    ctx.drawImage(img,0,0);ctx.filter='none';
+  });
+});
+
+/* --- Add Text to Image --- */
+regTool('img-text','🔤','Metin Ekle','Görüntünün üzerine metin yazın.','img',function(body){
+  imgToolCanvas(body,[
+    {id:'txt',type:'text',label:'Metin',def:'Merhaba',ph:'Yazı girin'},
+    {id:'sz',type:'range',label:'Yazı Boyutu',min:10,max:200,def:40,suffix:'px'},
+    {id:'clr',type:'color',label:'Renk',def:'#000000'},
+    {id:'x',type:'range',label:'X Pozisyonu',min:0,max:2000,def:50,suffix:'px'},
+    {id:'y',type:'range',label:'Y Pozisyonu',min:0,max:2000,def:50,suffix:'px'}
+  ],function(ctx,canv,img){
+    ctx.drawImage(img,0,0);
+    const txt=document.getElementById('io_txt').value||'Metin';
+    const sz=parseInt(document.getElementById('io_sz').value);
+    const clr=document.getElementById('io_clr').value;
+    const x=parseInt(document.getElementById('io_x').value);
+    const y=parseInt(document.getElementById('io_y').value);
+    ctx.font=`bold ${sz}px Inter, sans-serif`;ctx.fillStyle=clr;ctx.textBaseline='top';
+    ctx.fillText(txt,x,y);
+  });
+});
+
+/* --- Border --- */
+regTool('img-border','🟥','Kenarlık Ekle','Görüntüye kenarlık ekleyin.','img',function(body){
+  imgToolCanvas(body,[
+    {id:'w',type:'range',label:'Kalınlık',min:1,max:100,def:10,suffix:'px'},
+    {id:'clr',type:'color',label:'Renk',def:'#000000'},
+    {id:'pad',type:'range',label:'İç Boşluk',min:0,max:100,def:0,suffix:'px'}
+  ],function(ctx,canv,img){
+    const bw=parseInt(document.getElementById('io_w').value);
+    const clr=document.getElementById('io_clr').value;
+    const pad=parseInt(document.getElementById('io_pad').value);
+    canv.width=img.width+bw*2+pad*2;canv.height=img.height+bw*2+pad*2;
+    ctx.fillStyle=clr;ctx.fillRect(0,0,canv.width,canv.height);
+    ctx.fillStyle='#ffffff';ctx.fillRect(bw,bw,img.width+pad*2,img.height+pad*2);
+    ctx.drawImage(img,bw+pad,bw+pad);
+  });
+});
+
+/* --- Pixelate --- */
+regTool('img-pixelate','🟩','Pikselleştir','Görüntüyü pikselleştirin.','img',function(body){
+  imgToolCanvas(body,[
+    {id:'sz',type:'range',label:'Piksel Boyutu',min:2,max:50,def:10,suffix:'px'}
+  ],function(ctx,canv,img){
+    const sz=parseInt(document.getElementById('io_sz').value);
+    const w=canv.width,h=canv.height;
+    ctx.drawImage(img,0,0,w,h);
+    const tc=document.createElement('canvas');tc.width=Math.ceil(w/sz);tc.height=Math.ceil(h/sz);
+    const tctx=tc.getContext('2d');tctx.drawImage(img,0,0,tc.width,tc.height);
+    ctx.imageSmoothingEnabled=false;ctx.drawImage(tc,0,0,tc.width,tc.height,0,0,w,h);
+    ctx.imageSmoothingEnabled=true;
+  });
+});
+
+/* --- Combine Images --- */
+regTool('img-combine','🧩','Görüntü Birleştir','Birden fazla görüntüyü birleştirin.','img',function(body){
+  let files=[];const canv=document.createElement('canvas');const ctx=canv.getContext('2d');
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Görüntüler</div>
+    <div class="dz" onclick="document.getElementById('icFiles').click()" ondragover="dzOver(event,this)" ondragleave="dzLeave(event,this)" ondrop="icDrop(event)">
+      <div class="dz-t">Görüntüleri sürükleyin veya seçin</div>
+    </div>
+    <input type="file" id="icFiles" hidden accept="image/*" multiple onchange="icLoad(this)"/>
+    <div class="ulist" id="icList"></div>
+    <div class="fr c2 mt8">
+      <div class="fg"><label class="fl">Yön</label><select class="fs" id="icDir"><option value="v">Dikey</option><option value="h">Yatay</option></select></div>
+      <div class="fg"><label class="fl">Boşluk (px)</label><input type="number" class="fi" id="icGap" value="0" min="0"/></div>
+    </div>
+    <button class="btn bp mt8" onclick="icCombine()" id="icBtn" disabled>Birleştir</button>
+  </div>
+  <div class="res" id="icRes"><div class="ct">Sonuç</div><div id="icCvsWrap"></div><button class="btn bp mt8" onclick="icDl()" id="icDlBtn" style="display:none">İndir</button></div>`;
+  window.icLoad=function(inp){for(const f of inp.files)files.push(f);icRender();};
+  window.icDrop=function(e){e.preventDefault();e.currentTarget.classList.remove('over');for(const f of e.dataTransfer.files)if(f.type.startsWith('image/'))files.push(f);icRender();};
+  window.icRender=function(){document.getElementById('icList').innerHTML=files.map((f,i)=>`<div class="ufi">${i+1}. ${f.name}<button onclick="files.splice(${i},1);icRender()">×</button></div>`).join('');document.getElementById('icBtn').disabled=files.length<2;};
+  window.icCombine=function(){
+    showLd('Birleştiriliyor...');
+    Promise.all(files.map(f=>new Promise((res)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>res(img);img.src=r.result;};r.readAsDataURL(f);}))).then(imgs=>{
+      const dir=document.getElementById('icDir').value;const gap=parseInt(document.getElementById('icGap').value)||0;
+      let mw=0,mh=0,tw=0,th=0;
+      imgs.forEach(img=>{if(img.width>mw)mw=img.width;if(img.height>mh)mh=img.height;});
+      if(dir==='v'){imgs.forEach(img=>{th+=img.height+gap;});tw=mw;}else{imgs.forEach(img=>{tw+=img.width+gap;});th=mh;}
+      canv.width=tw;canv.height=th;ctx.fillStyle='#fff';ctx.fillRect(0,0,tw,th);
+      let x=0,y=0;
+      imgs.forEach(img=>{ctx.drawImage(img,x,y);if(dir==='v')y+=img.height+gap;else x+=img.width+gap;});
+      document.getElementById('icCvsWrap').appendChild(canv);
+      document.getElementById('icRes').classList.add('on');
+      document.getElementById('icDlBtn').style.display='';
+      hideLd();toast('Birleştirildi!','tok');
+    });
+  };
+  window.icDl=function(){canv.toBlob(b=>dlBlob(b,'combined.png'),'image/png');};
+});
+
+/* ============================================================
+   TEXT TOOLS
+   ============================================================ */
+
+/* --- Text Counter --- */
+regTool('txt-counter','📊','Metin Sayaç','Karakter, kelime, cümle ve paragraf sayın.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin Girin</div>
+    <textarea class="fta" id="tcText" rows="10" placeholder="Metninizi buraya yapıştırın..." oninput="tcCount()"></textarea>
+    <div class="fr c3 mt12" id="tcStats">
+      <div class="cd" style="text-align:center"><div style="font-size:28px;font-weight:700" id="tcChars">0</div><div class="txs">Karakter</div></div>
+      <div class="cd" style="text-align:center"><div style="font-size:28px;font-weight:700" id="tcWords">0</div><div class="txs">Kelime</div></div>
+      <div class="cd" style="text-align:center"><div style="font-size:28px;font-weight:700" id="tcSent">0</div><div class="txs">Cümle</div></div>
+      <div class="cd" style="text-align:center"><div style="font-size:28px;font-weight:700" id="tcPara">0</div><div class="txs">Paragraf</div></div>
+      <div class="cd" style="text-align:center"><div style="font-size:28px;font-weight:700" id="tcLines">0</div><div class="txs">Satır</div></div>
+      <div class="cd" style="text-align:center"><div style="font-size:28px;font-weight:700" id="tcBytes">0</div><div class="txs">Bayt (UTF-8)</div></div>
+    </div>
+  </div>`;
+  window.tcCount=function(){
+    const t=document.getElementById('tcText').value;
+    document.getElementById('tcChars').textContent=t.length;
+    document.getElementById('tcWords').textContent=t.trim()?t.trim().split(/\s+/).length:0;
+    document.getElementById('tcSent').textContent=t.trim()?(t.match(/[.!?]+/g)||[]).length:0;
+    document.getElementById('tcPara').textContent=t.trim()?t.split(/\n\s*\n/).filter(p=>p.trim()).length:0;
+    document.getElementById('tcLines').textContent=t?t.split('\n').length:0;
+    document.getElementById('tcBytes').textContent=new Blob([t]).size;
+  };
+});
+
+/* --- Case Converter --- */
+regTool('txt-case','🔤','Büyük/Küçük Harf','Metnin büyük/küçük harf durumunu değiştirin.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin Girin</div>
+    <textarea class="fta" id="tccText" rows="6" placeholder="Metninizi buraya yapıştırın..."></textarea>
+    <div class="tab-bar mt8">
+      <button class="tab-b" onclick="tccConv('upper')">BÜYÜK HARF</button>
+      <button class="tab-b" onclick="tccConv('lower')">küçük harf</button>
+      <button class="tab-b" onclick="tccConv('title')">Başlık Harfi</button>
+      <button class="tab-b" onclick="tccConv('sentence')">Cümle harfi</button>
+      <button class="tab-b" onclick="tccConv('toggle')">tERS ÇevİR</button>
+    </div>
+    <textarea class="fta mt8" id="tccOut" rows="6" readonly></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('tccOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.tccConv=function(mode){
+    const t=document.getElementById('tccText').value;let r='';
+    switch(mode){
+      case'upper':r=t.toUpperCase();break;
+      case'lower':r=t.toLowerCase();break;
+      case'title':r=t.replace(/\b\w/g,c=>c.toUpperCase());break;
+      case'sentence':r=t.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g,c=>c.toUpperCase());break;
+      case'toggle':r=t.split('').map(c=>c===c.toUpperCase()?c.toLowerCase():c.toUpperCase()).join('');break;
     }
-    toast('CV yüklendi ✓','ok');
-  }catch(e){showErr('cverr','CV yükleme hatası: '+e.message);toast('Hata: '+e.message,'err');}
-  finally{load(false);inp.value='';}
+    document.getElementById('tccOut').value=r;
+  };
+});
+
+/* --- Find & Replace --- */
+regTool('txt-findrep','🔍','Bul ve Değiştir','Metin içinde bul ve değiştir.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin</div>
+    <textarea class="fta" id="tfrText" rows="8" placeholder="Metninizi buraya yapıştırın..."></textarea>
+  </div>
+  <div class="cd">
+    <div class="fr c2">
+      <div class="fg"><label class="fl">Aranan</label><input class="fi" id="tfrFind"/></div>
+      <div class="fg"><label class="fl">Değiştirilen</label><input class="fi" id="tfrReplace"/></div>
+    </div>
+    <div class="fg"><label><input type="checkbox" id="tfrCase"/> Büyük/küçük harf duyarsız</label></div>
+    <div class="fg"><label><input type="checkbox" id="tfrRegex"/> Regex kullan</label></div>
+    <button class="btn bp mt8" onclick="tfrDo()">Değiştir</button>
+    <div class="tsm mt8" id="tfrInfo"></div>
+  </div>
+  <div class="cd">
+    <div class="ct">Sonuç</div>
+    <textarea class="fta" id="tfrOut" rows="8" readonly></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('tfrOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.tfrDo=function(){
+    const t=document.getElementById('tfrText').value;
+    const find=document.getElementById('tfrFind').value;
+    const repl=document.getElementById('tfrReplace').value;
+    if(!find){toast('Aranan metin boş olamaz','ter');return;}
+    const ci=document.getElementById('tfrCase').checked;
+    const rx=document.getElementById('tfrRegex').checked;
+    let r,count;
+    if(rx){
+      const flags=ci?'gi':'g';
+      const regex=new RegExp(find,flags);
+      const matches=t.match(regex);
+      count=matches?matches.length:0;
+      r=t.replace(regex,repl);
+    }else{
+      let idx=0,count2=0;let result='';
+      const ft=ci?t.toLowerCase():t;const ff=ci?find.toLowerCase():find;
+      while(true){const i=ft.indexOf(ff,idx);if(i===-1)break;result+=t.slice(idx,i)+repl;count2++;idx=i+ff.length;}
+      result+=t.slice(idx);r=result;count=count2;
+    }
+    document.getElementById('tfrOut').value=r;
+    document.getElementById('tfrInfo').textContent=`${count} değişiklik yapıldı.`;
+    toast(`${count} değişiklik yapıldı!`,'tok');
+  };
+});
+
+/* --- Line Operations --- */
+regTool('txt-lines','📑','Satır İşlemleri','Satırları sıralayın, tersine çevirin, benzersiz yapın.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin (her satır bir öğe)</div>
+    <textarea class="fta" id="tlText" rows="8" placeholder="Her satıra bir öğe yazın..."></textarea>
+    <div class="tab-bar mt8">
+      <button class="tab-b" onclick="tlDo('sort')">Sırala (A-Z)</button>
+      <button class="tab-b" onclick="tlDo('sort-desc')">Sırala (Z-A)</button>
+      <button class="tab-b" onclick="tlDo('reverse')">Tersine Çevir</button>
+      <button class="tab-b" onclick="tlDo('unique')">Benzersiz Yap</button>
+      <button class="tab-b" onclick="tlDo('shuffle')">Karıştır</button>
+      <button class="tab-b" onclick="tlDo('trim')">Boşlukları Temizle</button>
+      <button class="tab-b" onclick="tlDo('num')">Numaralandır</button>
+    </div>
+    <textarea class="fta mt8" id="tlOut" rows="8" readonly></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('tlOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.tlDo=function(op){
+    let lines=document.getElementById('tlText').value.split('\n');
+    switch(op){
+      case'sort':lines.sort((a,b)=>a.localeCompare(b,'tr'));break;
+      case'sort-desc':lines.sort((a,b)=>b.localeCompare(a,'tr'));break;
+      case'reverse':lines.reverse();break;
+      case'unique':lines=[...new Set(lines)];break;
+      case'shuffle':for(let i=lines.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[lines[i],lines[j]]=[lines[j],lines[i]];}break;
+      case'trim':lines=lines.map(l=>l.trim()).filter(l=>l);break;
+      case'num':lines=lines.map((l,i)=>`${i+1}. ${l}`);break;
+    }
+    document.getElementById('tlOut').value=lines.join('\n');
+  };
+});
+
+/* --- Base64 --- */
+regTool('txt-base64','🔐','Base64 Kodla/Çöz','Metni Base64 ile kodlayın veya çözün.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin</div>
+    <textarea class="fta" id="tb64Text" rows="6" placeholder="Metin veya Base64 string..."></textarea>
+    <div class="tab-bar mt8">
+      <button class="tab-b" onclick="tb64Do('enc')">Kodla (Encode)</button>
+      <button class="tab-b" onclick="tb64Do('dec')">Çöz (Decode)</button>
+    </div>
+    <textarea class="fta mt8" id="tb64Out" rows="6" readonly></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('tb64Out').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.tb64Do=function(op){
+    const t=document.getElementById('tb64Text').value;
+    try{
+      const r=op==='enc'?btoa(unescape(encodeURIComponent(t))):decodeURIComponent(escape(atob(t)));
+      document.getElementById('tb64Out').value=r;
+    }catch(e){toast('Geçersiz giriş: '+e.message,'ter');}
+  };
+});
+
+/* --- URL Encode/Decode --- */
+regTool('txt-url','🔗','URL Kodla/Çöz','URL kodlama ve kod çözme.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin</div>
+    <textarea class="fta" id="turlText" rows="6" placeholder="URL veya kodlanmış metin..."></textarea>
+    <div class="tab-bar mt8">
+      <button class="tab-b" onclick="turlDo('enc')">Kodla (Encode)</button>
+      <button class="tab-b" onclick="turlDo('dec')">Çöz (Decode)</button>
+      <button class="tab-b" onclick="turlDo('enc-comp')">Encode Bileşen</button>
+    </div>
+    <textarea class="fta mt8" id="turlOut" rows="6" readonly></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('turlOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.turlDo=function(op){
+    const t=document.getElementById('turlText').value;
+    try{
+      let r;
+      if(op==='enc')r=encodeURI(t);
+      else if(op==='dec')r=decodeURI(t);
+      else r=encodeURIComponent(t);
+      document.getElementById('turlOut').value=r;
+    }catch(e){toast('Hata: '+e.message,'ter');}
+  };
+});
+
+/* --- JSON Format --- */
+regTool('txt-json','📋','JSON Biçimlendir','JSON verisini biçimlendirin veya küçültün.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">JSON</div>
+    <textarea class="fta" id="tjsonText" rows="8" placeholder='{"key": "value"}' style="font-family:var(--mono);font-size:12px;"></textarea>
+    <div class="tab-bar mt8">
+      <button class="tab-b" onclick="tjsonDo('fmt')">Biçimlendir</button>
+      <button class="tab-b" onclick="tjsonDo('min')">Küçült</button>
+      <button class="tab-b" onclick="tjsonDo('validate')">Doğrula</button>
+    </div>
+    <div class="fg mt8"><label class="fl">Girinti</label><select class="fs" id="tjsonIndent"><option value="2">2 boşluk</option><option value="4">4 boşluk</option><option value="tab">Tab</option></select></div>
+    <textarea class="fta mt8" id="tjsonOut" rows="8" readonly style="font-family:var(--mono);font-size:12px;"></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('tjsonOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.tjsonDo=function(op){
+    const t=document.getElementById('tjsonText').value.trim();
+    try{
+      const obj=JSON.parse(t);
+      if(op==='validate'){toast('Geçerli JSON!','tok');document.getElementById('tjsonOut').value='✅ Geçerli JSON';return;}
+      const ind=document.getElementById('tjsonIndent').value;
+      const indent=ind==='tab'?'\t':parseInt(ind);
+      document.getElementById('tjsonOut').value=op==='fmt'?JSON.stringify(obj,null,indent):JSON.stringify(obj);
+      toast(op==='fmt'?'Biçimlendirildi!':'Küçültüldü!','tok');
+    }catch(e){toast('Geçersiz JSON: '+e.message,'ter');document.getElementById('tjsonOut').value='❌ '+e.message;}
+  };
+});
+
+/* --- Regex Tester --- */
+regTool('txt-regex','🧪','Regex Test','Düzenli ifadeleri test edin.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="fr c2">
+      <div class="fg"><label class="fl">Regex Kalıp</label><input class="fi" id="trxPat" placeholder="\\d+" style="font-family:var(--mono);"/></div>
+      <div class="fg"><label class="fl">Bayraklar</label><input class="fi" id="trxFlags" value="g" style="font-family:var(--mono);" placeholder="g, i, m"/></div>
+    </div>
+    <div class="fg"><label class="fl">Test Metni</label><textarea class="fta" id="trxText" rows="4" placeholder="Test metnini buraya yapıştırın..." oninput="trxFind()"></textarea></div>
+    <div class="tsm mt8" id="trxInfo"></div>
+    <div id="trxHL" class="mt8" style="font-size:14px;line-height:1.8;padding:10px;background:var(--sf2);border-radius:var(--r);"></div>
+  </div>
+  <div class="cd">
+    <div class="ct">Eşleşmeler</div>
+    <div id="trxMatches" class="tsm" style="font-family:var(--mono);"></div>
+  </div>`;
+  const patInp=document.getElementById('trxPat');
+  const flagInp=document.getElementById('trxFlags');
+  patInp.addEventListener('input',trxFind);
+  flagInp.addEventListener('input',trxFind);
+  window.trxFind=function(){
+    const pat=document.getElementById('trxPat').value;
+    const flags=document.getElementById('trxFlags').value;
+    const text=document.getElementById('trxText').value;
+    if(!pat){document.getElementById('trxHL').innerHTML=text.replace(/</g,'&lt;');document.getElementById('trxInfo').textContent='';document.getElementById('trxMatches').textContent='';return;}
+    try{
+      const rx=new RegExp(pat,flags);
+      const matches=[...text.matchAll(new RegExp(pat,flags.includes('g')?flags:flags+'g'))];
+      document.getElementById('trxInfo').textContent=`${matches.length} eşleşme bulundu.`;
+      let hl=text.replace(/</g,'&lt;');
+      hl=hl.replace(rx,m=>`<mark style="background:#FECDD3;padding:1px 3px;border-radius:3px;">${m}</mark>`);
+      document.getElementById('trxHL').innerHTML=hl;
+      document.getElementById('trxMatches').textContent=matches.map((m,i)=>`[${i}] "${m[0]}" (index: ${m.index})`).join('\n');
+    }catch(e){document.getElementById('trxInfo').innerHTML=`<span style="color:var(--red)">Hata: ${e.message}</span>`;}
+  };
+});
+
+/* --- Hash Generator --- */
+regTool('txt-hash','🔑','Hash Oluşturucu','SHA-1, SHA-256, SHA-384, SHA-512 hash oluşturun.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin</div>
+    <textarea class="fta" id="thText" rows="4" placeholder="Hash\'lenecek metin..." oninput="thGen()"></textarea>
+  </div>
+  <div class="cd" id="thResults">
+    <div class="ct">Hash Değerleri</div>
+    <div class="fg"><label class="fl">SHA-1</label><input class="fi" id="th1" readonly style="font-family:var(--mono);font-size:12px;" onclick="this.select()"/></div>
+    <div class="fg"><label class="fl">SHA-256</label><input class="fi" id="th256" readonly style="font-family:var(--mono);font-size:12px;" onclick="this.select()"/></div>
+    <div class="fg"><label class="fl">SHA-384</label><input class="fi" id="th384" readonly style="font-family:var(--mono);font-size:12px;" onclick="this.select()"/></div>
+    <div class="fg"><label class="fl">SHA-512</label><input class="fi" id="th512" readonly style="font-family:var(--mono);font-size:12px;" onclick="this.select()"/></div>
+  </div>`;
+  window.thGen=async function(){
+    const t=document.getElementById('thText').value;
+    const enc=new TextEncoder();const data=enc.encode(t);
+    for(const[algo,elId]of[['SHA-1','th1'],['SHA-256','th256'],['SHA-384','th384'],['SHA-512','th512']]){
+      const buf=await crypto.subtle.digest(algo,data);
+      const arr=Array.from(new Uint8Array(buf));
+      document.getElementById(elId).value=arr.map(b=>b.toString(16).padStart(2,'0')).join('');
+    }
+  };
+});
+
+/* --- Lorem Ipsum --- */
+regTool('txt-lorem','📝','Lorem Ipsum','Rastgele placeholder metin oluşturun.','txt',function(body){
+  const lorem='Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra. Praesent dapibus, neque id cursus faucibus, tortor neque egestas auguae, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus. Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi. Pellentesque ipsum. Nulla non arcu lacinia neque faucibus fringilla. Nulla facilisi. Praesent imperdiet mi vel ante. In hac habitasse platea dictumst.';
+  body.innerHTML=`<div class="cd">
+    <div class="fr c2">
+      <div class="fg"><label class="fl">Tip</label><select class="fs" id="tlType"><option value="par">Paragraflar</option><option value="sent">Cümleler</option><option value="words">Kelime</option></select></div>
+      <div class="fg"><label class="fl">Miktar</label><input type="number" class="fi" id="tlCount" value="3" min="1" max="100"/></div>
+    </div>
+    <button class="btn bp mt8" onclick="tlGen()">Oluştur</button>
+    <textarea class="fta mt8" id="tlOut" rows="10" readonly></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('tlOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.tlGen=function(){
+    const type=document.getElementById('tlType').value;
+    const count=parseInt(document.getElementById('tlCount').value);
+    const sentences=lorem.split('. ').filter(s=>s);
+    let r='';
+    if(type==='words'){const words=lorem.split(/\s+/);const picked=[];for(let i=0;i<count;i++)picked.push(words[Math.floor(Math.random()*words.length)]);r=picked.join(' ');}
+    else if(type==='sent'){const picked=[];for(let i=0;i<count;i++)picked.push(sentences[Math.floor(Math.random()*sentences.length)]);r=picked.join('. ')+'.';
+    }else{const picked=[];for(let i=0;i<count;i++){const n=3+Math.floor(Math.random()*4);const paras=[];for(let j=0;j<n;j++)paras.push(sentences[Math.floor(Math.random()*sentences.length)]);picked.push(paras.join('. ')+'.');}r=picked.join('\n\n');}
+    document.getElementById('tlOut').value=r;
+  };
+});
+
+/* --- Color Converter --- */
+regTool('txt-color','🎨','Renk Dönüştürücü','HEX, RGB, HSL renk dönüşümleri.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="fr c2">
+      <div class="fg"><label class="fl">Renk Seç</label><input type="color" class="fi" id="tcPicker" value="#E11D48" style="height:50px;padding:4px;" oninput="tcUpdate(this.value)"/></div>
+      <div class="fg"><label class="fl">HEX</label><input class="fi" id="tcHex" value="#E11D48" style="font-family:var(--mono);" oninput="tcFromHex(this.value)"/></div>
+    </div>
+    <div class="fr c3">
+      <div class="fg"><label class="fl">RGB</label><input class="fi" id="tcRgb" readonly style="font-family:var(--mono);" onclick="this.select()"/></div>
+      <div class="fg"><label class="fl">HSL</label><input class="fi" id="tcHsl" readonly style="font-family:var(--mono);" onclick="this.select()"/></div>
+      <div class="fg"><label class="fl">CSS</label><input class="fi" id="tcCss" readonly style="font-family:var(--mono);" onclick="this.select()"/></div>
+    </div>
+    <div id="tcPreview" style="width:100%;height:60px;border-radius:var(--r);border:1px solid var(--bd);background:#E11D48;margin-top:8px;"></div>
+  </div>`;
+  window.tcUpdate=function(hex){
+    document.getElementById('tcHex').value=hex;document.getElementById('tcPicker').value=hex;
+    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    document.getElementById('tcRgb').value=`rgb(${r}, ${g}, ${b})`;
+    const[h,s,l]=rgbToHsl(r,g,b);
+    document.getElementById('tcHsl').value=`hsl(${h}, ${s}%, ${l}%)`;
+    document.getElementById('tcCss').value=hex;
+    document.getElementById('tcPreview').style.background=hex;
+  };
+  window.tcFromHex=function(v){if(/^#[0-9a-f]{6}$/i.test(v))tcUpdate(v);};
+  function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;const max=Math.max(r,g,b),min=Math.min(r,g,b);let h,s,l=(max+min)/2;if(max===min){h=s=0;}else{const d=max-min;s=l>.5?d/(2-max-min):d/(max+min);switch(max){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;case b:h=((r-g)/d+4)/6;break;}}return[Math.round(h*360),Math.round(s*100),Math.round(l*100)];}
+});
+
+/* --- HTML Encode/Decode --- */
+regTool('txt-html','🛡','HTML Kodla/Çöz','HTML özel karakterlerini kodlayın veya çözün.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Metin</div>
+    <textarea class="fta" id="thtmlText" rows="6" placeholder="HTML metnini buraya yapıştırın..." style="font-family:var(--mono);"></textarea>
+    <div class="tab-bar mt8">
+      <button class="tab-b" onclick="thtmlDo('enc')">Kodla (Encode)</button>
+      <button class="tab-b" onclick="thtmlDo('dec')">Çöz (Decode)</button>
+    </div>
+    <textarea class="fta mt8" id="thtmlOut" rows="6" readonly style="font-family:var(--mono);"></textarea>
+    <button class="btn bg bs mt8" onclick="navigator.clipboard.writeText(document.getElementById('thtmlOut').value);toast('Kopyalandı!','tok')">📋 Kopyala</button>
+  </div>`;
+  window.thtmlDo=function(op){
+    const t=document.getElementById('thtmlText').value;
+    const div=document.createElement('div');
+    if(op==='enc'){div.textContent=t;document.getElementById('thtmlOut').value=div.innerHTML;}
+    else{div.innerHTML=t;document.getElementById('thtmlOut').value=div.textContent;}
+  };
+});
+
+/* --- Markdown Preview --- */
+regTool('txt-md','📖','Markdown Önizleme','Markdown metnini HTML olarak önizleyin.','txt',function(body){
+  body.innerHTML=`<div class="cd">
+    <div class="ct">Markdown</div>
+    <textarea class="fta" id="tmdText" rows="10" placeholder="# Başlık\n\n**Kalın** ve *italik* metin..." style="font-family:var(--mono);font-size:13px;" oninput="tmdRender()"></textarea>
+  </div>
+  <div class="cd">
+    <div class="ct">Önizleme</div>
+    <div id="tmdPreview" style="padding:16px;background:var(--bg);border-radius:var(--r);min-height:100px;line-height:1.7;font-size:14px;"></div>
+  </div>`;
+  // Add minimal markdown styles
+  const style=document.createElement('style');
+  style.textContent='#tmdPreview h1,#tmdPreview h2,#tmdPreview h3{margin:12px 0 6px;font-weight:700;}#tmdPreview h1{font-size:24px;border-bottom:1px solid var(--bd);padding-bottom:6px;}#tmdPreview h2{font-size:20px;}#tmdPreview h3{font-size:16px;}#tmdPreview p{margin:6px 0;}#tmdPreview code{background:var(--sf2);padding:2px 5px;border-radius:3px;font-family:var(--mono);font-size:12px;}#tmdPreview pre{background:var(--sf2);padding:12px;border-radius:var(--r);overflow-x:auto;margin:8px 0;}#tmdPreview pre code{background:none;padding:0;}#tmdPreview ul,#tmdPreview ol{padding-left:24px;margin:6px 0;}#tmdPreview blockquote{border-left:3px solid var(--red);padding-left:12px;color:var(--t2);margin:8px 0;}#tmdPreview a{color:var(--blu);}#tmdPreview img{max-width:100%;border-radius:var(--r);}#tmdPreview table{border-collapse:collapse;width:100%;margin:8px 0;}#tmdPreview th,#tmdPreview td{border:1px solid var(--bd);padding:6px 10px;text-align:left;}#tmdPreview th{background:var(--sf2);}';
+  document.head.appendChild(style);
+  window.tmdRender=function(){
+    const t=document.getElementById('tmdText').value;
+    document.getElementById('tmdPreview').innerHTML=marked?marked.parse(t):t.replace(/\n/g,'<br>');
+  };
+});
+
+/* ============================================================
+   RSVP SPEED READER
+   ============================================================ */
+let rsvpWords=[],rsvpIdx=0,rsvpTimer=null,rsvpPlaying=false;
+function rsvpFileLoad(inp){
+  const f=inp.files[0];if(!f)return;
+  const ext=f.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    let text='';
+    try{
+      if(ext==='pdf'){const buf=e.target.result;const doc=await pdfjsLib.getDocument({data:buf}).promise;let full='';for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const tc=await pg.getTextContent();full+=tc.items.map(it=>it.str).join(' ')+'\n';}text=full;}
+      else if(ext==='docx'){const result=await mammoth.extractRawText({arrayBuffer:e.target.result});text=result.value;}
+      else if(ext==='xlsx'||ext==='csv'){const wb=XLSX.read(e.target.result,{type:'array'});wb.SheetNames.forEach(sn=>{const ws=wb.Sheets[sn];text+=XLSX.utils.sheet_to_csv(ws)+'\n';});}
+      else{text=e.target.result;}
+    }catch(err){toast('Dosya okunamadı: '+err.message,'ter');return;}
+    document.getElementById('rsvpText').value=text;
+    rsvpWords=text.split(/\s+/).filter(w=>w.trim());
+    rsvpIdx=0;
+    toast(`${f.name} yüklendi — ${rsvpWords.length} kelime`,'tok');
+    rsvpShowWord();
+  };
+  if(ext==='pdf')reader.readAsArrayBuffer(f);
+  else reader.readAsText(f);
 }
-function cvMsg(m){ge('cvinfo').style.display='';ge('cvinfomsg').textContent='✓ '+m;}
-function cvParse(text){
-  cvS=[];cvN=1;
-  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
-  const p={name:'',title:'',email:'',phone:'',location:'',website:'',github:'',other:''};
-  let i=0;
-  if(lines[0]&&lines[0].length<60&&!/[@\d]/.test(lines[0])){p.name=lines[0];i=1;}
-  if(lines[1]&&lines[1].length<80&&!/[@\d]/.test(lines[1])&&i===1){p.title=lines[1];i=2;}
-  lines.forEach(l=>{
-    if(!p.email&&/\S+@\S+\.\S+/.test(l))p.email=(l.match(/\S+@\S+\.\S+/)||[''])[0];
-    if(!p.phone&&/[\+\d][\d\s\-\(\)]{7,}/.test(l))p.phone=(l.match(/[\+\d][\d\s\-\(\)]{7,}/)||[''])[0].trim();
-    if(!p.github&&/github\.com/.test(l))p.github=(l.match(/(?:https?:\/\/)?(?:www\.)?github\.com[^\s]*/)||[''])[0];
-    if(!p.website&&/linkedin\.com/.test(l))p.website=(l.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com[^\s]*/)||[''])[0];
-  });
-  sP(p);
-  cvS.push({id:cvN++,type:'summary',title:'Özet',visible:true,entries:[],text:lines.slice(0,5).join(' ')});
-  cvS.push({id:cvN++,type:'custom',title:'Ham İçerik (Gözden Geçirin)',visible:false,entries:[],content:text.slice(0,3000)+(text.length>3000?'\n...(kesildi)':'')});
-  addSec('experience');addSec('education');addSec('skills');
+function rsvpDrop(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('rsvpFile').files=dt.files;rsvpFileLoad(document.getElementById('rsvpFile'));}}
+function rsvpReset(){rsvpStop();rsvpIdx=0;document.getElementById('rprog').style.width='0%';document.getElementById('rstat').innerHTML='';document.getElementById('rword').innerHTML='';document.getElementById('rph').style.display='';document.getElementById('rword').style.display='none';}
+function rsvpToggle(){if(rsvpPlaying)rsvpStop();else rsvpStart();}
+function rsvpStart(){
+  const text=document.getElementById('rsvpText').value.trim();
+  if(!text){toast('Metin girin','ter');return;}
+  rsvpWords=text.split(/\s+/).filter(w=>w.trim());
+  if(rsvpIdx>=rsvpWords.length)rsvpIdx=0;
+  rsvpPlaying=true;
+  document.getElementById('rPlayBtn').textContent='⏸ Duraklat';
+  document.getElementById('rph').style.display='none';
+  document.getElementById('rword').style.display='';
+  rsvpTick();
+}
+function rsvpStop(){rsvpPlaying=false;clearTimeout(rsvpTimer);document.getElementById('rPlayBtn').textContent='▶ Başla';}
+function rsvpTick(){
+  if(!rsvpPlaying||rsvpIdx>=rsvpWords.length){rsvpStop();if(rsvpIdx>=rsvpWords.length)toast('Okuma tamamlandı!','tok');return;}
+  rsvpShowWord();
+  const wpm=parseInt(document.getElementById('rWpm').value);
+  const delay=60000/wpm;
+  rsvpTimer=setTimeout(rsvpTick,delay);
+}
+function rsvpShowWord(){
+  if(!rsvpWords.length)return;
+  const w=rsvpWords[rsvpIdx];
+  const fsz=parseInt(document.getElementById('rFsz').value);
+  const total=rsvpWords.length;
+  const mid=Math.floor(w.length/2);
+  const before=w.slice(0,mid),midChar=w[mid]||'',after=w.slice(mid+1);
+  const el=document.getElementById('rword');
+  el.innerHTML=`<span class="ob">${before}</span><span class="om">${midChar}</span><span class="oa">${after}</span>`;
+  el.style.fontSize=fsz+'px';
+  document.getElementById('rprog').style.width=((rsvpIdx+1)/total*100)+'%';
+  document.getElementById('rstat').innerHTML=`<strong>${rsvpIdx+1}</strong> / ${total} kelime`;
+  rsvpIdx++;
 }
 
-async function dlPDF(){
-  const p=gP();if(!p.name){toast('Önce ad-soyad girin','warn');return;}
-  load(true,'PDF hazırlanıyor...');
-  try{
-    const doc=ge('cvdoc');
-    const canvas=await html2canvas(doc,{scale:2.8,useCORS:true,backgroundColor:'#ffffff',logging:false});
+/* ============================================================
+   CV BUILDER
+   ============================================================ */
+let cvData={exp:[],edu:[]};
+function togSec(el){el.classList.toggle('open');const sb=el.nextElementSibling;if(sb)sb.classList.toggle('open');}
+function cvFileLoad(inp){
+  const f=inp.files[0];if(!f)return;
+  const ext=f.name.split('.').pop().toLowerCase();
+  const reader=new FileReader();
+  reader.onload=async function(e){
+    try{
+      if(ext==='pdf'){
+        const doc=await pdfjsLib.getDocument({data:new Uint8Array(e.target.result)}).promise;
+        let full='';for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const tc=await pg.getTextContent();full+=tc.items.map(it=>it.str).join(' ')+'\n';}
+        document.getElementById('cvSummary').value=full.trim();
+        toast('PDF\'den metin çıkarıldı','tok');
+      }else if(ext==='docx'){
+        const result=await mammoth.extractRawText({arrayBuffer:e.target.result});
+        document.getElementById('cvSummary').value=result.value.trim();
+        toast('DOCX\'ten metin çıkarıldı','tok');
+      }
+      cvRender();
+    }catch(err){toast('Dosya okunamadı: '+err.message,'ter');}
+  };
+  reader.readAsArrayBuffer(f);
+}
+function cvFileDrop(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('cvFile').files=dt.files;cvFileLoad(document.getElementById('cvFile'));}}
+function cvAddExp(){
+  const i=cvData.exp.length;
+  cvData.exp.push({title:'',company:'',dates:'',bullets:''});
+  const el=document.getElementById('cvExpList');
+  el.innerHTML=cvData.exp.map((e,j)=>cvEntryHTML('exp',j,e)).join('');
+}
+function cvEntryHTML(type,i,d){
+  return`<div class="ec" id="ce_${type}_${i}"><div class="ea"><span class="eab">#${i+1}</span><button class="btn bs bd" onclick="cvRmEntry('${type}',${i})">Sil</button></div>
+    <div class="fr c2"><div class="fg"><label class="fl">Pozisyon</label><input class="fi" value="${escH(d.title)}" oninput="cvData['${type}'][${i}].title=this.value;cvRender()"/></div><div class="fg"><label class="fl">Şirket</label><input class="fi" value="${escH(d.company)}" oninput="cvData['${type}'][${i}].company=this.value;cvRender()"/></div></div>
+    <div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escH(d.dates)}" oninput="cvData['${type}'][${i}].dates=this.value;cvRender()"/></div>
+    <div class="fg"><label class="fl">Açıklama (her satır bir madde)</label><textarea class="fta" rows="3" oninput="cvData['${type}'][${i}].bullets=this.value;cvRender()">${escH(d.bullets)}</textarea></div></div>`;
+}
+function cvRmEntry(type,i){cvData[type].splice(i,1);document.getElementById('cv'+(type==='exp'?'Exp':'Edu')+'List').innerHTML=cvData[type].map((e,j)=>cvEntryHTML(type,j,e)).join('');cvRender();}
+function cvAddEdu(){cvData.edu.push({title:'',school:'',dates:''});document.getElementById('cvEduList').innerHTML=cvData.edu.map((e,j)=>cvEduHTML(j,e)).join('');}
+function cvEduHTML(i,d){
+  return`<div class="ec"><div class="ea"><span class="eab">#${i+1}</span><button class="btn bs bd" onclick="cvRmEntry('edu',${i})">Sil</button></div>
+    <div class="fr c2"><div class="fg"><label class="fl">Bölüm</label><input class="fi" value="${escH(d.title)}" oninput="cvData.edu[${i}].title=this.value;cvRender()"/></div><div class="fg"><label class="fl">Okul</label><input class="fi" value="${escH(d.school)}" oninput="cvData.edu[${i}].school=this.value;cvRender()"/></div></div>
+    <div class="fg"><label class="fl">Tarih</label><input class="fi" value="${escH(d.dates)}" oninput="cvData.edu[${i}].dates=this.value;cvRender()"/></div></div>`;
+}
+function escH(s){return(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function cvRender(){
+  const d=document.getElementById('cvdoc');
+  const name=document.getElementById('cvName').value;
+  const title=document.getElementById('cvTitle').value;
+  const email=document.getElementById('cvEmail').value;
+  const phone=document.getElementById('cvPhone').value;
+  const loc=document.getElementById('cvLoc').value;
+  const linked=document.getElementById('cvLinked').value;
+  const summary=document.getElementById('cvSummary').value;
+  const skills=document.getElementById('cvSkills').value;
+  const langs=document.getElementById('cvLangs').value;
+  if(!name&&!title&&!summary&&!cvData.exp.length&&!cvData.edu.length){d.innerHTML='<div class="cempty">CV\'nizi sol panelden doldurun</div>';document.getElementById('pfab').classList.remove('vis');return;}
+  document.getElementById('pfab').classList.add('vis');
+  let h='';
+  if(name)h+=`<div class="cn">${esc(name)}</div>`;
+  if(title)h+=`<div class="ct">${esc(title)}</div>`;
+  const contacts=[email?`📧 ${esc(email)}`:'',phone?`📱 ${esc(phone)}`:'',loc?`📍 ${esc(loc)}`:'',linked?`🔗 ${esc(linked)}`:''].filter(Boolean);
+  if(contacts.length)h+=`<div class="cc">${contacts.join('')}</div>`;
+  if(summary)h+=`<div class="cs"><div class="cst">Özet</div><div class="csu">${esc(summary).replace(/\n/g,'<br>')}</div></div>`;
+  if(cvData.exp.length){
+    h+=`<div class="cs"><div class="cst">Deneyim</div>`;
+    cvData.exp.forEach(e=>{
+      if(!e.title&&!e.company)return;
+      h+=`<div class="ce"><div class="ceh"><span class="cet">${esc(e.title)}${e.company?' — '+esc(e.company):''}</span>${e.dates?`<span class="ced">${esc(e.dates)}</span>`:''}</div>`;
+      if(e.bullets){h+=`<ul class="cbl">${e.bullets.split('\n').filter(l=>l.trim()).map(l=>`<li>${esc(l.trim())}</li>`).join('')}</ul>`;}
+      h+=`</div>`;
+    });
+    h+=`</div>`;
+  }
+  if(cvData.edu.length){
+    h+=`<div class="cs"><div class="cst">Eğitim</div>`;
+    cvData.edu.forEach(e=>{
+      if(!e.title&&!e.school)return;
+      h+=`<div class="ce"><div class="ceh"><span class="cet">${esc(e.title)}${e.school?' — '+esc(e.school):''}</span>${e.dates?`<span class="ced">${esc(e.dates)}</span>`:''}</div></div>`;
+    });
+    h+=`</div>`;
+  }
+  if(skills){h+=`<div class="cs"><div class="cst">Beceriler</div><div class="csg">${skills.split(',').map(s=>`<span class="csk">${esc(s.trim())}</span>`).filter(Boolean).join('')}</div></div>`;}
+  if(langs){h+=`<div class="cs"><div class="cst">Diller</div><div class="csu">${langs.split(',').map(l=>esc(l.trim())).filter(Boolean).join(' • ')}</div></div>`;}
+  d.innerHTML=h;
+}
+function dlPDF(){
+  const el=document.getElementById('cvdoc');
+  if(!el.textContent.trim()){toast('CV boş','ter');return;}
+  showLd('PDF oluşturuluyor...');
+  html2canvas(el,{scale:2,useCORS:true,backgroundColor:'#fff'}).then(canvas=>{
     const{jsPDF}=window.jspdf;
-    const pdf=new jsPDF({unit:'pt',format:'a4',orientation:'portrait'});
-    const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
-    const ih=pw*(canvas.height/canvas.width);
     const imgData=canvas.toDataURL('image/png');
-    if(ih<=ph){pdf.addImage(imgData,'PNG',0,0,pw,ih);}
+    const pdf=new jsPDF('p','mm','a4');
+    const pw=pdf.internal.pageSize.getWidth();
+    const ph=pdf.internal.pageSize.getHeight();
+    const ratio=canvas.height/canvas.width;
+    let imgH=pw*ratio;
+    let pos=0;
+    if(imgH<=ph){pdf.addImage(imgData,'PNG',0,0,pw,imgH);}
     else{
-      let done=0,first=true;
-      while(done<ih){
-        if(!first)pdf.addPage();
-        const sl=Math.min(ih-done,ph);
-        const sy=done/ih*canvas.height,sh=sl/ih*canvas.height;
-        const tc=document.createElement('canvas');tc.width=canvas.width;tc.height=Math.ceil(sh);
-        tc.getContext('2d').drawImage(canvas,0,sy,canvas.width,sh,0,0,canvas.width,sh);
-        pdf.addImage(tc.toDataURL('image/png'),'PNG',0,0,pw,sl);
-        done+=sl;first=false;
+      while(pos<imgH){const srcY=(pos/imgH)*canvas.height;const srcH=((ph-pos)/imgH)*canvas.height;
+        const tmpC=document.createElement('canvas');tmpC.width=canvas.width;tmpC.height=Math.min(srcH,canvas.height-srcY);
+        tmpC.getContext('2d').drawImage(canvas,0,srcY,canvas.width,tmpC.height,0,0,canvas.width,tmpC.height);
+        const tmpD=tmpC.toDataURL('image/png');
+        const sliceH=(tmpC.height/canvas.width)*pw;
+        if(pos>0)pdf.addPage();
+        pdf.addImage(tmpD,'PNG',0,0,pw,sliceH);
+        pos+=ph;}
+    }
+    pdf.save('CV.pdf');hideLd();toast('PDF indirildi!','tok');
+  }).catch(err=>{hideLd();toast('PDF oluşturulamadı: '+err.message,'ter');});
+}
+function cvSaveJSON(){
+  const data={name:document.getElementById('cvName').value,title:document.getElementById('cvTitle').value,email:document.getElementById('cvEmail').value,phone:document.getElementById('cvPhone').value,loc:document.getElementById('cvLoc').value,linked:document.getElementById('cvLinked').value,summary:document.getElementById('cvSummary').value,skills:document.getElementById('cvSkills').value,langs:document.getElementById('cvLangs').value,exp:cvData.exp,edu:cvData.edu};
+  dlBlob(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),'CV.json');
+  toast('JSON kaydedildi!','tok');
+}
+
+/* ============================================================
+   FILE CONVERTER
+   ============================================================ */
+let convFileData=null,convFileName='',convFileType='';
+function convDrop(e){e.preventDefault();e.currentTarget.classList.remove('over');const f=e.dataTransfer.files[0];if(f){const dt=new DataTransfer();dt.items.add(f);document.getElementById('convFile').files=dt.files;convFileLoad(document.getElementById('convFile'));}}
+function convFileLoad(inp){
+  const f=inp.files[0];if(!f)return;
+  convFileName=f.name;convFileType=f.type;
+  const reader=new FileReader();
+  reader.onload=function(e){convFileData=e.target.result;convShowInfo(f);};
+  if(f.name.endsWith('.pdf')||f.name.endsWith('.docx')||f.name.endsWith('.xlsx')||f.name.endsWith('.pptx'))reader.readAsArrayBuffer(f);
+  else reader.readAsText(f);
+}
+function convShowInfo(f){
+  document.getElementById('convInfo').style.display='block';
+  document.getElementById('convName').textContent=f.name;
+  document.getElementById('convMeta').textContent=fmtSize(f.size)+' — '+f.type;
+  document.getElementById('convOpts').style.display='block';
+  const sel=document.getElementById('convFmt');
+  const ext=f.name.split('.').pop().toLowerCase();
+  let opts=[];
+  if(ext==='pdf'){opts=[['txt','Metin (TXT)'],['html','HTML'],['docx','Word (DOCX)']];}
+  else if(ext==='docx'){opts=[['pdf','PDF'],['txt','Metin (TXT)'],['html','HTML'],['md','Markdown']];}
+  else if(ext==='xlsx'){opts=[['csv','CSV'],['tsv','TSV'],['json','JSON'],['html','HTML Table'],['txt','Metin (TXT)']];}
+  else if(ext==='csv'){opts=[['xlsx','Excel (XLSX)'],['json','JSON'],['html','HTML Table'],['tsv','TSV']];}
+  else if(ext==='html'){opts=[['txt','Metin (TXT)'],['md','Markdown']];}
+  else if(ext==='json'){opts=[['csv','CSV'],['html','HTML Table'],['txt','Metin (TXT)']];}
+  else if(ext==='txt'||ext==='md'){opts=[['pdf','PDF'],['html','HTML'],['json','JSON']];}
+  else if(['jpg','jpeg','png','webp','gif','bmp'].includes(ext)){opts=[['pdf','PDF'],['png','PNG'],['jpg','JPEG'],['webp','WebP']];}
+  sel.innerHTML=opts.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('');
+  if(opts.length)document.getElementById('convBtn').disabled=false;
+}
+function convUpdate(){}
+async function convConvert(){
+  if(!convFileData)return;
+  const fmt=document.getElementById('convFmt').value;
+  const ext=convFileName.split('.').pop().toLowerCase();
+  showLd('Dönüştürülüyor...');
+  try{
+    if(ext==='pdf'){
+      if(fmt==='txt'||fmt==='html'||fmt==='md'){
+        const doc=await pdfjsLib.getDocument({data:convFileData.slice(0)}).promise;
+        let full='';for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const tc=await pg.getTextContent();full+=tc.items.map(it=>it.str).join(' ')+'\n\n';}
+        if(fmt==='html')full=`<html><head><meta charset="utf-8"><title>${convFileName}</title></head><body>${full.replace(/\n/g,'<br>')}</body></html>`;
+        if(fmt==='md')full=full.replace(/\n{3,}/g,'\n\n');
+        dlBlob(new Blob([full],{type:'text/plain;charset=utf-8'}),'converted.'+fmt);
+      }else if(fmt==='docx'){toast('PDF → DOCX tarayıcıda tam olarak desteklenmiyor','twn');hideLd();return;}
+    }else if(ext==='docx'){
+      if(fmt==='txt'||fmt==='html'||fmt==='md'){
+        const result=await mammoth.extractRawText({arrayBuffer:convFileData});
+        let text=result.value;
+        if(fmt==='html')text=`<html><head><meta charset="utf-8"><title>${convFileName}</title></head><body>${text.replace(/\n/g,'<br>')}</body></html>`;
+        dlBlob(new Blob([text],{type:'text/plain;charset=utf-8'}),'converted.'+fmt);
+      }else if(fmt==='pdf'){
+        const result=await mammoth.convertToHtml({arrayBuffer:convFileData});
+        const{jsPDF}=window.jspdf;const pdf=new jsPDF();
+        pdf.setFont('helvetica');
+        const lines=pdf.splitTextToSize(result.value.replace(/<[^>]*>/g,''),170);
+        lines.forEach((l,i)=>{if(i>0)pdf.addPage();pdf.text(l,20,20);});
+        pdf.save('converted.pdf');
+      }
+    }else if(ext==='xlsx'||ext==='csv'){
+      const wb=XLSX.read(convFileData,{type:ext==='csv'?'string':'array'});
+      if(fmt==='csv'){const csv=XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]]);dlBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'converted.csv');}
+      else if(fmt==='tsv'){const tsv=XLSX.utils.sheet_to_csv(wb.Sheets[wb.SheetNames[0]],{FS:'\t'});dlBlob(new Blob([tsv],{type:'text/tab-separated-values;charset=utf-8'}),'converted.tsv');}
+      else if(fmt==='json'){const json=JSON.stringify(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]),null,2);dlBlob(new Blob([json],{type:'application/json'}),'converted.json');}
+      else if(fmt==='html'){const html=XLSX.utils.sheet_to_html(wb.Sheets[wb.SheetNames[0]]);dlBlob(new Blob([html],{type:'text/html;charset=utf-8'}),'converted.html');}
+      else if(fmt==='xlsx'){const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});dlBlob(new Blob([out],{type:'application/octet-stream'}),'converted.xlsx');}
+      else if(fmt==='txt'){let txt='';wb.SheetNames.forEach(sn=>{txt+=`=== ${sn} ===\n`;txt+=XLSX.utils.sheet_to_csv(wb.Sheets[sn])+'\n\n';});dlBlob(new Blob([txt],{type:'text/plain;charset=utf-8'}),'converted.txt');}
+    }else if(ext==='json'){
+      const obj=JSON.parse(typeof convFileData==='string'?convFileData:new TextDecoder().decode(convFileData));
+      if(fmt==='csv'){
+        if(!Array.isArray(obj)){toast('JSON bir dizi olmalı','ter');hideLd();return;}
+        const headers=[...new Set(obj.flatMap(o=>Object.keys(o)))];
+        let csv=headers.join(',')+'\n';obj.forEach(row=>{csv+=headers.map(h=>`"${(row[h]||'').toString().replace(/"/g,'""')}"`).join(',')+'\n';});
+        dlBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'converted.csv');
+      }else if(fmt==='html'){
+        let html='<table border="1"><tr>';const headers=Object.keys(obj[0]||{});headers.forEach(h=>html+=`<th>${h}</th>`);html+='</tr>';
+        obj.forEach(row=>{html+='<tr>';headers.forEach(h=>html+=`<td>${row[h]||''}</td>`);html+='</tr>';});
+        html+='</table>';dlBlob(new Blob([html],{type:'text/html;charset=utf-8'}),'converted.html');
+      }else if(fmt==='txt'){dlBlob(new Blob([JSON.stringify(obj,null,2)],{type:'text/plain;charset=utf-8'}),'converted.txt');}
+    }else if(['jpg','jpeg','png','webp','gif','bmp'].includes(ext)){
+      const img=new Image();
+      img.onload=function(){
+        const c=document.createElement('canvas');c.width=img.width;c.height=img.height;c.getContext('2d').drawImage(img,0,0);
+        if(fmt==='pdf'){
+          const{jsPDF}=window.jspdf;const pdf=new jsPDF({orientation:img.width>img.height?'l':'p',unit:'px',format:[img.width,img.height]});
+          pdf.addImage(c.toDataURL('image/jpeg',0.92),'JPEG',0,0,img.width,img.height);pdf.save('converted.pdf');
+        }else{
+          const mime=fmt==='jpg'?'image/jpeg':fmt==='webp'?'image/webp':'image/png';
+          c.toBlob(b=>dlBlob(b,'converted.'+fmt),mime,0.92);
+        }
+        hideLd();toast('Dönüştürüldü!','tok');
+      };
+      img.src=typeof convFileData==='string'?convFileData:URL.createObjectURL(new Blob([convFileData]));
+      return;
+    }else if(ext==='txt'||ext==='md'){
+      const text=typeof convFileData==='string'?convFileData:new TextDecoder().decode(convFileData);
+      if(fmt==='html'){dlBlob(new Blob([`<html><head><meta charset="utf-8"><title>${convFileName}</title></head><body>${text.replace(/\n/g,'<br>')}</body></html>`],{type:'text/html;charset=utf-8'}),'converted.html');}
+      else if(fmt==='json'){
+        const lines=text.split('\n').filter(l=>l.trim());
+        const obj=lines.map((l,i)=>({line:i+1,content:l}));
+        dlBlob(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}),'converted.json');
+      }else if(fmt==='pdf'){
+        const{jsPDF}=window.jspdf;const pdf=new jsPDF();
+        const lines=pdf.splitTextToSize(text,170);
+        let y=20;lines.forEach(l=>{if(y>270){pdf.addPage();y=20;}pdf.text(l,20,y);y+=7;});
+        pdf.save('converted.pdf');
       }
     }
-    pdf.save(p.name.replace(/\s+/g,'_')+'_CV.pdf');toast('PDF indirildi ✓','ok');
-  }catch(e){showErr('cverr','PDF hatası: '+e.message);toast('PDF hatası','err');}
-  finally{load(false);}
+    toast('Dönüştürüldü!','tok');
+  }catch(err){toast('Hata: '+err.message,'ter');}
+  hideLd();
 }
 
-function dlTXT(){
-  const p=gP();if(!p.name){toast('Önce ad-soyad girin','warn');return;}
-  let t=p.name+'\n';if(p.title)t+=p.title+'\n';
-  const ct=[p.email,p.phone,p.location,p.website,p.github,p.other].filter(Boolean);
-  if(ct.length)t+=ct.join(' | ')+'\n';t+='\n';
-  cvS.filter(s=>s.visible).forEach(s=>{
-    t+=s.title.toUpperCase()+'\n'+'─'.repeat(36)+'\n';
-    if(s.type==='summary'&&s.text)t+=s.text+'\n';
-    else if(['experience','projects'].includes(s.type)){
-      (s.entries||[]).forEach(e=>{
-        const tt=s.type==='experience'?e.role:e.name;
-        const sb=s.type==='experience'?e.company:e.tech;
-        if(tt)t+=tt+(e.date?' | '+e.date:'')+'\n';
-        if(sb)t+=sb+(e.location?' | '+e.location:'')+'\n';
-        (e.bullets||[]).filter(b=>b.trim()).forEach(b=>{t+='• '+b+'\n';});
-        t+='\n';
-      });
-    }else if(s.type==='education'){
-      (s.entries||[]).forEach(e=>{
-        if(e.institution)t+=e.institution+(e.date?' | '+e.date:'')+'\n';
-        if(e.degree)t+=e.degree+(e.gpa?' | GPA: '+e.gpa:'')+'\n';t+='\n';
-      });
-    }else if(s.type==='skills'&&s.tags?.length){
-      if(s.category)t+=s.category+': ';t+=s.tags.join(', ')+'\n';
-    }else if(s.type==='languages'&&s.langs?.length){
-      t+=s.langs.filter(l=>l.name).map(l=>l.name+' ('+l.level+')').join(', ')+'\n';
-    }else if(s.type==='certifications'){
-      (s.entries||[]).forEach(e=>{if(e.name)t+=e.name+(e.org?' — '+e.org:'')+(e.date?' | '+e.date:'')+'\n';});
-    }else if(s.type==='custom'&&s.content)t+=s.content+'\n';
-    t+='\n';
-  });
-  const b=new Blob([t],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=p.name.replace(/\s+/g,'_')+'_CV.txt';a.click();URL.revokeObjectURL(a.href);
-  toast('TXT indirildi ✓','ok');
-}
+/* ============================================================
+   INIT
+   ============================================================ */
+buildHome();
+buildCatGrids();
 
-function cvJSON(){
-  const d={personal:gP(),sections:cvS};
-  const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=(ge('cn').value||'CV').replace(/\s+/g,'_')+'_data.json';a.click();URL.revokeObjectURL(a.href);
-  toast('JSON kaydedildi ✓','ok');
-}
-
-function cvReset(){
-  if(!confirm('CV tamamen sıfırlansın mı?'))return;
-  sP({});cvS=[];cvN=1;ge('cvinfo').style.display='none';showErr('cverr','');
-  addSec('summary');addSec('experience');addSec('education');addSec('skills');
-}
-
-/* ===== CONVERTER ===== */
-let cF=null,cFmt=null,cOut='',cOutF='';
-const CFMT={
-  pdf:{l:'PDF',c:'fp',t:['txt','html']},docx:{l:'DOCX',c:'fd',t:['txt','html','md']},doc:{l:'DOC',c:'fd',t:['txt','html','md']},odt:{l:'ODT',c:'fd',t:['txt','html','md']},
-  xlsx:{l:'XLSX',c:'fx',t:['csv','json','txt']},xls:{l:'XLS',c:'fx',t:['csv','json','txt']},csv:{l:'CSV',c:'fc',t:['json','html','txt']},pptx:{l:'PPTX',c:'ft',t:['txt']},
-  txt:{l:'TXT',c:'fn',t:['html','md']},rtf:{l:'RTF',c:'fn',t:['txt','html','md']},html:{l:'HTML',c:'fh',t:['txt','md']},htm:{l:'HTML',c:'fh',t:['txt','md']},
-  md:{l:'MD',c:'fm',t:['html','txt']},json:{l:'JSON',c:'fj',t:['txt']},
-};
-async function cLoad(inp){
-  cF=inp.files[0];if(!cF)return;showErr('cferr','');
-  const ext=cF.name.split('.').pop().toLowerCase();const info=CFMT[ext];
-  ge('cfinfo').style.display='';ge('cfname').textContent=cF.name;
-  const b=ge('cftype');b.textContent=info?info.l:ext.toUpperCase();b.className='fb '+(info?info.c:'fn');
-  ge('cfsize').textContent=fmtB(cF.size);
-  const tg=ge('ctarg');
-  if(!info){tg.innerHTML='<span style="color:var(--red);font-size:12px;">Desteklenmeyen format: .'+ext+'</span>';showErr('cferr','Bu format desteklenmiyor: .'+ext);return;}
-  tg.innerHTML=info.t.map((t,i)=>`<button class="btn ${i===0?'btn-p':'btn-g'} btn-sm" onclick="selFmt('${t}',this)">.${t.toUpperCase()}</button>`).join('');
-  cFmt=info.t[0];ge('cbtn').disabled=false;ge('cocard').style.display='none';
-}
-function selFmt(f,btn){cFmt=f;document.querySelectorAll('#ctarg .btn').forEach(b=>{b.classList.remove('btn-p');b.classList.add('btn-g');});btn.classList.add('btn-p');btn.classList.remove('btn-g');}
-async function doConv(){
-  if(!cF||!cFmt)return;load(true,'Dönüştürülüyor...');showErr('cferr','');
-  try{
-    const ext=cF.name.split('.').pop().toLowerCase();let r='';
-    const raw=await exText(cF);
-    if(cFmt==='txt'){r=raw;}
-    else if(cFmt==='html'){
-      if(['docx','doc','odt'].includes(ext)){const ab=await cF.arrayBuffer();const res=await mammoth.convertToHtml({arrayBuffer:ab});r=`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Converted</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}</style></head><body>${res.value}</body></html>`;}
-      else if(ext==='md')r=mdHTML(raw);
-      else if(ext==='csv')r=csvTable(raw);
-      else r=`<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><pre style="white-space:pre-wrap;">${esc(raw)}</pre></body></html>`;
-    }else if(cFmt==='md'){
-      if(['html','htm'].includes(ext))r=htmlMD(raw);
-      else r=raw.split('\n').filter(l=>l.trim()).join('\n\n');
-    }else if(cFmt==='csv'){r=raw;}
-    else if(cFmt==='json'){if(['csv','xlsx','xls'].includes(ext))r=csvJSON(raw);else r=JSON.stringify({content:raw},null,2);}
-    if(!r)throw new Error('Dönüşüm sonucu boş');
-    cOut=r;cOutF=cF.name.replace(/\.[^.]+$/,'.'+cFmt);
-    const prev=r.length>12000?r.slice(0,12000)+'\n\n[... '+(r.length-12000)+' karakter daha ...]':r;
-    ge('cout').textContent=prev;ge('cochars').textContent='— '+r.length.toLocaleString()+' karakter';
-    ge('cdlbtn').textContent='⬇ '+cOutF;ge('cocard').style.display='';toast('Dönüşüm tamamlandı ✓','ok');
-  }catch(e){showErr('cferr','Dönüşüm hatası: '+e.message);toast('Hata: '+e.message,'err');}
-  finally{load(false);}
-}
-function mdHTML(md){
-  let h=md.replace(/^### (.+)/gm,'<h3>$1</h3>').replace(/^## (.+)/gm,'<h2>$1</h2>').replace(/^# (.+)/gm,'<h1>$1</h1>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>').replace(/\*(.+?)\*/g,'<em>$1</em>').replace(/`(.+?)`/g,'<code>$1</code>').replace(/^- (.+)/gm,'<li>$1</li>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>').replace(/\n\n/g,'</p><p>');
-  return`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}code{background:#f4f4f4;padding:2px 6px;border-radius:3px;}</style></head><body><p>${h}</p></body></html>`;
-}
-function htmlMD(html){
-  const d=new DOMParser().parseFromString(html,'text/html');
-  function n(nd){if(nd.nodeType===3)return nd.textContent;const t=nd.tagName?.toLowerCase();const i=[...nd.childNodes].map(n).join('');if(t==='h1')return`\n# ${i}\n`;if(t==='h2')return`\n## ${i}\n`;if(t==='h3')return`\n### ${i}\n`;if(t==='strong'||t==='b')return`**${i}**`;if(t==='em'||t==='i')return`*${i}*`;if(t==='a')return`[${i}](${nd.href})`;if(t==='li')return`\n- ${i}`;if(t==='p')return`\n${i}\n`;if(t==='br')return'\n';return i;}
-  return n(d.body).replace(/\n{3,}/g,'\n\n').trim();
-}
-function csvTable(csv){
-  const rows=csv.split('\n').filter(l=>l.trim()).map(r=>{const c=[];let cur='',q=false;for(const ch of r){if(ch==='"'){q=!q;}else if(ch===','&&!q){c.push(cur.trim());cur='';}else cur+=ch;}c.push(cur.trim());return c;});
-  if(!rows.length)return'<p>Veri yok</p>';
-  let t='<!DOCTYPE html><html><head><meta charset="UTF-8"><style>table{border-collapse:collapse;width:100%;font-family:sans-serif;font-size:13px;}th,td{border:1px solid #e4e4e7;padding:6px 10px;}th{background:#f4f4f5;font-weight:600;}tr:nth-child(even){background:#fafafa;}</style></head><body><table><thead><tr>';
-  (rows[0]||[]).forEach(h=>t+=`<th>${esc(h)}</th>`);t+='</tr></thead><tbody>';
-  rows.slice(1).forEach(row=>{t+='<tr>'+row.map(c=>`<td>${esc(c)}</td>`).join('')+'</tr>';});
-  return t+'</tbody></table></body></html>';
-}
-function csvJSON(csv){
-  const ls=csv.split('\n').filter(l=>l.trim());if(!ls.length)return'[]';
-  function pLine(l){const c=[];let cur='',q=false;for(const ch of l){if(ch==='"'){q=!q;}else if(ch===','&&!q){c.push(cur.replace(/^"|"$/g,'').trim());cur='';}else cur+=ch;}c.push(cur.replace(/^"|"$/g,'').trim());return c;}
-  const h=pLine(ls[0]);
-  return JSON.stringify(ls.slice(1).map(l=>{const v=pLine(l);const o={};h.forEach((k,i)=>o[k]=v[i]||'');return o;}),null,2);
-}
-function cCopy(){navigator.clipboard.writeText(cOut).then(()=>toast('Kopyalandı ✓','ok')).catch(()=>toast('Kopyalama başarısız','err'));}
-function cDL(){const m=cFmt==='html'?'text/html':cFmt==='json'?'application/json':'text/plain';const b=new Blob([cOut],{type:m+';charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=cOutF;a.click();URL.revokeObjectURL(a.href);toast('İndirildi ✓','ok');}
-
-const cdz=ge('cdz');
-cdz.addEventListener('dragover',e=>{e.preventDefault();cdz.classList.add('over');});
-cdz.addEventListener('dragleave',()=>cdz.classList.remove('over'));
-cdz.addEventListener('drop',e=>{e.preventDefault();cdz.classList.remove('over');const f=e.dataTransfer.files[0];if(!f)return;const dt=new DataTransfer();dt.items.add(f);ge('cfi').files=dt.files;cLoad(ge('cfi'));});
-
-/* ===== INIT ===== */
-addSec('summary');addSec('experience');addSec('education');addSec('skills');
+// Offline detection
+window.addEventListener('offline',()=>document.getElementById('offline-badge').style.display='block');
+window.addEventListener('online',()=>document.getElementById('offline-badge').style.display='none');
 </script>
+
 </body>
 </html>
