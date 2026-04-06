@@ -6,6 +6,8 @@
 <title>hechecik — Oku, Oluştur, Çevir</title>
 <meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: RSVP hızlı okuma, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici ve metin araçları. Sunucu yok, veri kaydedilmez."/>
 <meta name="keywords" content="hızlı okuma, RSVP, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici, metin araçları, çevrimdışı"/>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
+<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/util.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -220,6 +222,7 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 <button class="nav-tab" onclick="sp('txt')">Metin</button>
 <button class="nav-tab" onclick="sp('conv')">Çevirici</button>
 <button class="nav-tab" onclick="sp('rsvp')">Okuma</button>
+<button class="nav-tab" onclick="sp('audio')">Ses</button>
 <button class="nav-tab" onclick="sp('cv')">CV</button>
 </div>
 </nav>
@@ -334,6 +337,98 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 <div class="txs"><kbd>Space</kbd> oynat/duraklat &nbsp;·&nbsp; <kbd>R</kbd> başa al</div>
 </div>
 </div>
+</div>
+</div>
+</div>
+
+<!-- AUDIO CONVERTER -->
+<div class="page" id="page-audio">
+<button class="back-btn" onclick="sp('home')">&#8592; Geri</button>
+<div class="fb2" style="margin-bottom:14px;">
+<div>
+<div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Ses Dosya Donusturucu</div>
+<div class="txs mt8">MP3, WAV, FLAC, OGG, AAC, M4A, WMA, OPUS, WebM arasi cift yonlu donusum - Tarayicida calisir - Sunucu yok</div>
+</div>
+<span class="pvb">&#128274; %100 guvenli - sunucu yok</span>
+</div>
+
+<div id="ac-load">
+<div class="card">
+<div class="ctitle">FFmpeg Yukleniyor</div>
+<div style="text-align:center;padding:30px 0;">
+<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Ses donusturme motoru hazirlaniyor...</div>
+<div id="ac-prog-wrap" style="display:none;">
+<div style="background:var(--surface2);border-radius:10px;overflow:hidden;height:6px;width:200px;margin:0 auto;">
+<div id="ac-prog" style="background:var(--accent);height:100%;width:0%;transition:width .3s;border-radius:10px;"></div>
+</div>
+<div id="ac-prog-txt" class="txs mt8" style="color:var(--text3);"></div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="ac-main" style="display:none;">
+<div class="cgrid">
+<div class="card">
+<div class="ctitle">Kaynak Dosya</div>
+<div class="dz" id="acdz" onclick="document.getElementById('acfi').click()">
+<div style="font-size:26px;margin-bottom:8px;">&#127925;</div>
+<div style="font-size:13px;font-weight:500;color:var(--text2);">Surukleyin veya tiklayin</div>
+<div style="font-size:11px;color:var(--text3);margin-top:3px;">MP3 - WAV - FLAC - OGG - AAC - M4A - WMA - OPUS - WebM - MP4</div>
+</div>
+<input type="file" id="acfi" style="display:none" accept="audio/*,.mp3,.wav,.flac,.ogg,.aac,.m4a,.wma,.mp4,.opus,.webm,.avi,.mkv,.wmv" onchange="acLoad(this)"/>
+<div id="ac-err" class="err"></div>
+<div id="ac-info" style="display:none;margin-top:10px;">
+<div class="fb2">
+<div><span id="ac-name" style="font-weight:600;font-size:13px;"></span><span id="ac-type" class="fb"></span></div>
+<span id="ac-size" class="txs"></span>
+</div>
+<div id="ac-meta" style="margin-top:8px;display:none;">
+<div class="txs" style="color:var(--text3);" id="ac-meta-info"></div>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="ctitle">Hedef Format</div>
+<div id="ac-targ" class="fg2" style="margin-bottom:12px;"><span class="txs">Once dosya secin</span></div>
+<div style="margin-bottom:12px;display:none;" id="ac-quality-wrap">
+<div class="fl">Ses Kalitesi (Bitrate)</div>
+<select id="ac-quality" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;">
+<option value="128k">128 kbps ( Dusuk)</option>
+<option value="192k">192 kbps (Orta)</option>
+<option value="256k" selected>256 kbps ( Yuksek)</option>
+<option value="320k">320 kbps ( Cok Yuksek)</option>
+</select>
+</div>
+<div style="margin-bottom:12px;display:none;" id="ac-sample-wrap">
+<div class="fl">Ornekleme Hizi</div>
+<select id="ac-sample" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;">
+<option value="44100">44100 Hz (CD Kalitesi)</option>
+<option value="48000" selected>48000 Hz (DVD Kalitesi)</option>
+<option value="22050">22050 Hz ( Dusuk)</option>
+</select>
+</div>
+<div style="margin-bottom:12px;display:none;" id="ac-channels-wrap">
+<div class="fl">Kanal</div>
+<select id="ac-channels" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;">
+<option value="1">Mono</option>
+<option value="2" selected>Stereo</option>
+</select>
+</div>
+<button class="btn btn-p" id="ac-btn" onclick="acConvert()" disabled style="width:100%;">&#9889; Donustur</button>
+</div>
+</div>
+
+<div class="card mt14" id="ac-result" style="display:none;">
+<div class="fb2" style="margin-bottom:10px;">
+<div class="ctitle" style="margin:0;">Sonuc <span id="ac-result-size" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span></div>
+<div class="fg2">
+<button class="btn btn-g btn-sm" onclick="acPlay()">&#9654; Dinle</button>
+<button class="btn btn-p btn-sm" id="ac-dlbtn" onclick="acDL()">&#11015; Indir</button>
+</div>
+</div>
+<audio id="ac-player" controls style="width:100%;margin-top:8px;display:none;"></audio>
 </div>
 </div>
 </div>
