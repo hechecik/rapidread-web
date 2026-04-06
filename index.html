@@ -6,8 +6,7 @@
 <title>hechecik — Oku, Oluştur, Çevir</title>
 <meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: RSVP hızlı okuma, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici ve metin araçları. Sunucu yok, veri kaydedilmez."/>
 <meta name="keywords" content="hızlı okuma, RSVP, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici, metin araçları, çevrimdışı"/>
-<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.10/dist/umd/ffmpeg.js"></script>
-<script src="https://unpkg.com/@ffmpeg/util@0.12.1/dist/umd/util.js"></script>
+<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.0/dist/ffmpeg.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -343,139 +342,34 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 
 <!-- AUDIO CONVERTER -->
 <div class="page" id="page-audio">
-  <button class="back-btn" onclick="sp('home')">&#8592; Geri</button>
+<button class="back-btn" onclick="sp('home')">&#8592; Geri</button>
 
-  <div class="fb2" style="margin-bottom:14px;">
-    <div>
-      <div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Ses Dosya Donusturucu</div>
-      <div class="txs mt8">MP3, WAV, FLAC, OGG, AAC, M4A, WMA, OPUS, WebM arasi cift yonlu donusum - Tarayicida calisir - Sunucu yok</div>
-    </div>
-    <span class="pvb">&#128274; %100 guvenli - sunucu yok</span>
-  </div>
+<div class="card">
+<div class="ctitle">Ses Dosya Dönüştürücü</div>
 
-  <div id="ac-load">
-    <div class="card">
-      <div class="ctitle">FFmpeg Yukleniyor</div>
-      <div style="text-align:center;padding:30px 0;">
-        <div id="ac-status" style="font-size:13px;color:var(--text2);margin-bottom:12px;">Ses donusturme motoru hazirlaniyor...</div>
-
-        <div id="ac-prog-wrap" style="display:none;">
-          <div style="background:var(--surface2);border-radius:10px;overflow:hidden;height:6px;width:220px;margin:0 auto;">
-            <div id="ac-prog" style="background:var(--accent);height:100%;width:0%;transition:width .3s;border-radius:10px;"></div>
-          </div>
-          <div id="ac-prog-txt" class="txs mt8" style="color:var(--text3);"></div>
-        </div>
-
-        <div id="ac-init-actions" style="display:none;margin-top:14px;">
-          <button class="btn btn-g btn-sm" type="button" onclick="acRetryInit()">Tekrar Dene</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="ac-main" style="display:none;">
-    <div class="cgrid">
-      <div class="card">
-        <div class="ctitle">Kaynak Dosya</div>
-
-        <div class="dz" id="acdz" onclick="document.getElementById('acfi').click()">
-          <div style="font-size:26px;margin-bottom:8px;">&#127925;</div>
-          <div style="font-size:13px;font-weight:500;color:var(--text2);">Surukleyin veya tiklayin</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:3px;">MP3 - WAV - FLAC - OGG - AAC - M4A - WMA - OPUS - WebM - MP4</div>
-        </div>
-
-        <input
-          type="file"
-          id="acfi"
-          style="display:none"
-          accept="audio/*,.mp3,.wav,.flac,.ogg,.aac,.m4a,.wma,.opus,.webm,.mp4"
-        />
-
-        <div id="ac-err" class="err"></div>
-
-        <div id="ac-filebox" style="display:none;margin-top:10px;">
-          <div class="fb2">
-            <div class="fg2">
-              <span id="ac-fname" style="font-weight:600;font-size:13px;"></span>
-              <span id="ac-fmeta" class="txs"></span>
-            </div>
-            <button class="btn btn-d btn-sm" type="button" onclick="acClear()">Temizle</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="ctitle">Donusum Ayarlari</div>
-
-        <div class="fg">
-          <label class="fl">Hedef Format</label>
-          <select id="ac-format" class="fse" onchange="acSyncOptions()">
-            <option value="mp3">MP3</option>
-            <option value="wav">WAV</option>
-            <option value="flac">FLAC</option>
-            <option value="ogg">OGG</option>
-            <option value="aac">AAC</option>
-            <option value="m4a">M4A</option>
-            <option value="opus">OPUS</option>
-            <option value="webm">WebM Audio</option>
-          </select>
-        </div>
-
-        <div class="fg" id="ac-bitrate-wrap">
-          <label class="fl">Bitrate</label>
-          <select id="ac-bitrate" class="fse">
-            <option value="64k">64 kbps</option>
-            <option value="96k">96 kbps</option>
-            <option value="128k" selected>128 kbps</option>
-            <option value="192k">192 kbps</option>
-            <option value="256k">256 kbps</option>
-            <option value="320k">320 kbps</option>
-          </select>
-        </div>
-
-        <div class="fg" id="ac-rate-wrap">
-          <label class="fl">Ornekleme Hizi</label>
-          <select id="ac-rate" class="fse">
-            <option value="22050">22050 Hz</option>
-            <option value="32000">32000 Hz</option>
-            <option value="44100" selected>44100 Hz</option>
-            <option value="48000">48000 Hz</option>
-          </select>
-        </div>
-
-        <div class="fg" id="ac-channels-wrap">
-          <label class="fl">Kanal</label>
-          <select id="ac-channels" class="fse">
-            <option value="1">Mono</option>
-            <option value="2" selected>Stereo</option>
-          </select>
-        </div>
-
-        <div class="fg">
-          <label class="fl">Durum</label>
-          <div class="cout" id="ac-log" style="min-height:120px;">Hazir bekleniyor...</div>
-        </div>
-
-        <button class="btn btn-p" id="ac-btn" onclick="acConvert()" disabled style="width:100%;">&#9889; Donustur</button>
-      </div>
-    </div>
-
-    <div class="card mt14" id="ac-result" style="display:none;">
-      <div class="fb2" style="margin-bottom:10px;">
-        <div class="ctitle" style="margin:0;">
-          Sonuc
-          <span id="ac-result-size" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span>
-        </div>
-        <div class="fg2">
-          <button class="btn btn-g btn-sm" type="button" onclick="acPlay()">&#9654; Dinle</button>
-          <button class="btn btn-p btn-sm" id="ac-dlbtn" type="button" onclick="acDL()">&#11015; Indir</button>
-        </div>
-      </div>
-      <audio id="ac-player" controls style="width:100%;margin-top:8px;display:none;"></audio>
-    </div>
-  </div>
+<div id="ac-status" style="text-align:center;padding:20px;">
+Ses dönüştürme motoru hazırlanıyor...
 </div>
 
+<div id="ac-main" style="display:none;text-align:center;">
+
+<input type="file" id="audioFile" accept="audio/*"><br><br>
+
+<select id="format">
+<option value="mp3">MP3</option>
+<option value="wav">WAV</option>
+<option value="ogg">OGG</option>
+</select><br><br>
+
+<button onclick="convertAudio()" class="btn btn-p">Dönüştür</button>
+
+<br><br>
+<audio id="player" controls style="display:none;width:100%"></audio><br>
+<button id="downloadBtn" class="btn btn-p" style="display:none;">İndir</button>
+
+</div>
+</div>
+</div>
 <script>
 /* ===== AUDIO CONVERTER / PRODUCTION FIX ===== */
 (function () {
@@ -3079,6 +2973,58 @@ cdz.addEventListener('drop',function(e){e.preventDefault();cdz.classList.remove(
 /* ===== INIT ===== */
 addSec('summary');addSec('experience');addSec('education');addSec('skills');
 filterTools('');
+</script>
+<script>
+const { createFFmpeg, fetchFile } = FFmpeg;
+
+let ffmpeg = createFFmpeg({
+  log: true,
+  corePath: "https://unpkg.com/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js"
+});
+
+async function initFFmpeg() {
+  try {
+    await ffmpeg.load();
+    document.getElementById("ac-status").innerText = "Hazır";
+    document.getElementById("ac-main").style.display = "block";
+  } catch (e) {
+    console.error(e);
+    document.getElementById("ac-status").innerText = "Motor yüklenemedi.";
+  }
+}
+
+window.onload = function () {
+  initFFmpeg();
+};
+
+async function convertAudio() {
+  const file = document.getElementById("audioFile").files[0];
+  if (!file) return alert("Dosya seç");
+
+  const format = document.getElementById("format").value;
+
+  const inputName = "input." + file.name.split(".").pop();
+  const outputName = "output." + format;
+
+  ffmpeg.FS("writeFile", inputName, await fetchFile(file));
+  await ffmpeg.run("-i", inputName, outputName);
+
+  const data = ffmpeg.FS("readFile", outputName);
+  const url = URL.createObjectURL(new Blob([data.buffer]));
+
+  const player = document.getElementById("player");
+  player.src = url;
+  player.style.display = "block";
+
+  const dl = document.getElementById("downloadBtn");
+  dl.style.display = "inline-block";
+  dl.onclick = () => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = outputName;
+    a.click();
+  };
+}
 </script>
 </body>
 </html>
