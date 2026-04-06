@@ -343,95 +343,589 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 
 <!-- AUDIO CONVERTER -->
 <div class="page" id="page-audio">
-<button class="back-btn" onclick="sp('home')">&#8592; Geri</button>
-<div class="fb2" style="margin-bottom:14px;">
-<div>
-<div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Ses Dosya Donusturucu</div>
-<div class="txs mt8">MP3, WAV, FLAC, OGG, AAC, M4A, WMA, OPUS, WebM arasi cift yonlu donusum - Tarayicida calisir - Sunucu yok</div>
-</div>
-<span class="pvb">&#128274; %100 guvenli - sunucu yok</span>
+  <button class="back-btn" onclick="sp('home')">&#8592; Geri</button>
+
+  <div class="fb2" style="margin-bottom:14px;">
+    <div>
+      <div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Ses Dosya Donusturucu</div>
+      <div class="txs mt8">MP3, WAV, FLAC, OGG, AAC, M4A, WMA, OPUS, WebM arasi cift yonlu donusum - Tarayicida calisir - Sunucu yok</div>
+    </div>
+    <span class="pvb">&#128274; %100 guvenli - sunucu yok</span>
+  </div>
+
+  <div id="ac-load">
+    <div class="card">
+      <div class="ctitle">FFmpeg Yukleniyor</div>
+      <div style="text-align:center;padding:30px 0;">
+        <div id="ac-status" style="font-size:13px;color:var(--text2);margin-bottom:12px;">Ses donusturme motoru hazirlaniyor...</div>
+
+        <div id="ac-prog-wrap" style="display:none;">
+          <div style="background:var(--surface2);border-radius:10px;overflow:hidden;height:6px;width:220px;margin:0 auto;">
+            <div id="ac-prog" style="background:var(--accent);height:100%;width:0%;transition:width .3s;border-radius:10px;"></div>
+          </div>
+          <div id="ac-prog-txt" class="txs mt8" style="color:var(--text3);"></div>
+        </div>
+
+        <div id="ac-init-actions" style="display:none;margin-top:14px;">
+          <button class="btn btn-g btn-sm" type="button" onclick="acRetryInit()">Tekrar Dene</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ac-main" style="display:none;">
+    <div class="cgrid">
+      <div class="card">
+        <div class="ctitle">Kaynak Dosya</div>
+
+        <div class="dz" id="acdz" onclick="document.getElementById('acfi').click()">
+          <div style="font-size:26px;margin-bottom:8px;">&#127925;</div>
+          <div style="font-size:13px;font-weight:500;color:var(--text2);">Surukleyin veya tiklayin</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">MP3 - WAV - FLAC - OGG - AAC - M4A - WMA - OPUS - WebM - MP4</div>
+        </div>
+
+        <input
+          type="file"
+          id="acfi"
+          style="display:none"
+          accept="audio/*,.mp3,.wav,.flac,.ogg,.aac,.m4a,.wma,.opus,.webm,.mp4"
+        />
+
+        <div id="ac-err" class="err"></div>
+
+        <div id="ac-filebox" style="display:none;margin-top:10px;">
+          <div class="fb2">
+            <div class="fg2">
+              <span id="ac-fname" style="font-weight:600;font-size:13px;"></span>
+              <span id="ac-fmeta" class="txs"></span>
+            </div>
+            <button class="btn btn-d btn-sm" type="button" onclick="acClear()">Temizle</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="ctitle">Donusum Ayarlari</div>
+
+        <div class="fg">
+          <label class="fl">Hedef Format</label>
+          <select id="ac-format" class="fse" onchange="acSyncOptions()">
+            <option value="mp3">MP3</option>
+            <option value="wav">WAV</option>
+            <option value="flac">FLAC</option>
+            <option value="ogg">OGG</option>
+            <option value="aac">AAC</option>
+            <option value="m4a">M4A</option>
+            <option value="opus">OPUS</option>
+            <option value="webm">WebM Audio</option>
+          </select>
+        </div>
+
+        <div class="fg" id="ac-bitrate-wrap">
+          <label class="fl">Bitrate</label>
+          <select id="ac-bitrate" class="fse">
+            <option value="64k">64 kbps</option>
+            <option value="96k">96 kbps</option>
+            <option value="128k" selected>128 kbps</option>
+            <option value="192k">192 kbps</option>
+            <option value="256k">256 kbps</option>
+            <option value="320k">320 kbps</option>
+          </select>
+        </div>
+
+        <div class="fg" id="ac-rate-wrap">
+          <label class="fl">Ornekleme Hizi</label>
+          <select id="ac-rate" class="fse">
+            <option value="22050">22050 Hz</option>
+            <option value="32000">32000 Hz</option>
+            <option value="44100" selected>44100 Hz</option>
+            <option value="48000">48000 Hz</option>
+          </select>
+        </div>
+
+        <div class="fg" id="ac-channels-wrap">
+          <label class="fl">Kanal</label>
+          <select id="ac-channels" class="fse">
+            <option value="1">Mono</option>
+            <option value="2" selected>Stereo</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label class="fl">Durum</label>
+          <div class="cout" id="ac-log" style="min-height:120px;">Hazir bekleniyor...</div>
+        </div>
+
+        <button class="btn btn-p" id="ac-btn" onclick="acConvert()" disabled style="width:100%;">&#9889; Donustur</button>
+      </div>
+    </div>
+
+    <div class="card mt14" id="ac-result" style="display:none;">
+      <div class="fb2" style="margin-bottom:10px;">
+        <div class="ctitle" style="margin:0;">
+          Sonuc
+          <span id="ac-result-size" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span>
+        </div>
+        <div class="fg2">
+          <button class="btn btn-g btn-sm" type="button" onclick="acPlay()">&#9654; Dinle</button>
+          <button class="btn btn-p btn-sm" id="ac-dlbtn" type="button" onclick="acDL()">&#11015; Indir</button>
+        </div>
+      </div>
+      <audio id="ac-player" controls style="width:100%;margin-top:8px;display:none;"></audio>
+    </div>
+  </div>
 </div>
 
-<div id="ac-load">
-<div class="card">
-<div class="ctitle">FFmpeg Yukleniyor</div>
-<div style="text-align:center;padding:30px 0;">
-<div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Ses donusturme motoru hazirlaniyor...</div>
-<div id="ac-prog-wrap" style="display:none;">
-<div style="background:var(--surface2);border-radius:10px;overflow:hidden;height:6px;width:200px;margin:0 auto;">
-<div id="ac-prog" style="background:var(--accent);height:100%;width:0%;transition:width .3s;border-radius:10px;"></div>
-</div>
-<div id="ac-prog-txt" class="txs mt8" style="color:var(--text3);"></div>
-</div>
-</div>
-</div>
-</div>
+<script>
+/* ===== AUDIO CONVERTER / PRODUCTION FIX ===== */
+(function () {
+  var acState = {
+    ffmpeg: null,
+    loaded: false,
+    loading: false,
+    initTried: false,
+    sourceFile: null,
+    outputBlob: null,
+    outputName: '',
+    logLines: [],
+    progressBound: false,
+    objectUrl: null,
+    loadTimeoutMs: 45000
+  };
 
-<div id="ac-main" style="display:none;">
-<div class="cgrid">
-<div class="card">
-<div class="ctitle">Kaynak Dosya</div>
-<div class="dz" id="acdz" onclick="document.getElementById('acfi').click()">
-<div style="font-size:26px;margin-bottom:8px;">&#127925;</div>
-<div style="font-size:13px;font-weight:500;color:var(--text2);">Surukleyin veya tiklayin</div>
-<div style="font-size:11px;color:var(--text3);margin-top:3px;">MP3 - WAV - FLAC - OGG - AAC - M4A - WMA - OPUS - WebM - MP4</div>
-</div>
-<input type="file" id="acfi" style="display:none" accept="audio/*,.mp3,.wav,.flac,.ogg,.aac,.m4a,.wma,.mp4,.opus,.webm,.avi,.mkv,.wmv" onchange="acLoad(this)"/>
-<div id="ac-err" class="err"></div>
-<div id="ac-info" style="display:none;margin-top:10px;">
-<div class="fb2">
-<div><span id="ac-name" style="font-weight:600;font-size:13px;"></span><span id="ac-type" class="fb"></span></div>
-<span id="ac-size" class="txs"></span>
-</div>
-<div id="ac-meta" style="margin-top:8px;display:none;">
-<div class="txs" style="color:var(--text3);" id="ac-meta-info"></div>
-</div>
-</div>
-</div>
+  function acGe(id) { return document.getElementById(id); }
+  function acHasFn(name) { return typeof window[name] === 'function'; }
 
-<div class="card">
-<div class="ctitle">Hedef Format</div>
-<div id="ac-targ" class="fg2" style="margin-bottom:12px;"><span class="txs">Once dosya secin</span></div>
-<div style="margin-bottom:12px;display:none;" id="ac-quality-wrap">
-<div class="fl">Ses Kalitesi (Bitrate)</div>
-<select id="ac-quality" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;">
-<option value="128k">128 kbps ( Dusuk)</option>
-<option value="192k">192 kbps (Orta)</option>
-<option value="256k" selected>256 kbps ( Yuksek)</option>
-<option value="320k">320 kbps ( Cok Yuksek)</option>
-</select>
-</div>
-<div style="margin-bottom:12px;display:none;" id="ac-sample-wrap">
-<div class="fl">Ornekleme Hizi</div>
-<select id="ac-sample" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;">
-<option value="44100">44100 Hz (CD Kalitesi)</option>
-<option value="48000" selected>48000 Hz (DVD Kalitesi)</option>
-<option value="22050">22050 Hz ( Dusuk)</option>
-</select>
-</div>
-<div style="margin-bottom:12px;display:none;" id="ac-channels-wrap">
-<div class="fl">Kanal</div>
-<select id="ac-channels" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--r);font-size:13px;">
-<option value="1">Mono</option>
-<option value="2" selected>Stereo</option>
-</select>
-</div>
-<button class="btn btn-p" id="ac-btn" onclick="acConvert()" disabled style="width:100%;">&#9889; Donustur</button>
-</div>
-</div>
+  function acToast(msg, type) {
+    if (acHasFn('toast')) return window.toast(msg, type);
+    console.log('[toast]', type || 'info', msg);
+  }
 
-<div class="card mt14" id="ac-result" style="display:none;">
-<div class="fb2" style="margin-bottom:10px;">
-<div class="ctitle" style="margin:0;">Sonuc <span id="ac-result-size" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span></div>
-<div class="fg2">
-<button class="btn btn-g btn-sm" onclick="acPlay()">&#9654; Dinle</button>
-<button class="btn btn-p btn-sm" id="ac-dlbtn" onclick="acDL()">&#11015; Indir</button>
-</div>
-</div>
-<audio id="ac-player" controls style="width:100%;margin-top:8px;display:none;"></audio>
-</div>
-</div>
-</div>
+  function acFmtBytes(bytes) {
+    if (acHasFn('fmtB')) return window.fmtB(bytes);
+    if (!isFinite(bytes) || bytes < 0) return '0 B';
+    var units = ['B','KB','MB','GB'];
+    var i = 0;
+    var n = bytes;
+    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+    return (n < 10 && i > 0 ? n.toFixed(1) : Math.round(n)) + ' ' + units[i];
+  }
+
+  function acDownloadBlob(blob, filename) {
+    if (acHasFn('downloadBlob')) return window.downloadBlob(blob, filename);
+    var a = document.createElement('a');
+    var url = URL.createObjectURL(blob);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+  }
+
+  function acShowErr(msg) {
+    var el = acGe('ac-err');
+    if (!el) return;
+    if (!msg) {
+      el.textContent = '';
+      el.classList.remove('show');
+      return;
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+  }
+
+  function acSetStatus(msg) {
+    var el = acGe('ac-status');
+    if (el) el.textContent = msg;
+  }
+
+  function acSetProgress(percent, text, visible) {
+    var wrap = acGe('ac-prog-wrap');
+    var bar = acGe('ac-prog');
+    var txt = acGe('ac-prog-txt');
+    if (wrap) wrap.style.display = visible ? 'block' : 'none';
+    if (bar) bar.style.width = Math.max(0, Math.min(100, percent || 0)) + '%';
+    if (txt) txt.textContent = text || '';
+  }
+
+  function acShowRetry(show) {
+    var box = acGe('ac-init-actions');
+    if (box) box.style.display = show ? 'block' : 'none';
+  }
+
+  function acAppendLog(line) {
+    if (!line) return;
+    acState.logLines.push(line);
+    if (acState.logLines.length > 80) acState.logLines = acState.logLines.slice(-80);
+    var el = acGe('ac-log');
+    if (el) {
+      el.textContent = acState.logLines.join('\n');
+      el.scrollTop = el.scrollHeight;
+    }
+  }
+
+  function acResetLog() {
+    acState.logLines = [];
+    var el = acGe('ac-log');
+    if (el) el.textContent = 'Hazir bekleniyor...';
+  }
+
+  function acSafeName(name) {
+    return (name || 'ses')
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[^\w\-]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'ses';
+  }
+
+  function acGetOutExt(format) {
+    return format === 'm4a' ? 'm4a' : format;
+  }
+
+  function acGetMime(format) {
+    var map = {
+      mp3: 'audio/mpeg',
+      wav: 'audio/wav',
+      flac: 'audio/flac',
+      ogg: 'audio/ogg',
+      aac: 'audio/aac',
+      m4a: 'audio/mp4',
+      opus: 'audio/ogg',
+      webm: 'audio/webm'
+    };
+    return map[format] || 'application/octet-stream';
+  }
+
+  function acBuildArgs(inputName, outputName) {
+    var format = acGe('ac-format').value;
+    var bitrate = acGe('ac-bitrate').value;
+    var sampleRate = acGe('ac-rate').value;
+    var channels = acGe('ac-channels').value;
+
+    var args = ['-i', inputName, '-vn', '-ar', sampleRate, '-ac', channels];
+
+    switch (format) {
+      case 'mp3':
+        args.push('-c:a', 'libmp3lame', '-b:a', bitrate, outputName);
+        break;
+      case 'wav':
+        args.push('-c:a', 'pcm_s16le', outputName);
+        break;
+      case 'flac':
+        args.push('-c:a', 'flac', outputName);
+        break;
+      case 'ogg':
+        args.push('-c:a', 'libvorbis', '-b:a', bitrate, outputName);
+        break;
+      case 'aac':
+        args.push('-c:a', 'aac', '-b:a', bitrate, outputName);
+        break;
+      case 'm4a':
+        args.push('-c:a', 'aac', '-b:a', bitrate, '-movflags', '+faststart', outputName);
+        break;
+      case 'opus':
+        args.push('-c:a', 'libopus', '-b:a', bitrate, outputName);
+        break;
+      case 'webm':
+        args.push('-c:a', 'libopus', '-b:a', bitrate, outputName);
+        break;
+      default:
+        args.push('-c:a', 'libmp3lame', '-b:a', bitrate, outputName);
+        break;
+    }
+
+    return args;
+  }
+
+  function acSyncOptions() {
+    var format = acGe('ac-format').value;
+    var bitrateWrap = acGe('ac-bitrate-wrap');
+    var channelsWrap = acGe('ac-channels-wrap');
+    var rateWrap = acGe('ac-rate-wrap');
+
+    var lossless = (format === 'wav' || format === 'flac');
+    if (bitrateWrap) bitrateWrap.style.display = lossless ? 'none' : 'block';
+    if (channelsWrap) channelsWrap.style.display = 'block';
+    if (rateWrap) rateWrap.style.display = 'block';
+  }
+
+  async function acCreateFFmpegInstance() {
+    var ffmpegGlobal = window.FFmpegWASM || window.FFmpeg;
+    var utilGlobal = window.FFmpegUtil || {};
+
+    if (!ffmpegGlobal) {
+      throw new Error('FFmpeg kutuphanesi yuklenemedi. Script erisimi yok.');
+    }
+
+    if (typeof ffmpegGlobal.FFmpeg !== 'function') {
+      throw new Error('FFmpeg sinifi bulunamadi. UMD paketiniz uyumsuz olabilir.');
+    }
+
+    if (typeof utilGlobal.toBlobURL !== 'function' || typeof utilGlobal.fetchFile !== 'function') {
+      throw new Error('FFmpeg util fonksiyonlari bulunamadi.');
+    }
+
+    var base = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
+    var coreURL = await utilGlobal.toBlobURL(base + '/ffmpeg-core.js', 'text/javascript');
+    var wasmURL = await utilGlobal.toBlobURL(base + '/ffmpeg-core.wasm', 'application/wasm');
+    var workerURL = await utilGlobal.toBlobURL(base + '/ffmpeg-core.worker.js', 'text/javascript');
+
+    var ffmpeg = new ffmpegGlobal.FFmpeg();
+    ffmpeg.__fetchFile = utilGlobal.fetchFile;
+
+    ffmpeg.on('log', function (e) {
+      if (e && e.message) acAppendLog(e.message);
+    });
+
+    ffmpeg.on('progress', function (e) {
+      if (!e) return;
+      var pct = Math.round((e.progress || 0) * 100);
+      acSetProgress(pct, pct + '%', true);
+    });
+
+    await ffmpeg.load({
+      coreURL: coreURL,
+      wasmURL: wasmURL,
+      workerURL: workerURL
+    });
+
+    return ffmpeg;
+  }
+
+  async function acInit() {
+    if (acState.loaded) return;
+    if (acState.loading) return;
+
+    acState.loading = true;
+    acState.initTried = true;
+    acShowRetry(false);
+    acShowErr('');
+    acSetStatus('Ses donusturme motoru hazirlaniyor...');
+    acSetProgress(3, 'Motor indiriliyor...', true);
+    acAppendLog('[init] FFmpeg baslatiliyor...');
+
+    try {
+      var ffmpeg = await Promise.race([
+        acCreateFFmpegInstance(),
+        new Promise(function (_, reject) {
+          setTimeout(function () {
+            reject(new Error('FFmpeg yukleme zaman asimina ugradi. Ag, CDN veya tarayici engeli olabilir.'));
+          }, acState.loadTimeoutMs);
+        })
+      ]);
+
+      acState.ffmpeg = ffmpeg;
+      acState.loaded = true;
+      acSetProgress(100, 'Hazir', true);
+      acSetStatus('Ses donusturme motoru hazir.');
+      acAppendLog('[init] FFmpeg hazir.');
+      acGe('ac-load').style.display = 'none';
+      acGe('ac-main').style.display = 'block';
+    } catch (err) {
+      console.error(err);
+      acSetStatus('Motor yuklenemedi.');
+      acSetProgress(0, '', false);
+      acShowRetry(true);
+      acShowErr('FFmpeg yuklenemedi: ' + (err && err.message ? err.message : err));
+      acAppendLog('[init-error] ' + (err && err.message ? err.message : err));
+    } finally {
+      acState.loading = false;
+    }
+  }
+
+  window.acRetryInit = function () {
+    acInit();
+  };
+
+  function acBindDropzone() {
+    var dz = acGe('acdz');
+    var fi = acGe('acfi');
+    if (!dz || !fi) return;
+
+    fi.addEventListener('change', function () {
+      var f = this.files && this.files[0];
+      if (f) acSetFile(f);
+    });
+
+    dz.addEventListener('dragover', function (e) {
+      e.preventDefault();
+      dz.classList.add('over');
+    });
+
+    dz.addEventListener('dragleave', function () {
+      dz.classList.remove('over');
+    });
+
+    dz.addEventListener('drop', function (e) {
+      e.preventDefault();
+      dz.classList.remove('over');
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (!f) return;
+
+      var dt = new DataTransfer();
+      dt.items.add(f);
+      fi.files = dt.files;
+      acSetFile(f);
+    });
+  }
+
+  function acSetFile(file) {
+    acState.sourceFile = file;
+    acState.outputBlob = null;
+    acState.outputName = '';
+    acShowErr('');
+    acGe('ac-result').style.display = 'none';
+
+    acGe('ac-fname').textContent = file.name;
+    acGe('ac-fmeta').textContent = acFmtBytes(file.size) + ' · ' + (file.type || 'ses dosyasi');
+    acGe('ac-filebox').style.display = 'block';
+    acGe('ac-btn').disabled = false;
+
+    acAppendLog('[file] ' + file.name + ' secildi.');
+    if (!acState.loaded && !acState.loading) acInit();
+  }
+
+  window.acClear = function () {
+    acState.sourceFile = null;
+    acState.outputBlob = null;
+    acState.outputName = '';
+    if (acState.objectUrl) {
+      URL.revokeObjectURL(acState.objectUrl);
+      acState.objectUrl = null;
+    }
+    acGe('acfi').value = '';
+    acGe('ac-filebox').style.display = 'none';
+    acGe('ac-result').style.display = 'none';
+    acGe('ac-btn').disabled = true;
+    acShowErr('');
+    acResetLog();
+  };
+
+  window.acConvert = async function () {
+    if (!acState.sourceFile) {
+      acToast('Once bir ses dosyasi secin', 'warn');
+      return;
+    }
+
+    if (!acState.loaded) {
+      await acInit();
+      if (!acState.loaded) return;
+    }
+
+    var btn = acGe('ac-btn');
+    var originalBtnText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = 'Isleniyor...';
+
+    acShowErr('');
+    acResetLog();
+    acAppendLog('[convert] Donusum basladi...');
+    acSetProgress(0, 'Hazirlaniyor...', true);
+
+    try {
+      var inputExt = (acState.sourceFile.name.split('.').pop() || 'bin').toLowerCase();
+      var inputName = 'input.' + inputExt;
+      var outFmt = acGe('ac-format').value;
+      var outputName = acSafeName(acState.sourceFile.name) + '.' + acGetOutExt(outFmt);
+      var args = acBuildArgs(inputName, outputName);
+
+      await acState.ffmpeg.writeFile(inputName, await acState.ffmpeg.__fetchFile(acState.sourceFile));
+      acAppendLog('[convert] Komut: ffmpeg ' + args.join(' '));
+
+      await acState.ffmpeg.exec(args);
+
+      var data = await acState.ffmpeg.readFile(outputName);
+      var bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+      var blob = new Blob([bytes.buffer], { type: acGetMime(outFmt) });
+
+      acState.outputBlob = blob;
+      acState.outputName = outputName;
+
+      if (acState.objectUrl) URL.revokeObjectURL(acState.objectUrl);
+      acState.objectUrl = URL.createObjectURL(blob);
+
+      var player = acGe('ac-player');
+      player.src = acState.objectUrl;
+      player.style.display = 'block';
+
+      acGe('ac-result-size').textContent = '(' + acFmtBytes(blob.size) + ')';
+      acGe('ac-result').style.display = 'block';
+
+      acSetProgress(100, 'Tamamlandi', true);
+      acAppendLog('[convert] Donusum tamamlandi.');
+      acToast('Ses donusturuldu ✓', 'ok');
+
+      try { await acState.ffmpeg.deleteFile(inputName); } catch (e1) {}
+      try { await acState.ffmpeg.deleteFile(outputName); } catch (e2) {}
+    } catch (err) {
+      console.error(err);
+      acAppendLog('[convert-error] ' + (err && err.message ? err.message : err));
+      acShowErr('Donusum hatasi: ' + (err && err.message ? err.message : err));
+      acToast('Ses donusumu basarisiz', 'err');
+      acSetProgress(0, '', false);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+    }
+  };
+
+  window.acPlay = function () {
+    var player = acGe('ac-player');
+    if (!player || !player.src) {
+      acToast('Henuz olusan bir ses dosyasi yok', 'warn');
+      return;
+    }
+    player.style.display = 'block';
+    player.play().catch(function () {});
+  };
+
+  window.acDL = function () {
+    if (!acState.outputBlob || !acState.outputName) {
+      acToast('Indirilecek sonuc yok', 'warn');
+      return;
+    }
+    acDownloadBlob(acState.outputBlob, acState.outputName);
+    acToast('Indirme baslatildi ✓', 'ok');
+  };
+
+  function acBindPageBootstrap() {
+    acSyncOptions();
+    acBindDropzone();
+
+    var formatSel = acGe('ac-format');
+    if (formatSel) formatSel.addEventListener('change', acSyncOptions);
+
+    var audioTabBtn = Array.prototype.find.call(
+      document.querySelectorAll('.nav-tab'),
+      function (btn) { return (btn.textContent || '').trim().toLowerCase() === 'ses'; }
+    );
+
+    if (audioTabBtn) {
+      audioTabBtn.addEventListener('click', function () {
+        if (!acState.initTried && !acState.loaded && !acState.loading) {
+          setTimeout(function () { acInit(); }, 0);
+        }
+      });
+    }
+
+    var fileInput = acGe('acfi');
+    if (fileInput) {
+      fileInput.addEventListener('click', function () {
+        if (!acState.initTried && !acState.loaded && !acState.loading) {
+          acInit();
+        }
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', acBindPageBootstrap);
+  } else {
+    acBindPageBootstrap();
+  }
+})();
+</script>
+
 
 <!-- CONVERTER -->
 <div class="page" id="page-conv">
