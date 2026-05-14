@@ -326,6 +326,16 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 <label class="fl">Kelime / Gösterim</label>
 <select class="fse" id="csel" onchange="rInit()"><option value="1">1 kelime</option><option value="2">2 kelime</option><option value="3">3 kelime</option></select>
 </div>
+<div class="fg">
+<label class="fl" style="margin-bottom:4px;">🔊 Seslendirme (Web Speech API)</label>
+<select class="fse" id="rvoice" onchange="rVoiceChange()" style="font-size:11px;"></select>
+<div style="display:flex;align-items:center;gap:6px;margin-top:5px;">
+<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;user-select:none;">
+<input type="checkbox" id="rtts" onchange="rTTS(this.checked)"> Sesli oku
+</label>
+<span style="font-size:10px;color:var(--text3);">hız ile senkronize</span>
+</div>
+</div>
 <div class="fg2" style="margin-bottom:10px;">
 <button class="btn btn-p" id="bplay" onclick="rPlay()" style="flex:1;">▶ Oynat</button>
 <button class="btn btn-g" id="bpause" onclick="rPause()" disabled style="flex:1;">⏸ Duraklat</button>
@@ -2418,6 +2428,22 @@ return t||'Slayt içeriği okunamadı.';
 
 /* ===== RSVP READER ===== */
 var rW=[],rI=0,rT=null,rWPM=300,rCH=1,rFS=42;
+var rTTSon=false,rVoices=[];
+(function initVoices(){
+function lv(){rVoices=speechSynthesis.getVoices();var s=ge('rvoice');if(!s)return;s.innerHTML=rVoices.map(function(v,i){return'<option value="'+i+'"'+(v.lang==='tr-TR'?' selected':'')+'>'+v.name+' ('+v.lang+')</option>';}).join('');}
+speechSynthesis.onvoiceschanged=lv;lv();
+})();
+function rTTS(v){rTTSon=v;}
+function rVoiceChange(){}
+function rSpeak(w){
+if(!rTTSon||!w)return;
+speechSynthesis.cancel();
+var u=new SpeechSynthesisUtterance(w);
+var vi=parseInt(ge('rvoice').value);
+if(rVoices[vi])u.voice=rVoices[vi];
+u.rate=0.85;u.pitch=1;
+speechSynthesis.speak(u);
+}
 var DEMO='Hızlı okuma tekniği olan RSVP, kelimeleri tek tek ekranın ortasında göstererek göz hareketini sıfıra indirir. Bu sayede okuma hızınız önemli ölçüde artar. Kırmızı harf, gözün odaklanması gereken optimal noktayı gösterir. Hız ve font boyutunu dilediğiniz gibi ayarlayabilirsiniz. Uzun belgeler için dosya yükleme özelliğini kullanın.';
 
 function rDemo(){ge('rtxt').value=DEMO;rInit();}
@@ -2459,6 +2485,7 @@ co.innerHTML='<span class="ob">'+esc(ch.slice(0,p))+'</span><span class="om">'+e
 co.innerHTML='<span class="oa">'+esc(ch)+'</span>';
 }
 rStats();
+try{rSpeak(ch);}catch(e){}
 }
 function rPlay(){
 if(!rW.length){toast('Önce metin yükleyin','warn');return;}
@@ -2468,7 +2495,7 @@ ge('bplay').disabled=true;ge('bpause').disabled=false;ge('rst').textContent='Oyn
 }
 function rPause(){rStop();ge('rst').textContent='Duraklatıldı';}
 function rRestart(){rStop();rI=0;rShow(0);rStats();ge('rst').textContent='Hazır';}
-function rStop(){clearInterval(rT);rT=null;ge('bplay').disabled=false;ge('bpause').disabled=true;}
+function rStop(){clearInterval(rT);rT=null;ge('bplay').disabled=false;ge('bpause').disabled=true;try{speechSynthesis.cancel();}catch(e){}}
 function setWPM(v){rWPM=parseInt(v);ge('wv').textContent=v;if(rT){rStop();rPlay();}}
 function setFS(v){rFS=parseInt(v);ge('fv').textContent=v;if(rW.length)rShow(Math.max(0,rI-1));}
 function rStats(){
