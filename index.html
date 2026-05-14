@@ -2428,21 +2428,21 @@ return t||'Slayt içeriği okunamadı.';
 
 /* ===== RSVP READER ===== */
 var rW=[],rI=0,rT=null,rWPM=300,rCH=1,rFS=42;
-var rTTSon=false,rVoices=[];
+var rTTSon=false,rVoices=[],rUtt=null;
 (function initVoices(){
 function lv(){rVoices=speechSynthesis.getVoices();var s=ge('rvoice');if(!s)return;s.innerHTML=rVoices.map(function(v,i){return'<option value="'+i+'"'+(v.lang==='tr-TR'?' selected':'')+'>'+v.name+' ('+v.lang+')</option>';}).join('');}
 speechSynthesis.onvoiceschanged=lv;lv();
 })();
 function rTTS(v){rTTSon=v;}
 function rVoiceChange(){}
-function rSpeak(w){
-if(!rTTSon||!w)return;
-speechSynthesis.cancel();
-var u=new SpeechSynthesisUtterance(w);
+function rSpeakFull(){
+if(!rTTSon||!rW.length||rI>=rW.length)return;
+rUtt=new SpeechSynthesisUtterance(rW.slice(rI).join(' '));
 var vi=parseInt(ge('rvoice').value);
-if(rVoices[vi])u.voice=rVoices[vi];
-u.rate=0.85;u.pitch=1;
-speechSynthesis.speak(u);
+if(rVoices[vi])rUtt.voice=rVoices[vi];
+rUtt.rate=0.9;rUtt.pitch=1;
+rUtt.onend=function(){rUtt=null;};
+speechSynthesis.speak(rUtt);
 }
 var DEMO='Hızlı okuma tekniği olan RSVP, kelimeleri tek tek ekranın ortasında göstererek göz hareketini sıfıra indirir. Bu sayede okuma hızınız önemli ölçüde artar. Kırmızı harf, gözün odaklanması gereken optimal noktayı gösterir. Hız ve font boyutunu dilediğiniz gibi ayarlayabilirsiniz. Uzun belgeler için dosya yükleme özelliğini kullanın.';
 
@@ -2485,17 +2485,17 @@ co.innerHTML='<span class="ob">'+esc(ch.slice(0,p))+'</span><span class="om">'+e
 co.innerHTML='<span class="oa">'+esc(ch)+'</span>';
 }
 rStats();
-try{rSpeak(ch);}catch(e){}
 }
 function rPlay(){
 if(!rW.length){toast('Önce metin yükleyin','warn');return;}
 if(rT)return;if(rI>=rW.length)rI=0;
 rT=setInterval(function(){if(rI>=rW.length){rStop();ge('rst').textContent='Tamamlandı ✓';return;}rShow(rI++);},Math.round(60000/rWPM));
 ge('bplay').disabled=true;ge('bpause').disabled=false;ge('rst').textContent='Oynatılıyor';
+if(rTTSon)rSpeakFull();
 }
 function rPause(){rStop();ge('rst').textContent='Duraklatıldı';}
 function rRestart(){rStop();rI=0;rShow(0);rStats();ge('rst').textContent='Hazır';}
-function rStop(){clearInterval(rT);rT=null;ge('bplay').disabled=false;ge('bpause').disabled=true;try{speechSynthesis.cancel();}catch(e){}}
+function rStop(){clearInterval(rT);rT=null;ge('bplay').disabled=false;ge('bpause').disabled=true;try{speechSynthesis.cancel();rUtt=null;}catch(e){}}
 function setWPM(v){rWPM=parseInt(v);ge('wv').textContent=v;if(rT){rStop();rPlay();}}
 function setFS(v){rFS=parseInt(v);ge('fv').textContent=v;if(rW.length)rShow(Math.max(0,rI-1));}
 function rStats(){
