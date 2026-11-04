@@ -2867,35 +2867,83 @@ function sttSetFile(f){
   ge('sttBtn').disabled=false;
 }
 
-/* Sesi 16 kHz mono Float32'ye çevir. Önce tarayıcının kendi çözücüsü, olmazsa ffmpeg (WMA, AMR, 3GP vb.) */
+/* Sesi 16 kHz mono Float32'ye çevir.
+   ÖNEMLİ: çözme ana sayfada YAPILMAZ — aksi halde uzun kayıtlarda tarayıcı donar.
+   Tarayıcı çözemezse ffmpeg ile WAV'a çevrilir, o da yeniden worker'a verilir. */
 async function sttDecode(file){
-  async function viaBrowser(buf){
-    var AC=window.AudioContext||window.webkitAudioContext;
-    var ctx=new AC({sampleRate:16000});
-    try{var ab=await ctx.decodeAudioData(buf);}finally{try{ctx.close();}catch(e){}}
-    var d=ab.getChannelData(0);
-    if(ab.numberOfChannels>1){var m=new Float32Array(d.length),c=ab.numberOfChannels;
-      for(var ch=0;ch<c;ch++){var x=ab.getChannelData(ch);for(var i=0;i<m.length;i++)m[i]+=x[i]/c;}d=m;}
-    return d;
+  var w=sttGetWorker();
+  var raw=await file.arrayBuffer();
+  // 1) WAV/PCM ise worker'da çözülür — ana sayfa hiç yük almaz
+  try{
+    return await sttWorkerDecode(w,raw);
+  }catch(e){
+    if(!e||!e.needsMain)throw e;
   }
-  try{return await viaBrowser(await file.arrayBuffer());}
-  catch(e){
-    sttStatus('Format tarayıcıda açılamadı, ffmpeg ile çözülüyor...');
-    try{
-      var ff=await acEngine();
-      var ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'')||'bin';
-      ff.FS('writeFile','stt_in.'+ext,await FFmpeg.fetchFile(file));
-      await ff.run('-i','stt_in.'+ext,'-vn','-ac','1','-ar','16000','-c:a','pcm_s16le','stt_out.wav');
-      var out;try{out=ff.FS('readFile','stt_out.wav');}catch(e2){throw new Error('Bu dosya okunamadı (bozuk veya desteklenmeyen format).');}
-      return await viaBrowser(out.buffer.slice(out.byteOffset,out.byteOffset+out.byteLength));
-    }finally{acReset();}
-  }
+  // 2) Sıkıştırılmış format (MP3, M4A, OGG...): tarayıcı çözücüsü ana sayfada
+  sttStatus('Ses çözülüyor...');
+  try{
+    return await sttMainDecode(raw);
+  }catch(e){ /* aşağıda ffmpeg yedeği */ }
+  // 3) ffmpeg yedeği (WMA, AMR, 3GP vb.)
+  sttStatus('Format tarayıcıda açılamadı, ffmpeg ile çözülüyor...');
+  try{
+    var ff=await acEngine();
+    var ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'')||'bin';
+    ff.FS('writeFile','stt_in.'+ext,await FFmpeg.fetchFile(file));
+    await ff.run('-i','stt_in.'+ext,'-vn','-ac','1','-ar','16000','-c:a','pcm_s16le','stt_out.wav');
+    var out;try{out=ff.FS('readFile','stt_out.wav');}catch(e2){throw new Error('Bu dosya okunamadı (bozuk veya desteklenmeyen format).');}
+    var wav=out.buffer.slice(out.byteOffset,out.byteOffset+out.byteLength);
+    return await sttWorkerDecode(w,wav); // WAV → worker'da çöz
+  }finally{acReset();}
+}
+/* Worker'a çözme emri ver, sonucu bekle.
+   WAV ise tamamı worker'da çözülür (ana sayfa hiç yük almaz).
+   MP3/M4A/OGG gibi sıkıştırılmış formatlarda tarayıcının decodeAudioData'sı gerekir;
+   bu durumda iş ana sayfada yapılır — ama tek seferlik, tek geçişte ve kanal
+   birleştirme döngüsü olmadan (eski sürümdeki donma sebebi buydu). */
+var STT_DECODE_SEQ=0,STT_DECODE_WAIT={};
+function sttWorkerDecode(w,buf){
+  return new Promise(function(res,rej){
+    var id=++STT_DECODE_SEQ;
+    STT_DECODE_WAIT[id]={res:res,rej:rej};
+    // Kopya gönderilir (transfer YOK): worker çözemezse ("needmain") aynı baytlar
+    // ana sayfada decodeAudioData için hâlâ gerekli. Transfer edilseydi buffer
+    // detached olur ve ana sayfa "Failed to convert value to 'object'" alırdı.
+    w.postMessage({type:'decode',id:id,buffer:buf});
+  });
+}
+/* Sıkıştırılmış format: worker çözemez, ana sayfada decodeAudioData gerekir */
+async function sttMainDecode(buf){
+  var AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)throw new Error('Tarayıcınız ses çözme desteklemiyor.');
+  var ctx;
+  try{ctx=new AC({sampleRate:16000});}catch(e){ctx=new AC();}
+  try{
+    var ab=await ctx.decodeAudioData(buf);
+    var n=ab.length,ch=ab.numberOfChannels,out;
+    if(ch===1)out=ab.getChannelData(0).slice(0,n);
+    else{out=new Float32Array(n);var tmp=[];for(var c=0;c<ch;c++)tmp.push(ab.getChannelData(c));
+      var inv=1/ch;for(var i=0;i<n;i++){var v=0;for(var c2=0;c2<ch;c2++)v+=tmp[c2][i];out[i]=v*inv;}}
+    if(ctx.sampleRate!==16000){ // tarayıcı 16 kHz'i reddettiyse yeniden örnekle
+      var step=ctx.sampleRate/16000,ol=Math.floor(n/step),o2=new Float32Array(ol);
+      for(var k=0;k<ol;k++){var s=k*step,i0=Math.floor(s),f=s-i0,i1=Math.min(n-1,i0+1);o2[k]=out[i0]+(out[i1]-out[i0])*f;}
+      out=o2;
+    }
+    return out;
+  }finally{try{ctx.close();}catch(e){}}
 }
 
 function sttGetWorker(){
   if(!STT.worker){
     STT.worker=new Worker('stt-worker.js',{type:'module'});
-    STT.worker.onerror=function(e){sttFail('İşçi başlatılamadı: '+(e.message||'tarayıcınız modül worker desteklemiyor olabilir'));};
+    // Mesaj bağlayıcı burada kurulur: çözme (decode) yanıtları da buradan gelir
+    STT.worker.onmessage=sttOnMsg;
+    STT.worker.onerror=function(e){
+      var msg=(e&&e.message)||'işçi hatası';
+      // Bekleyen çözme istekleri kilitli kalmasın
+      for(var k in STT_DECODE_WAIT){try{STT_DECODE_WAIT[k].rej(new Error(msg));}catch(_){}delete STT_DECODE_WAIT[k];}
+      sttFail('İşçi başlatılamadı: '+(e.message||'tarayıcınız modül worker desteklemiyor olabilir'));
+    };
   }
   return STT.worker;
 }
@@ -2918,13 +2966,25 @@ async function sttStart(){
     if(STT.dur>3*3600)throw new Error('Kayıt 3 saatten uzun; parçalara bölüp tekrar deneyin.');
     ge('sttMeta').textContent='· süre '+sttHms(STT.dur);
     var w=sttGetWorker();
-    w.onmessage=sttOnMsg;
     STT.t0=Date.now();
     w.postMessage({type:'transcribe',model:ge('sttModel').value,language:ge('sttLang').value,audio:audio},[audio.buffer]);
   }catch(e){sttFail(e.message||String(e));}
 }
 function sttOnMsg(ev){
   var m=ev.data;
+  if(m.type==='decoded'){
+    var W=STT_DECODE_WAIT[m.id];if(W){delete STT_DECODE_WAIT[m.id];W.res(m.audio);}
+    return;
+  }
+  if(m.type==='needmain'){
+    var N=STT_DECODE_WAIT[m.id];
+    if(N){delete STT_DECODE_WAIT[m.id];var ee=new Error('needs-main-thread');ee.needsMain=true;N.rej(ee);}
+    return;
+  }
+  if(m.type==='decodefail'){
+    var F=STT_DECODE_WAIT[m.id];if(F){delete STT_DECODE_WAIT[m.id];F.rej(new Error(m.message||'çözülemedi'));}
+    return;
+  }
   if(m.type==='status')sttStatus(m.text);
   else if(m.type==='load'){
     var p=m.p||{};
@@ -2933,12 +2993,18 @@ function sttOnMsg(ev){
       if(T){sttProg(L/T);sttStatus('Model indiriliyor (yalnız ilk sefer): '+fmtB(L)+' / '+fmtB(T));}}
     else if(p.status==='ready')sttStatus('Model hazır.');
   }
-  else if(m.type==='start'){sttProg(0);sttStatus('Yazıya dökülüyor... 0/'+m.n+' bölüm');ge('sttOut').innerHTML='';}
+  else if(m.type==='start'){STT.t0=Date.now();sttProg(0);
+    sttStatus('Yazıya dökülüyor... 0/'+m.n+' bölüm'+(m.threads?' · '+m.threads+' iş parçacığı':''));ge('sttOut').innerHTML='';}
   else if(m.type==='segment'){
     STT.chunks=STT.chunks.concat(m.chunks);
-    var done=m.i+1,el=(Date.now()-STT.t0)/1000,eta=el/done*(m.n-done);
-    sttProg(done/m.n);
-    sttStatus('Yazıya dökülüyor... '+done+'/'+m.n+' bölüm'+(done<m.n?' · kalan ~'+sttDurText(eta):''));
+    var done=m.i+1,el=(Date.now()-STT.t0)/1000;
+    // Gerçek hız (ses saniyesi / saniye) varsa kalan süre ondan hesaplanır — pencere başına
+    // ortalama almak, uzun sessiz bölümlerde yanıltıcı tahmin veriyordu.
+    var kalan;
+    if(m.elapsed&&m.audioDone){var hiz=m.audioDone/m.elapsed;kalan=hiz>0?(STT.dur-m.audioDone)/hiz:0;}
+    else kalan=el/done*(m.n-done);
+    sttProg(m.audioDone&&STT.dur?Math.min(1,m.audioDone/STT.dur):done/m.n);
+    sttStatus('Yazıya dökülüyor... '+done+'/'+m.n+' bölüm'+(done<m.n&&isFinite(kalan)&&kalan>0?' · kalan ~'+sttDurText(kalan):''));
     sttRender();
   }
   else if(m.type==='done'){

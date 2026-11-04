@@ -1,6 +1,6 @@
 /* hechecik — service worker (çevrimdışı kullanım)
    Sürüm değiştiğinde VERSION'ı artırın; eski önbellek silinir. */
-const VERSION = 'hechecik-v9';
+const VERSION = 'hechecik-v12';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './stt-worker.js'];
 const LIBS = [
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
@@ -40,15 +40,20 @@ self.addEventListener('fetch', e => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
 
-  // Sayfanın kendisi: önce ağ (güncel sürüm), ağ yoksa önbellek
-  if (req.mode === 'navigate' || (url.origin === location.origin && url.pathname.endsWith('.html'))) {
+  // Sayfanın kendisi ve işçi dosyası: önce ağ (güncel sürüm), ağ yoksa önbellek.
+  // stt-worker.js istisnası kritik: cache-first olsaydı eski worker sonsuza kadar
+  // servis edilir, düzeltmeler canlıya hiç ulaşmazdı.
+  const isPage = req.mode === 'navigate' || (url.origin === location.origin && url.pathname.endsWith('.html'));
+  const isWorker = url.origin === location.origin && url.pathname.endsWith('stt-worker.js');
+  if (isPage || isWorker) {
     e.respondWith((async () => {
       try {
         const r = await fetch(req);
-        const c = await caches.open(VERSION); c.put('./index.html', r.clone());
+        const c = await caches.open(VERSION);
+        c.put(isWorker ? './stt-worker.js' : './index.html', r.clone());
         return r;
       } catch (_) {
-        return (await caches.match('./index.html')) || Response.error();
+        return (await caches.match(isWorker ? './stt-worker.js' : './index.html')) || Response.error();
       }
     })());
     return;
