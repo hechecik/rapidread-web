@@ -2,11 +2,18 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#18181B"/>
+<link rel="icon" type="image/png" href="icon-192.png"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<meta property="og:title" content="hechecik — Oku, Oluştur, Çevir"/>
+<meta property="og:description" content="Tarayıcıda çalışan ücretsiz PDF, görsel, metin, ses ve hızlı okuma araçları. Sunucu yok, veri kaydedilmez."/>
+<meta property="og:image" content="https://hechecik.github.io/rapidread-web/icon-512.png"/>
+<meta property="og:type" content="website"/>
 <title>hechecik — Oku, Oluştur, Çevir</title>
 <meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: RSVP hızlı okuma, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici ve metin araçları. Sunucu yok, veri kaydedilmez."/>
 <meta name="keywords" content="hızlı okuma, RSVP, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici, metin araçları, çevrimdışı"/>
-<script src="https://unpkg.com/@ffmpeg/ffmpeg@0.11.0/dist/ffmpeg.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -231,7 +238,7 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 <div class="hero">
 <div class="hero-ey">hechecik araçları</div>
 <h1 class="hero-h1">Oku<em>.</em> Oluştur<em>.</em> Çevir<em>.</em></h1>
-<p class="hero-sl">Tamamen tarayıcınızda çalışır — sunucu yok, veri kaydedilmez, <strong>internetsiz bile</strong> kullanılabilir.</p>
+<p class="hero-sl">Tamamen tarayıcınızda çalışır — sunucu yok, veri kaydedilmez, ilk ziyaretten sonra <strong>internetsiz de</strong> kullanılabilir.</p>
 </div>
 <div style="max-width:500px;margin:0 auto 24px;">
 <input type="text" class="search-box" id="homeSearch" placeholder="🔍 Araç ara..." oninput="filterTools(this.value)"/>
@@ -350,485 +357,45 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 </div>
 </div>
 
-<!-- AUDIO CONVERTER -->
+<!-- AUDIO CONVERTER (v2) -->
 <div class="page" id="page-audio">
-<button class="back-btn" onclick="sp('home')">&#8592; Geri</button>
-
+<button class="back-btn" onclick="sp('home')">← Geri</button>
 <div class="card">
-<div class="ctitle">Ses Dosya Dönüştürücü</div>
-
-<div id="ac-status" style="text-align:center;padding:20px;">
-Ses dönüştürme motoru hazırlanıyor...
+<div class="fb2" style="margin-bottom:12px;">
+<div class="ctitle" style="margin:0;">Ses Dosya Dönüştürücü</div>
+<span class="pvb">🔒 Dosyanız tarayıcıdan çıkmaz</span>
 </div>
-
-<div id="ac-main" style="display:none;text-align:center;">
-
-<input type="file" id="audioFile" accept="audio/*"><br><br>
-
-<select id="format">
-<option value="mp3">MP3</option>
-<option value="wav">WAV</option>
-<option value="ogg">OGG</option>
-</select><br><br>
-
-<button onclick="convertAudio()" class="btn btn-p">Dönüştür</button>
-
-<br><br>
-<audio id="player" controls style="display:none;width:100%"></audio><br>
-<button id="downloadBtn" class="btn btn-p" style="display:none;">İndir</button>
-
+<div class="dz" id="acdz" onclick="document.getElementById('acfi').click()">
+<div style="font-size:26px;margin-bottom:8px;">🎵</div>
+<div style="font-size:13px;font-weight:500;color:var(--text2);">Ses veya video dosyasını sürükleyin veya tıklayın</div>
+<div style="font-size:11px;color:var(--text3);margin-top:3px;">MP3 · WAV · OGG · M4A · AAC · FLAC · OPUS · WEBM · MP4 (videodan ses çıkarılır)</div>
+</div>
+<input type="file" id="acfi" accept="audio/*,video/*,.m4a,.opus,.flac,.aac" style="display:none"/>
+<div id="ac-fileinfo" class="txs mt8"></div>
+<div id="ac-err" class="err"></div>
+<div class="fr c3 mt14">
+<div class="fg"><label class="fl">Hedef Format</label><select class="fse" id="ac-format">
+<option value="mp3">MP3</option><option value="m4a">M4A (AAC)</option><option value="ogg">OGG (Vorbis)</option>
+<option value="opus">OPUS</option><option value="wav">WAV (kayıpsız)</option><option value="flac">FLAC (kayıpsız)</option></select></div>
+<div class="fg" id="ac-bitrate-wrap"><label class="fl">Bit Hızı</label><select class="fse" id="ac-bitrate">
+<option value="64k">64 kbps</option><option value="96k">96 kbps</option><option value="128k" selected>128 kbps</option>
+<option value="192k">192 kbps</option><option value="256k">256 kbps</option><option value="320k">320 kbps</option></select></div>
+<div class="fg"><label class="fl">Kanal</label><select class="fse" id="ac-channels">
+<option value="">Orijinal</option><option value="1">Mono</option><option value="2">Stereo</option></select></div>
+</div>
+<div class="fg"><label class="fl">Örnekleme Hızı</label><select class="fse" id="ac-rate">
+<option value="">Orijinal</option><option value="48000">48 kHz</option><option value="44100">44.1 kHz</option>
+<option value="22050">22.05 kHz</option><option value="16000">16 kHz (konuşma)</option></select></div>
+<div class="pb" id="ac-prog-wrap" style="display:none;"><div class="pf" id="ac-prog" style="width:0%"></div></div>
+<div id="ac-status" class="txs mt8">İlk kullanımda dönüştürme motoru (~24 MB) bir kez indirilir.</div>
+<button class="btn btn-p mt14" id="ac-btn" onclick="acConvert()" disabled style="width:100%;">🎧 Dönüştür</button>
+<div id="ac-result" class="mt14" style="display:none;">
+<audio id="ac-player" controls style="width:100%;"></audio>
+<div class="fb2 mt8"><span id="ac-result-info" class="txs"></span>
+<button class="btn btn-p btn-sm" onclick="acDL()">⬇ İndir</button></div>
 </div>
 </div>
 </div>
-<script>
-/* ===== AUDIO CONVERTER / PRODUCTION FIX ===== */
-(function () {
-  var acState = {
-    ffmpeg: null,
-    loaded: false,
-    loading: false,
-    initTried: false,
-    sourceFile: null,
-    outputBlob: null,
-    outputName: '',
-    logLines: [],
-    progressBound: false,
-    objectUrl: null,
-    loadTimeoutMs: 45000
-  };
-
-  function acGe(id) { return document.getElementById(id); }
-  function acHasFn(name) { return typeof window[name] === 'function'; }
-
-  function acToast(msg, type) {
-    if (acHasFn('toast')) return window.toast(msg, type);
-    console.log('[toast]', type || 'info', msg);
-  }
-
-  function acFmtBytes(bytes) {
-    if (acHasFn('fmtB')) return window.fmtB(bytes);
-    if (!isFinite(bytes) || bytes < 0) return '0 B';
-    var units = ['B','KB','MB','GB'];
-    var i = 0;
-    var n = bytes;
-    while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
-    return (n < 10 && i > 0 ? n.toFixed(1) : Math.round(n)) + ' ' + units[i];
-  }
-
-  function acDownloadBlob(blob, filename) {
-    if (acHasFn('downloadBlob')) return window.downloadBlob(blob, filename);
-    var a = document.createElement('a');
-    var url = URL.createObjectURL(blob);
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
-  }
-
-  function acShowErr(msg) {
-    var el = acGe('ac-err');
-    if (!el) return;
-    if (!msg) {
-      el.textContent = '';
-      el.classList.remove('show');
-      return;
-    }
-    el.textContent = msg;
-    el.classList.add('show');
-  }
-
-  function acSetStatus(msg) {
-    var el = acGe('ac-status');
-    if (el) el.textContent = msg;
-  }
-
-  function acSetProgress(percent, text, visible) {
-    var wrap = acGe('ac-prog-wrap');
-    var bar = acGe('ac-prog');
-    var txt = acGe('ac-prog-txt');
-    if (wrap) wrap.style.display = visible ? 'block' : 'none';
-    if (bar) bar.style.width = Math.max(0, Math.min(100, percent || 0)) + '%';
-    if (txt) txt.textContent = text || '';
-  }
-
-  function acShowRetry(show) {
-    var box = acGe('ac-init-actions');
-    if (box) box.style.display = show ? 'block' : 'none';
-  }
-
-  function acAppendLog(line) {
-    if (!line) return;
-    acState.logLines.push(line);
-    if (acState.logLines.length > 80) acState.logLines = acState.logLines.slice(-80);
-    var el = acGe('ac-log');
-    if (el) {
-      el.textContent = acState.logLines.join('\n');
-      el.scrollTop = el.scrollHeight;
-    }
-  }
-
-  function acResetLog() {
-    acState.logLines = [];
-    var el = acGe('ac-log');
-    if (el) el.textContent = 'Hazir bekleniyor...';
-  }
-
-  function acSafeName(name) {
-    return (name || 'ses')
-      .replace(/\.[^/.]+$/, '')
-      .replace(/[^\w\-]+/g, '_')
-      .replace(/^_+|_+$/g, '') || 'ses';
-  }
-
-  function acGetOutExt(format) {
-    return format === 'm4a' ? 'm4a' : format;
-  }
-
-  function acGetMime(format) {
-    var map = {
-      mp3: 'audio/mpeg',
-      wav: 'audio/wav',
-      flac: 'audio/flac',
-      ogg: 'audio/ogg',
-      aac: 'audio/aac',
-      m4a: 'audio/mp4',
-      opus: 'audio/ogg',
-      webm: 'audio/webm'
-    };
-    return map[format] || 'application/octet-stream';
-  }
-
-  function acBuildArgs(inputName, outputName) {
-    var format = acGe('ac-format').value;
-    var bitrate = acGe('ac-bitrate').value;
-    var sampleRate = acGe('ac-rate').value;
-    var channels = acGe('ac-channels').value;
-
-    var args = ['-i', inputName, '-vn', '-ar', sampleRate, '-ac', channels];
-
-    switch (format) {
-      case 'mp3':
-        args.push('-c:a', 'libmp3lame', '-b:a', bitrate, outputName);
-        break;
-      case 'wav':
-        args.push('-c:a', 'pcm_s16le', outputName);
-        break;
-      case 'flac':
-        args.push('-c:a', 'flac', outputName);
-        break;
-      case 'ogg':
-        args.push('-c:a', 'libvorbis', '-b:a', bitrate, outputName);
-        break;
-      case 'aac':
-        args.push('-c:a', 'aac', '-b:a', bitrate, outputName);
-        break;
-      case 'm4a':
-        args.push('-c:a', 'aac', '-b:a', bitrate, '-movflags', '+faststart', outputName);
-        break;
-      case 'opus':
-        args.push('-c:a', 'libopus', '-b:a', bitrate, outputName);
-        break;
-      case 'webm':
-        args.push('-c:a', 'libopus', '-b:a', bitrate, outputName);
-        break;
-      default:
-        args.push('-c:a', 'libmp3lame', '-b:a', bitrate, outputName);
-        break;
-    }
-
-    return args;
-  }
-
-  function acSyncOptions() {
-    var format = acGe('ac-format').value;
-    var bitrateWrap = acGe('ac-bitrate-wrap');
-    var channelsWrap = acGe('ac-channels-wrap');
-    var rateWrap = acGe('ac-rate-wrap');
-
-    var lossless = (format === 'wav' || format === 'flac');
-    if (bitrateWrap) bitrateWrap.style.display = lossless ? 'none' : 'block';
-    if (channelsWrap) channelsWrap.style.display = 'block';
-    if (rateWrap) rateWrap.style.display = 'block';
-  }
-
-  async function acCreateFFmpegInstance() {
-    var ffmpegGlobal = window.FFmpegWASM || window.FFmpeg;
-    var utilGlobal = window.FFmpegUtil || {};
-
-    if (!ffmpegGlobal) {
-      throw new Error('FFmpeg kutuphanesi yuklenemedi. Script erisimi yok.');
-    }
-
-    if (typeof ffmpegGlobal.FFmpeg !== 'function') {
-      throw new Error('FFmpeg sinifi bulunamadi. UMD paketiniz uyumsuz olabilir.');
-    }
-
-    if (typeof utilGlobal.toBlobURL !== 'function' || typeof utilGlobal.fetchFile !== 'function') {
-      throw new Error('FFmpeg util fonksiyonlari bulunamadi.');
-    }
-
-    var base = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/umd';
-    var coreURL = await utilGlobal.toBlobURL(base + '/ffmpeg-core.js', 'text/javascript');
-    var wasmURL = await utilGlobal.toBlobURL(base + '/ffmpeg-core.wasm', 'application/wasm');
-    var workerURL = await utilGlobal.toBlobURL(base + '/ffmpeg-core.worker.js', 'text/javascript');
-
-    var ffmpeg = new ffmpegGlobal.FFmpeg();
-    ffmpeg.__fetchFile = utilGlobal.fetchFile;
-
-    ffmpeg.on('log', function (e) {
-      if (e && e.message) acAppendLog(e.message);
-    });
-
-    ffmpeg.on('progress', function (e) {
-      if (!e) return;
-      var pct = Math.round((e.progress || 0) * 100);
-      acSetProgress(pct, pct + '%', true);
-    });
-
-    await ffmpeg.load({
-      coreURL: coreURL,
-      wasmURL: wasmURL,
-      workerURL: workerURL
-    });
-
-    return ffmpeg;
-  }
-
-  async function acInit() {
-    if (acState.loaded) return;
-    if (acState.loading) return;
-
-    acState.loading = true;
-    acState.initTried = true;
-    acShowRetry(false);
-    acShowErr('');
-    acSetStatus('Ses donusturme motoru hazirlaniyor...');
-    acSetProgress(3, 'Motor indiriliyor...', true);
-    acAppendLog('[init] FFmpeg baslatiliyor...');
-
-    try {
-      var ffmpeg = await Promise.race([
-        acCreateFFmpegInstance(),
-        new Promise(function (_, reject) {
-          setTimeout(function () {
-            reject(new Error('FFmpeg yukleme zaman asimina ugradi. Ag, CDN veya tarayici engeli olabilir.'));
-          }, acState.loadTimeoutMs);
-        })
-      ]);
-
-      acState.ffmpeg = ffmpeg;
-      acState.loaded = true;
-      acSetProgress(100, 'Hazir', true);
-      acSetStatus('Ses donusturme motoru hazir.');
-      acAppendLog('[init] FFmpeg hazir.');
-      acGe('ac-load').style.display = 'none';
-      acGe('ac-main').style.display = 'block';
-    } catch (err) {
-      console.error(err);
-      acSetStatus('Motor yuklenemedi.');
-      acSetProgress(0, '', false);
-      acShowRetry(true);
-      acShowErr('FFmpeg yuklenemedi: ' + (err && err.message ? err.message : err));
-      acAppendLog('[init-error] ' + (err && err.message ? err.message : err));
-    } finally {
-      acState.loading = false;
-    }
-  }
-
-  window.acRetryInit = function () {
-    acInit();
-  };
-
-  function acBindDropzone() {
-    var dz = acGe('acdz');
-    var fi = acGe('acfi');
-    if (!dz || !fi) return;
-
-    fi.addEventListener('change', function () {
-      var f = this.files && this.files[0];
-      if (f) acSetFile(f);
-    });
-
-    dz.addEventListener('dragover', function (e) {
-      e.preventDefault();
-      dz.classList.add('over');
-    });
-
-    dz.addEventListener('dragleave', function () {
-      dz.classList.remove('over');
-    });
-
-    dz.addEventListener('drop', function (e) {
-      e.preventDefault();
-      dz.classList.remove('over');
-      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-      if (!f) return;
-
-      var dt = new DataTransfer();
-      dt.items.add(f);
-      fi.files = dt.files;
-      acSetFile(f);
-    });
-  }
-
-  function acSetFile(file) {
-    acState.sourceFile = file;
-    acState.outputBlob = null;
-    acState.outputName = '';
-    acShowErr('');
-    acGe('ac-result').style.display = 'none';
-
-    acGe('ac-fname').textContent = file.name;
-    acGe('ac-fmeta').textContent = acFmtBytes(file.size) + ' · ' + (file.type || 'ses dosyasi');
-    acGe('ac-filebox').style.display = 'block';
-    acGe('ac-btn').disabled = false;
-
-    acAppendLog('[file] ' + file.name + ' secildi.');
-    if (!acState.loaded && !acState.loading) acInit();
-  }
-
-  window.acClear = function () {
-    acState.sourceFile = null;
-    acState.outputBlob = null;
-    acState.outputName = '';
-    if (acState.objectUrl) {
-      URL.revokeObjectURL(acState.objectUrl);
-      acState.objectUrl = null;
-    }
-    acGe('acfi').value = '';
-    acGe('ac-filebox').style.display = 'none';
-    acGe('ac-result').style.display = 'none';
-    acGe('ac-btn').disabled = true;
-    acShowErr('');
-    acResetLog();
-  };
-
-  window.acConvert = async function () {
-    if (!acState.sourceFile) {
-      acToast('Once bir ses dosyasi secin', 'warn');
-      return;
-    }
-
-    if (!acState.loaded) {
-      await acInit();
-      if (!acState.loaded) return;
-    }
-
-    var btn = acGe('ac-btn');
-    var originalBtnText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = 'Isleniyor...';
-
-    acShowErr('');
-    acResetLog();
-    acAppendLog('[convert] Donusum basladi...');
-    acSetProgress(0, 'Hazirlaniyor...', true);
-
-    try {
-      var inputExt = (acState.sourceFile.name.split('.').pop() || 'bin').toLowerCase();
-      var inputName = 'input.' + inputExt;
-      var outFmt = acGe('ac-format').value;
-      var outputName = acSafeName(acState.sourceFile.name) + '.' + acGetOutExt(outFmt);
-      var args = acBuildArgs(inputName, outputName);
-
-      await acState.ffmpeg.writeFile(inputName, await acState.ffmpeg.__fetchFile(acState.sourceFile));
-      acAppendLog('[convert] Komut: ffmpeg ' + args.join(' '));
-
-      await acState.ffmpeg.exec(args);
-
-      var data = await acState.ffmpeg.readFile(outputName);
-      var bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
-      var blob = new Blob([bytes.buffer], { type: acGetMime(outFmt) });
-
-      acState.outputBlob = blob;
-      acState.outputName = outputName;
-
-      if (acState.objectUrl) URL.revokeObjectURL(acState.objectUrl);
-      acState.objectUrl = URL.createObjectURL(blob);
-
-      var player = acGe('ac-player');
-      player.src = acState.objectUrl;
-      player.style.display = 'block';
-
-      acGe('ac-result-size').textContent = '(' + acFmtBytes(blob.size) + ')';
-      acGe('ac-result').style.display = 'block';
-
-      acSetProgress(100, 'Tamamlandi', true);
-      acAppendLog('[convert] Donusum tamamlandi.');
-      acToast('Ses donusturuldu ✓', 'ok');
-
-      try { await acState.ffmpeg.deleteFile(inputName); } catch (e1) {}
-      try { await acState.ffmpeg.deleteFile(outputName); } catch (e2) {}
-    } catch (err) {
-      console.error(err);
-      acAppendLog('[convert-error] ' + (err && err.message ? err.message : err));
-      acShowErr('Donusum hatasi: ' + (err && err.message ? err.message : err));
-      acToast('Ses donusumu basarisiz', 'err');
-      acSetProgress(0, '', false);
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = originalBtnText;
-    }
-  };
-
-  window.acPlay = function () {
-    var player = acGe('ac-player');
-    if (!player || !player.src) {
-      acToast('Henuz olusan bir ses dosyasi yok', 'warn');
-      return;
-    }
-    player.style.display = 'block';
-    player.play().catch(function () {});
-  };
-
-  window.acDL = function () {
-    if (!acState.outputBlob || !acState.outputName) {
-      acToast('Indirilecek sonuc yok', 'warn');
-      return;
-    }
-    acDownloadBlob(acState.outputBlob, acState.outputName);
-    acToast('Indirme baslatildi ✓', 'ok');
-  };
-
-  function acBindPageBootstrap() {
-    acSyncOptions();
-    acBindDropzone();
-
-    var formatSel = acGe('ac-format');
-    if (formatSel) formatSel.addEventListener('change', acSyncOptions);
-
-    var audioTabBtn = Array.prototype.find.call(
-      document.querySelectorAll('.nav-tab'),
-      function (btn) { return (btn.textContent || '').trim().toLowerCase() === 'ses'; }
-    );
-
-    if (audioTabBtn) {
-      audioTabBtn.addEventListener('click', function () {
-        if (!acState.initTried && !acState.loaded && !acState.loading) {
-          setTimeout(function () { acInit(); }, 0);
-        }
-      });
-    }
-
-    var fileInput = acGe('acfi');
-    if (fileInput) {
-      fileInput.addEventListener('click', function () {
-        if (!acState.initTried && !acState.loaded && !acState.loading) {
-          acInit();
-        }
-      });
-    }
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', acBindPageBootstrap);
-  } else {
-    acBindPageBootstrap();
-  }
-})();
-</script>
 
 
 <!-- CONVERTER -->
@@ -849,7 +416,7 @@ Ses dönüştürme motoru hazırlanıyor...
 <div style="font-size:13px;font-weight:500;color:var(--text2);">Sürükleyin veya tıklayın</div>
 <div style="font-size:11px;color:var(--text3);margin-top:3px;">PDF · DOCX · XLSX · CSV · TXT · HTML · MD · JSON · XML · YAML</div>
 </div>
-<input type="file" id="cfi" style="display:none" accept=".pdf,.docx,.doc,.xlsx,.xls,.csv,.pptx,.txt,.html,.htm,.md,.json,.rtf,.odt,.xml,.yaml,.yml,.tsv" onchange="cLoad(this)"/>
+<input type="file" id="cfi" style="display:none" accept=".pdf,.docx,.odt,.xlsx,.xls,.csv,.pptx,.txt,.html,.htm,.md,.json,.rtf,.odt,.xml,.yaml,.yml,.tsv" onchange="cLoad(this)"/>
 <div id="cferr" class="err"></div>
 <div id="cfinfo" style="display:none;margin-top:10px;">
 <div class="fb2">
@@ -892,7 +459,7 @@ Ses dönüştürme motoru hazırlanıyor...
 <button class="btn btn-p btn-sm" onclick="dlPDF()">⬇ PDF</button>
 </div>
 </div>
-<input type="file" id="cvif" accept=".pdf,.docx,.doc,.json" style="display:none" onchange="cvImport(this)"/>
+<input type="file" id="cvif" accept=".pdf,.docx,.odt,.json" style="display:none" onchange="cvImport(this)"/>
 <div id="cverr" class="err" style="margin-bottom:10px;"></div>
 <div id="cvinfo" style="display:none;margin-bottom:10px;" class="pvb"><span id="cvinfomsg"></span></div>
 <div id="cvsplit">
@@ -957,7 +524,7 @@ Ses dönüştürme motoru hazırlanıyor...
 </div>
 
 <div class="foot">
-<div>© 2025 <a href="https://github.com/hechecik" target="_blank">hechecik</a> — Oku, Oluştur, Çevir</div>
+<div>© 2025–2026 <a href="https://github.com/hechecik" target="_blank">hechecik</a> — Oku, Oluştur, Çevir</div>
 <div class="fg2">
 <a href="mailto:hechecik@users.noreply.github.com">hechecik@users.noreply.github.com</a>
 <span>·</span>
@@ -976,7 +543,7 @@ function fmtB(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'
 function toast(msg,type){var t=document.createElement('div');t.className='toast'+(type==='ok'?' tok':type==='err'?' ter':type==='warn'?' twn':'');t.textContent=msg;ge('tw').appendChild(t);setTimeout(function(){t.remove();},type==='err'?4500:3000);}
 function showErr(id,msg){var el=ge(id);if(!el)return;el.textContent=msg;el.classList.toggle('show',!!msg);}
 function load(on,msg){ge('ldo').classList.toggle('show',on);if(msg)ge('ldm').textContent=msg;else ge('ldm').textContent='İşleniyor...';}
-function downloadBlob(blob,name){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function downloadBlob(blob,name){var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},10000);}
 function downloadDataUrl(dataUrl,name){var a=document.createElement('a');a.href=dataUrl;a.download=name;a.click();}
 
 /* ===== TOOL DEFINITIONS ===== */
@@ -1090,7 +657,7 @@ function getToolHTML(id){
 switch(id){
 case 'pdf-merge': return htmlDropMulti('mergeFiles','PDF dosyaları','application/pdf','PDF')+'<div class="file-list" id="mergeList"></div><div id="mergeErr" class="err"></div><button class="btn btn-p mt14" onclick="doMerge()" style="width:100%;" id="mergeBtn" disabled>📄 Birleştir</button>';
 case 'pdf-split': return htmlDrop('splitFile','PDF dosyası','application/pdf')+'<div id="splitInfo" class="txs mt8"></div><div id="splitErr" class="err"></div><div class="fr c2 mt14"><div class="fg"><label class="fl">Başlangıç Sayfası</label><input class="fi" type="number" id="splitStart" min="1" value="1"/></div><div class="fg"><label class="fl">Bitiş Sayfası</label><input class="fi" type="number" id="splitEnd" min="1" value="1"/></div></div><button class="btn btn-p mt14" onclick="doSplit()" style="width:100%;" id="splitBtn" disabled>✂️ Böl</button>';
-case 'pdf-compress': return htmlDrop('compressFile','PDF dosyası','application/pdf')+'<div id="compressInfo" class="txs mt8"></div><div id="compressErr" class="err"></div><div class="slider-row mt14"><label>Kalite</label><input type="range" id="compressQuality" min="1" max="3" value="2"/><span class="slider-val" id="compressQVal">Orta</span></div><div id="compressResult" class="mt14" style="display:none;"></div><button class="btn btn-p mt14" onclick="doCompress()" style="width:100%;" id="compressBtn" disabled>📦 Sıkıştır</button>';
+case 'pdf-compress': return htmlDrop('compressFile','PDF dosyası','application/pdf')+'<div id="compressInfo" class="txs mt8"></div><div id="compressErr" class="err"></div><div class="fr c2 mt14"><div class="fg"><label class="fl">Yöntem</label><select class="fse" id="compressMode"><option value="auto" selected>Otomatik (en küçük sonucu seç)</option><option value="lossless">Kayıpsız (metin korunur)</option><option value="raster">Görsele çevir (taranmış / fotoğraflı PDF)</option></select></div><div class="fg"><label class="fl">Çözünürlük</label><select class="fse" id="compressDpi"><option value="72">72 DPI — en küçük</option><option value="110">110 DPI — ekran</option><option value="150" selected>150 DPI — dengeli</option><option value="200">200 DPI — baskı</option></select></div></div><div class="slider-row"><label>JPEG Kalitesi</label><input type="range" id="compressQuality" min="30" max="95" value="70"/><span class="slider-val" id="compressQVal">70</span></div><div class="txs">“Görsele çevir” yönteminde sayfalar resme dönüşür, metin seçilemez hale gelir.</div><div id="compressResult" class="mt14" style="display:none;"></div><button class="btn btn-p mt14" onclick="doCompress()" style="width:100%;" id="compressBtn" disabled>📦 Sıkıştır</button>';
 case 'pdf-watermark': return htmlDrop('wmFile','PDF dosyası','application/pdf')+'<div id="wmInfo" class="txs mt8"></div><div id="wmErr" class="err"></div><div class="fg mt14"><label class="fl">Filigran Metni</label><input class="fi" id="wmText" value="ÖRNEK"/></div><div class="slider-row"><label>Font Boyutu</label><input type="range" id="wmSize" min="10" max="120" value="40"/><span class="slider-val" id="wmSizeVal">40</span></div><div class="slider-row"><label>Saydamlık</label><input type="range" id="wmOpacity" min="1" max="100" value="20"/><span class="slider-val" id="wmOpVal">20%</span></div><div class="fg"><label class="fl">Renk</label><input class="fi" type="color" id="wmColor" value="#cccccc" style="height:36px;padding:2px;"/></div><button class="btn btn-p mt14" onclick="doWatermark()" style="width:100%;" id="wmBtn" disabled>💧 Filigran Ekle</button>';
 case 'pdf-delete': return htmlDrop('delFile','PDF dosyası','application/pdf')+'<div id="delInfo" class="txs mt8"></div><div id="delErr" class="err"></div><div class="fg mt14"><label class="fl">Silinecek Sayfalar (örn: 1,3,5 veya 2-4)</label><input class="fi" id="delPages" placeholder="1,3,5"/></div><button class="btn btn-p mt14" onclick="doDelete()" style="width:100%;" id="delBtn" disabled>🗑️ Sayfa Sil</button>';
 case 'pdf-reorder': return htmlDrop('reorderFile','PDF dosyası','application/pdf')+'<div id="reorderInfo" class="txs mt8"></div><div id="reorderErr" class="err"></div><div class="fg mt14"><label class="fl">Yeni Sıra (örn: 3,1,2 veya "reverse")</label><input class="fi" id="reorderOrder" placeholder="3,1,2"/></div><button class="btn btn-p mt14" onclick="doReorder()" style="width:100%;" id="reorderBtn" disabled>🔀 Sırala</button>';
@@ -1102,7 +669,7 @@ case 'img-convert': return htmlDrop('icFile','Görüntü dosyası','image/*')+'<
 case 'img-resize': return htmlDrop('irFile','Görüntü dosyası','image/*')+'<div id="irInfo" class="txs mt8"></div><div id="irErr" class="err"></div><img id="irPreview" class="img-preview" style="display:none;"/><div class="fg2 mt8"><button class="btn btn-g btn-sm" onclick="irPercent(25)">25%</button><button class="btn btn-g btn-sm" onclick="irPercent(50)">50%</button><button class="btn btn-g btn-sm" onclick="irPercent(75)">75%</button><button class="btn btn-g btn-sm" onclick="irPercent(150)">150%</button><button class="btn btn-g btn-sm" onclick="irPercent(200)">200%</button></div><div class="fr c2 mt14"><div class="fg"><label class="fl">Genişlik (px)</label><input class="fi" type="number" id="irWidth"/></div><div class="fg"><label class="fl">Yükseklik (px)</label><input class="fi" type="number" id="irHeight"/></div></div><div class="fg"><label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="irAspect" checked/> En/Boy oranını koru</label></div><button class="btn btn-p mt14" onclick="doImgResize()" style="width:100%;" id="irBtn" disabled>📐 Yeniden Boyutlandır</button>';
 case 'img-crop': return htmlDrop('icrpFile','Görüntü dosyası','image/*')+'<div id="icrpInfo" class="txs mt8"></div><div id="icrpErr" class="err"></div><canvas id="icrpCanvas" class="img-preview" style="display:none;"></canvas><div class="fr c2 mt14"><div class="fg"><label class="fl">X</label><input class="fi" type="number" id="icrpX" min="0" value="0"/></div><div class="fg"><label class="fl">Y</label><input class="fi" type="number" id="icrpY" min="0" value="0"/></div></div><div class="fr c2"><div class="fg"><label class="fl">Genişlik</label><input class="fi" type="number" id="icrpW" min="1" value="100"/></div><div class="fg"><label class="fl">Yükseklik</label><input class="fi" type="number" id="icrpH" min="1" value="100"/></div></div><button class="btn btn-p mt14" onclick="doImgCrop()" style="width:100%;" id="icrpBtn" disabled>✂️ Kırp</button>';
 case 'img-rotate': return htmlDrop('irotFile','Görüntü dosyası','image/*')+'<div id="irotInfo" class="txs mt8"></div><div id="irotErr" class="err"></div><img id="irotPreview" class="img-preview" style="display:none;"/><div class="fr c2 mt14"><div class="fg"><label class="fl">Döndür</label><select class="fse" id="irotAngle"><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></div><div class="fg"><label class="fl">Yansıt</label><select class="fse" id="irotFlip"><option value="none">Yok</option><option value="h">Yatay</option><option value="v">Dikey</option></select></div></div><button class="btn btn-p mt14" onclick="doImgRotate()" style="width:100%;" id="irotBtn" disabled>↩️ Döndür/Çevir</button>';
-case 'img-compress': return htmlDrop('icmpFile','Görüntü dosyası','image/*')+'<div id="icmpInfo" class="txs mt8"></div><div id="icmpErr" class="err"></div><div class="fr c2 mt14"><div class="fg"><label class="fl">Format</label><select class="fse" id="icmpFormat"><option value="jpeg">JPEG</option><option value="webp">WebP</option><option value="png">PNG</option></select></div><div class="fg"><label class="fl">Kalite</label><input class="fi" type="number" id="icmpQuality" min="5" max="100" value="60"/></div></div><div id="icmpResult" class="mt14" style="display:none;"></div><button class="btn btn-p mt14" onclick="doImgCompress()" style="width:100%;" id="icmpBtn" disabled>📦 Sıkıştır</button>';
+case 'img-compress': return htmlDrop('icmpFile','Görüntü dosyası','image/*')+'<div id="icmpInfo" class="txs mt8"></div><div id="icmpErr" class="err"></div><div class="fr c3 mt14"><div class="fg"><label class="fl">Format</label><select class="fse" id="icmpFormat"><option value="jpeg">JPEG</option><option value="webp">WebP (en küçük)</option><option value="png">PNG (kayıpsız, genelde küçülmez)</option></select></div><div class="fg"><label class="fl">Kalite (5-100)</label><input class="fi" type="number" id="icmpQuality" min="5" max="100" value="70"/></div><div class="fg"><label class="fl">Maks. Genişlik</label><select class="fse" id="icmpMaxW"><option value="0">Orijinal</option><option value="3840">3840 px (4K)</option><option value="2560">2560 px</option><option value="1920" selected>1920 px (Full HD)</option><option value="1280">1280 px</option><option value="800">800 px</option></select></div></div><div id="icmpResult" class="mt14" style="display:none;"></div><button class="btn btn-p mt14" onclick="doImgCompress()" style="width:100%;" id="icmpBtn" disabled>📦 Sıkıştır</button>';
 case 'img-grayscale': return htmlDrop('igsFile','Görüntü dosyası','image/*')+'<div id="igsInfo" class="txs mt8"></div><div id="igsErr" class="err"></div><img id="igsPreview" class="img-preview" style="display:none;"/><button class="btn btn-p mt14" onclick="doGrayscale()" style="width:100%;" id="igsBtn" disabled>⬛ Gri Tonlama Uygula</button>';
 case 'img-blur': return htmlDrop('iblFile','Görüntü dosyası','image/*')+'<div id="iblInfo" class="txs mt8"></div><div id="iblErr" class="err"></div><img id="iblPreview" class="img-preview" style="display:none;"/><div class="slider-row mt14"><label>Bulanıklık</label><input type="range" id="iblRadius" min="1" max="20" value="3"/><span class="slider-val" id="iblRadiusVal">3</span></div><button class="btn btn-p mt14" onclick="doBlur()" style="width:100%;" id="iblBtn" disabled>🌀 Bulanıklaştır</button>';
 case 'img-brightness': return htmlDrop('ibrFile','Görüntü dosyası','image/*')+'<div id="ibrInfo" class="txs mt8"></div><div id="ibrErr" class="err"></div><img id="ibrPreview" class="img-preview" style="display:none;"/><div class="slider-row mt14"><label>Parlaklık</label><input type="range" id="ibrBright" min="-100" max="100" value="0"/><span class="slider-val" id="ibrBrightVal">0</span></div><div class="slider-row"><label>Kontrast</label><input type="range" id="ibrContrast" min="-100" max="100" value="0"/><span class="slider-val" id="ibrContrastVal">0</span></div><button class="btn btn-p mt14" onclick="doBrightContrast()" style="width:100%;" id="ibrBtn" disabled>☀️ Uygula</button>';
@@ -1154,7 +721,7 @@ break;
 case 'pdf-compress':
 ge('compressFile').addEventListener('change',function(){handleSingleFile(this,'compressFile','compressInfo','compressBtn',null,null);});
 setupDrop('dz_compressFile','compressFile',function(files){handleDroppedSingle(files,'compressFile','compressInfo','compressBtn',null,null);});
-ge('compressQuality').addEventListener('input',function(){ge('compressQVal').textContent=['Düşük','Orta','Yüksek'][this.value-1];});
+ge('compressQuality').addEventListener('input',function(){ge('compressQVal').textContent=this.value;});
 break;
 case 'pdf-watermark':
 ge('wmFile').addEventListener('change',function(){handleSingleFile(this,'wmFile','wmInfo','wmBtn',null,null);});
@@ -1413,43 +980,66 @@ finally{load(false);}
 }
 
 /* PDF Compress */
+/* PDF Compress v2 — pdf.js ile render + pdf-lib ile yeniden paketleme.
+   Orijinal sayfa boyutu/yönü korunur; sonuç orijinalden büyükse indirilmez. */
+function ensurePdfWorker(){
+if(!window.pdfjsLib)throw new Error('PDF kütüphanesi yüklenemedi.');
+if(!pdfjsLib.GlobalWorkerOptions.workerSrc)pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+async function compressPdfBytes(buf,opt,onProgress){
+if(opt.mode==='lossless'){
+var src=await PDFLib.PDFDocument.load(buf,{ignoreEncryption:true,updateMetadata:false});
+return await src.save({useObjectStreams:true});
+}
+ensurePdfWorker();
+var pdf=await pdfjsLib.getDocument({data:new Uint8Array(buf.slice(0))}).promise;
+var doc=await PDFLib.PDFDocument.create();
+var scale=opt.dpi/72;
+for(var i=1;i<=pdf.numPages;i++){
+if(onProgress)onProgress(i,pdf.numPages);
+var page=await pdf.getPage(i);
+var base=page.getViewport({scale:1});
+var vp=page.getViewport({scale:scale});
+var cv=document.createElement('canvas');
+cv.width=Math.ceil(vp.width);cv.height=Math.ceil(vp.height);
+var ctx=cv.getContext('2d');
+ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);
+await page.render({canvasContext:ctx,viewport:vp}).promise;
+var blob=await new Promise(function(r){cv.toBlob(r,'image/jpeg',opt.quality);});
+var jpg=await doc.embedJpg(new Uint8Array(await blob.arrayBuffer()));
+var p=doc.addPage([base.width,base.height]);
+p.drawImage(jpg,{x:0,y:0,width:base.width,height:base.height});
+page.cleanup();cv.width=cv.height=0;
+}
+await pdf.destroy();
+return await doc.save({useObjectStreams:true});
+}
 async function doCompress(){
 var f=_toolFiles['compressFile'];if(!f)return;
-var q=parseInt(ge('compressQuality').value);
-var scale=[0.5,0.75,1][q-1];
-load(true,'PDF sıkıştırılıyor...');
+var mode=ge('compressMode').value;
+var dpi=parseInt(ge('compressDpi').value,10),quality=parseInt(ge('compressQuality').value,10)/100;
+load(true,'PDF sıkıştırılıyor...');showErr('compressErr','');
 try{
-if(!window.pdfjsLib){throw new Error('PDF kütüphanesi yüklenemedi.');}
-pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-var buf=await f.arrayBuffer();
-var pdf=await pdfjsLib.getDocument({data:buf}).promise;
-var numPages=pdf.numPages;
-var jsPDF=window.jspdf.jsPDF;
-var newPdf=new jsPDF('p','pt','a4');
-for(var i=1;i<=numPages;i++){
-var page=await pdf.getPage(i);
-var vp=page.getViewport({scale:scale});
-var canvas=document.createElement('canvas');
-canvas.width=vp.width;canvas.height=vp.height;
-var ctx=canvas.getContext('2d');
-await page.render({canvasContext:ctx,viewport:vp}).promise;
-var imgData=canvas.toDataURL('image/jpeg',0.6);
-var pw=newPdf.internal.pageSize.getWidth();
-var ph=newPdf.internal.pageSize.getHeight();
-var ratio=vp.width/vp.height;
-var drawW=ratio>=1?pw:pw;
-var drawH=ratio>=1?pw/ratio:ph;
-if(drawH>ph){drawH=ph;drawW=ph*ratio;}
-if(i>1)newPdf.addPage();
-newPdf.addImage(imgData,'JPEG',0,0,drawW,drawH);
+if(!window.PDFLib)throw new Error('pdf-lib yüklenemedi.');
+var buf=await f.arrayBuffer(),cands=[];
+if(mode!=='raster'){
+try{cands.push({k:'Kayıpsız (metin korunur)',b:await compressPdfBytes(buf,{mode:'lossless'})});}
+catch(e){if(mode==='lossless')throw e;}
 }
-var blob=newPdf.output('blob');
-var resultDiv=ge('compressResult');
-resultDiv.style.display='block';
-resultDiv.innerHTML='<div class="rstat">Önceki: '+fmtB(f.size)+'</div><div class="rstat">Yeni: '+fmtB(blob.size)+'</div><div class="rstat">Tasarruf: '+Math.round((1-blob.size/f.size)*100)+'%</div>';
-downloadBlob(blob,'sikistirilmis.pdf');
+if(mode!=='lossless'){
+cands.push({k:'Görsele çevrildi ('+dpi+' DPI)',b:await compressPdfBytes(buf,{mode:'raster',dpi:dpi,quality:quality},function(i,n){ge('ldm').textContent='Sayfa '+i+'/'+n+' işleniyor...';})});
+}
+cands.sort(function(a,b){return a.b.length-b.b.length;});
+var best=cands[0],rd=ge('compressResult');rd.style.display='block';
+if(!best||best.b.length>=f.size){
+rd.innerHTML='<div class="rstat">Önceki: '+fmtB(f.size)+'</div><div class="rstat">En iyi sonuç: '+(best?fmtB(best.b.length):'—')+'</div><div class="err show">Bu PDF küçültülemedi (zaten optimize ya da metin ağırlıklı). Orijinal dosya en küçük hali — indirme yapılmadı.</div>';
+toast('Dosya küçülmedi','warn');return;
+}
+var blob=new Blob([best.b],{type:'application/pdf'});
+rd.innerHTML='<div class="rstat">Yöntem: '+best.k+'</div><div class="rstat">Önceki: '+fmtB(f.size)+'</div><div class="rstat">Yeni: '+fmtB(blob.size)+'</div><div class="rstat">Tasarruf: %'+Math.round((1-blob.size/f.size)*100)+'</div>';
+downloadBlob(blob,f.name.replace(/\.pdf$/i,'')+'-kucuk.pdf');
 toast('PDF sıkıştırıldı ✓','ok');
-}catch(e){toast('Hata: '+e.message,'err');}
+}catch(e){showErr('compressErr','Hata: '+e.message);toast('Hata: '+e.message,'err');}
 finally{load(false);}
 }
 
@@ -1781,28 +1371,33 @@ toast('Görsel döndürüldü ✓','ok');load(false);
 }
 
 /* Image Compress */
+/* Image Compress v2 — maks. genişlik, JPEG'de beyaz zemin, büyüyen sonucu engelleme */
 async function doImgCompress(){
-var img=_toolImg['icmp'];if(!img){toast('Önce görsel yükleyin','warn');return;}
+var img=_toolImg['icmp'],f=_toolFiles['icmpFile'];if(!img||!f){toast('Önce görsel yükleyin','warn');return;}
 var format=ge('icmpFormat').value;
-var quality=parseInt(ge('icmpQuality').value)/100;
+var quality=Math.min(100,Math.max(5,parseInt(ge('icmpQuality').value,10)||60))/100;
+var maxW=parseInt(ge('icmpMaxW').value,10)||0;
 load(true,'Sıkıştırılıyor...');
 try{
-var canvas=document.createElement('canvas');
-canvas.width=img.width;canvas.height=img.height;
-canvas.getContext('2d').drawImage(img,0,0);
-var mimeType='image/'+format;
-canvas.toBlob(function(blob){
-if(!blob){toast('Sıkıştırma başarısız','err');load(false);return;}
-var origSize=_toolFiles['icmpFile'].size;
-var pct=Math.round((1-blob.size/origSize)*100);
-var rd=ge('icmpResult');
-rd.style.display='block';
-rd.innerHTML='<div class="rstat">Önceki: '+fmtB(origSize)+'</div><div class="rstat">Yeni: '+fmtB(blob.size)+'</div><div class="rstat">Tasarruf: '+pct+'%</div>';
+var w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+if(maxW&&w>maxW){h=Math.round(h*maxW/w);w=maxW;}
+var cv=document.createElement('canvas');cv.width=w;cv.height=h;
+var ctx=cv.getContext('2d');
+if(format==='jpeg'){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);}
+ctx.imageSmoothingQuality='high';ctx.drawImage(img,0,0,w,h);
+var mime='image/'+format;
+var blob=await new Promise(function(r){cv.toBlob(r,mime,format==='png'?undefined:quality);});
+cv.width=cv.height=0;
+if(!blob)throw new Error('Tarayıcı bu formatı üretemedi.');
+if(blob.type!==mime)throw new Error('Tarayıcınız '+format.toUpperCase()+' üretmeyi desteklemiyor, JPEG seçin.');
+var pct=Math.round((1-blob.size/f.size)*100),rd=ge('icmpResult');rd.style.display='block';
+rd.innerHTML='<div class="rstat">Önceki: '+fmtB(f.size)+'</div><div class="rstat">Yeni: '+fmtB(blob.size)+' ('+w+'×'+h+')</div><div class="rstat">Tasarruf: %'+pct+'</div>';
+if(blob.size>=f.size){rd.innerHTML+='<div class="err show">Sonuç orijinalden büyük — indirme yapılmadı. Kaliteyi düşürün, maks. genişlik seçin veya JPEG/WebP deneyin.</div>';toast('Dosya küçülmedi','warn');return;}
 var ext=format==='jpeg'?'jpg':format;
-downloadBlob(blob,'sikistirilmis.'+ext);
-toast('Görsel sıkıştırıldı ✓','ok');load(false);
-},mimeType,quality);
-}catch(e){toast('Hata: '+e.message,'err');load(false);}
+downloadBlob(blob,f.name.replace(/\.[^.]+$/,'')+'-kucuk.'+ext);
+toast('Görsel sıkıştırıldı ✓','ok');
+}catch(e){toast('Hata: '+e.message,'err');}
+finally{load(false);}
 }
 
 /* Image Grayscale */
@@ -2378,13 +1973,67 @@ return html;
 }
 
 /* ===== TEXT EXTRACTION ===== */
+/* RTF → düz metin (basit, bağımlılıksız). Türkçe karakterler: \'xx (cp1254) ve \uN */
+function rtfToText(rtf){
+  var cp1254={0xD0:'Ğ',0xF0:'ğ',0xDD:'İ',0xFD:'ı',0xDE:'Ş',0xFE:'ş'};
+  var out='',i=0,depth=0,skip=[],uc=1,skipN=0,n=rtf.length;
+  var dest=/^(fonttbl|colortbl|stylesheet|info|pict|object|header|footer|xmlnstbl|listtable|listoverridetable|themedata|colorschememapping|datastore|latentstyles|rsidtbl|generator|\*)$/;
+  while(i<n){
+    var c=rtf[i];
+    if(c==='{'){skip.push(skip.length?skip[skip.length-1]:false);i++;continue;}
+    if(c==='}'){skip.pop();i++;continue;}
+    var sk=skip.length&&skip[skip.length-1];
+    if(c==='\\'){
+      var nx=rtf[i+1];
+      if(nx==='\\'||nx==='{'||nx==='}'){if(!sk)out+=nx;i+=2;continue;}
+      if(nx==="'"){var hex=parseInt(rtf.substr(i+2,2),16);i+=4;if(skipN>0){skipN--;continue;}if(!sk)out+=cp1254[hex]||String.fromCharCode(hex);continue;}
+      if(nx==='*'){skip[skip.length-1]=true;i+=2;continue;}
+      var m=/^\\([a-zA-Z]+)(-?\d+)? ?/.exec(rtf.substr(i,40));
+      if(!m){i+=2;continue;}
+      i+=m[0].length;var w=m[1],arg=m[2];
+      if(dest.test(w)){skip[skip.length-1]=true;continue;}
+      if(sk)continue;
+      if(w==='par'||w==='line'||w==='row')out+='\n';
+      else if(w==='tab'||w==='cell')out+='\t';
+      else if(w==='uc')uc=parseInt(arg,10);
+      else if(w==='u'){var cc=parseInt(arg,10);if(cc<0)cc+=65536;out+=String.fromCharCode(cc);skipN=uc;}
+      continue;
+    }
+    if(c==='\r'||c==='\n'){i++;continue;}
+    if(skipN>0){skipN--;i++;continue;}
+    if(!sk)out+=c;i++;
+  }
+  return out.replace(/\n{3,}/g,'\n\n').trim();
+}
+/* ODT → düz metin (JSZip ile content.xml okunur) */
+async function exODT(file){
+  var zip=await JSZip.loadAsync(await file.arrayBuffer());
+  var xml=await zip.file('content.xml').async('string');
+  var doc=new DOMParser().parseFromString(xml,'application/xml');
+  var NS='urn:oasis:names:tc:opendocument:xmlns:text:1.0';
+  function walk(n){var s='';n.childNodes.forEach(function(c){
+    if(c.nodeType===3)s+=c.nodeValue;
+    else if(c.namespaceURI===NS&&c.localName==='s')s+=' '.repeat(parseInt(c.getAttributeNS(NS,'c')||'1',10));
+    else if(c.namespaceURI===NS&&c.localName==='tab')s+='\t';
+    else if(c.namespaceURI===NS&&c.localName==='line-break')s+='\n';
+    else s+=walk(c);});return s;}
+  var out=[];
+  doc.querySelectorAll('*').forEach(function(el){
+    if(el.namespaceURI===NS&&(el.localName==='p'||el.localName==='h'))out.push(walk(el));
+  });
+  return out.join('\n');
+}
+
 async function exText(file){
 var ext=file.name.split('.').pop().toLowerCase();
-if(['txt','rtf','md','csv'].includes(ext))return file.text();
+if(['txt','md','csv','tsv','xml','yaml','yml'].includes(ext))return file.text();
+if(ext==='rtf')return rtfToText(await file.text());
+if(ext==='odt')return exODT(file);
+if(ext==='doc')throw new Error('.doc (Word 97-2003) tarayıcıda okunamıyor. Word’de “Farklı Kaydet → .docx” yapıp tekrar deneyin.');
 if(['html','htm'].includes(ext)){var h=await file.text();return new DOMParser().parseFromString(h,'text/html').body.innerText;}
 if(ext==='json'){var j=await file.text();try{return JSON.stringify(JSON.parse(j),null,2);}catch{return j;}}
 if(ext==='pdf')return exPDF(file);
-if(['docx','doc','odt'].includes(ext))return exDOCX(file);
+if(ext==='docx')return exDOCX(file);
 if(['xlsx','xls'].includes(ext))return exXLSX(file);
 if(ext==='pptx')return exPPTX(file);
 throw new Error('Desteklenmeyen format: .'+ext);
@@ -2746,7 +2395,6 @@ var cF=null,cFmt=null,cOut='',cOutF='';
 var CFMT={
 pdf:{l:'PDF',c:'fp',t:['txt','html','images']},
 docx:{l:'DOCX',c:'fd',t:['txt','html','md']},
-doc:{l:'DOC',c:'fd',t:['txt','html','md']},
 odt:{l:'ODT',c:'fd',t:['txt','html','md']},
 xlsx:{l:'XLSX',c:'fx',t:['csv','json','html','txt','tsv','xml']},
 xls:{l:'XLS',c:'fx',t:['csv','json','html','txt','tsv','xml']},
@@ -2770,7 +2418,7 @@ ge('cfinfo').style.display='';ge('cfname').textContent=cF.name;
 var b=ge('cftype');b.textContent=info?info.l:ext.toUpperCase();b.className='fb '+(info?info.c:'fn');
 ge('cfsize').textContent=fmtB(cF.size);
 var tg=ge('ctarg');
-if(!info){tg.innerHTML='<span style="color:var(--red);font-size:12px;">Desteklenmeyen format: .'+ext+'. Desteklenen formatlar: PDF, DOCX, XLSX, CSV, TXT, HTML, MD, JSON, XML, YAML</span>';showErr('cferr','Bu format desteklenmiyor: .'+ext);return;}
+if(!info){tg.innerHTML='<span style="color:var(--red);font-size:12px;">Desteklenmeyen format: .'+ext+'. Desteklenen formatlar: PDF, DOCX, XLSX, CSV, TXT, HTML, MD, JSON, XML, YAML</span>';showErr('cferr','Bu format desteklenmiyor: .'+ext);ge('cbtn').disabled=true;cFmt=null;return;}
 tg.innerHTML=info.t.map(function(t,i){return '<button class="btn '+(i===0?'btn-p':'btn-g')+' btn-sm" onclick="selFmt(\''+t+'\',this)">.'+t.toUpperCase()+'</button>';}).join('');
 cFmt=info.t[0];ge('cbtn').disabled=false;ge('cocard').style.display='none';
 }
@@ -2784,7 +2432,7 @@ var raw=await exText(cF);
 
 if(cFmt==='txt'){r=raw;}
 else if(cFmt==='html'){
-if(['docx','doc','odt'].indexOf(ext)>=0){var ab=await cF.arrayBuffer();var res=await mammoth.convertToHtml({arrayBuffer:ab});r='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Converted</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}</style></head><body>'+res.value+'</body></html>';}
+if(ext==='docx'){var ab=await cF.arrayBuffer();var res=await mammoth.convertToHtml({arrayBuffer:ab});r='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Converted</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}</style></head><body>'+res.value+'</body></html>';}
 else if(ext==='md')r=mdHTML(raw);
 else if(ext==='csv'||ext==='tsv'){r=csvTable(raw,cFmt==='tsv'?'\t':',');}
 else if(ext==='xlsx'||ext==='xls'){var wb=XLSX.read(await cF.arrayBuffer(),{type:'array'});r=xlsxToHtmlTable(wb);}
@@ -3002,55 +2650,88 @@ addSec('summary');addSec('experience');addSec('education');addSec('skills');
 filterTools('');
 </script>
 <script>
-const { createFFmpeg, fetchFile } = FFmpeg;
-
-let ffmpeg = createFFmpeg({
-  log: true,
-  corePath: "https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.11.0/dist/ffmpeg-core.js",
-});
-
-async function initFFmpeg() {
-  try {
-    await ffmpeg.load();
-    document.getElementById("ac-status").innerText = "Hazır";
-    document.getElementById("ac-main").style.display = "block";
-  } catch (e) {
-    console.error(e);
-    document.getElementById("ac-status").innerText = "Motor yüklenemedi.";
-  }
+/* ===== AUDIO CONVERTER v2 =====
+   ffmpeg.wasm 0.11.6 + @ffmpeg/core-st (TEK iş parçacıklı).
+   SharedArrayBuffer / COOP-COEP gerektirmez → GitHub Pages'te çalışır.
+   Motor sadece Ses sayfası kullanılınca yüklenir (lazy). */
+var AC={ff:null,loading:null,file:null,blob:null,name:'',url:null};
+var AC_LIB='https://unpkg.com/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js';
+var AC_CORE='https://unpkg.com/@ffmpeg/core-st@0.11.1/dist/ffmpeg-core.js';
+var AC_MIME={mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',m4a:'audio/mp4',opus:'audio/ogg',flac:'audio/flac'};
+var AC_CODEC={mp3:['-c:a','libmp3lame'],ogg:['-c:a','libvorbis'],opus:['-c:a','libopus'],
+  m4a:['-c:a','aac','-movflags','+faststart'],wav:['-c:a','pcm_s16le'],flac:['-c:a','flac']};
+function acLoadScript(src){return new Promise(function(res,rej){
+  if(window.FFmpeg&&FFmpeg.createFFmpeg)return res();
+  var s=document.createElement('script');s.src=src;s.onload=res;
+  s.onerror=function(){rej(new Error('FFmpeg betiği indirilemedi (ağ veya CDN engeli).'));};
+  document.head.appendChild(s);});}
+function acStatus(t){ge('ac-status').textContent=t||'';}
+function acProg(p){ge('ac-prog-wrap').style.display=p==null?'none':'block';ge('ac-prog').style.width=Math.round((p||0)*100)+'%';}
+function acEngine(){
+  if(AC.ff)return Promise.resolve(AC.ff);
+  if(!AC.loading)AC.loading=(async function(){
+    await acLoadScript(AC_LIB);
+    var ff=FFmpeg.createFFmpeg({log:false,mainName:'main',corePath:AC_CORE,
+      progress:function(p){if(p&&p.ratio>=0&&p.ratio<=1)acProg(p.ratio);}});
+    await ff.load();AC.ff=ff;return ff;
+  })().finally(function(){AC.loading=null;});
+  return AC.loading;
 }
+/* 0.11 tek iş parçacıklı çekirdek, bir komuttan sonra tekrar kullanılamıyor →
+   her dönüşümden sonra kapatılıp yeniden yüklenir (wasm tarayıcı önbelleğinden gelir, ~0.5 sn). */
+function acReset(){if(AC.ff){try{AC.ff.exit();}catch(e){}AC.ff=null;}}
+function acSyncOpts(){var f=ge('ac-format').value;ge('ac-bitrate-wrap').style.display=(f==='wav'||f==='flac')?'none':'';}
+function acSetFile(f){
+  if(!f)return;AC.file=f;showErr('ac-err','');ge('ac-result').style.display='none';
+  ge('ac-fileinfo').textContent=f.name+' ('+fmtB(f.size)+')';
+  if(f.size>300*1048576)showErr('ac-err','Dosya çok büyük (>300 MB). Tarayıcı belleği yetmeyebilir.');
+  ge('ac-btn').disabled=false;
+  acStatus('Motor hazırlanıyor...');
+  acEngine().then(function(){acStatus('Hazır.');}).catch(function(e){acStatus('');showErr('ac-err','Motor yüklenemedi: '+e.message);});
+}
+async function acConvert(){
+  if(!AC.file)return;
+  var fmt=ge('ac-format').value,btn=ge('ac-btn');
+  btn.disabled=true;showErr('ac-err','');ge('ac-result').style.display='none';
+  try{
+    acStatus('Motor hazırlanıyor...');
+    var ff=await acEngine();
+    var inExt=(AC.file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'')||'bin';
+    var inN='input.'+inExt,outN='output.'+fmt,args=['-i',inN,'-vn'];
+    var rate=ge('ac-rate').value;
+    if(fmt==='opus'&&rate&&['48000','16000'].indexOf(rate)<0)rate='48000'; // opus sadece 48/24/16/12/8 kHz
+    if(rate)args.push('-ar',rate);
+    if(ge('ac-channels').value)args.push('-ac',ge('ac-channels').value);
+    args=args.concat(AC_CODEC[fmt]);
+    if(fmt!=='wav'&&fmt!=='flac')args.push('-b:a',ge('ac-bitrate').value);
+    args.push(outN);
+    acStatus('Dönüştürülüyor...');acProg(0);
+    ff.FS('writeFile',inN,await FFmpeg.fetchFile(AC.file));
+    await ff.run.apply(ff,args);
+    var data;
+    try{data=ff.FS('readFile',outN);}catch(e){throw new Error('Çıktı oluşmadı — kaynak dosya okunamadı veya bozuk.');}
+    AC.blob=new Blob([data.buffer],{type:AC_MIME[fmt]});
+    AC.name=AC.file.name.replace(/\.[^.]+$/,'')+'.'+fmt;
+    if(AC.url)URL.revokeObjectURL(AC.url);
+    AC.url=URL.createObjectURL(AC.blob);
+    ge('ac-player').src=AC.url;
+    ge('ac-result-info').textContent=AC.name+' · '+fmtB(AC.file.size)+' → '+fmtB(AC.blob.size);
+    ge('ac-result').style.display='block';
+    acStatus('Tamamlandı ✓');toast('Ses dönüştürüldü ✓','ok');
+  }catch(e){
+    console.error(e);acStatus('');showErr('ac-err','Dönüşüm hatası: '+(e&&e.message?e.message:e));toast('Ses dönüşümü başarısız','err');
+  }finally{acReset();acProg(null);btn.disabled=false;}
+}
+function acDL(){if(!AC.blob)return toast('İndirilecek sonuç yok','warn');downloadBlob(AC.blob,AC.name);}
+(function(){
+  ge('acfi').addEventListener('change',function(){acSetFile(this.files[0]);});
+  setupDrop('acdz','acfi',function(files){acSetFile(files[0]);});
+  ge('ac-format').addEventListener('change',acSyncOpts);acSyncOpts();
+})();
 
-window.onload = function () {
-  initFFmpeg();
-};
-
-async function convertAudio() {
-  const file = document.getElementById("audioFile").files[0];
-  if (!file) return alert("Dosya seç");
-
-  const format = document.getElementById("format").value;
-
-  const inputName = "input." + file.name.split(".").pop();
-  const outputName = "output." + format;
-
-  ffmpeg.FS("writeFile", inputName, await fetchFile(file));
-  await ffmpeg.run("-i", inputName, outputName);
-
-  const data = ffmpeg.FS("readFile", outputName);
-  const url = URL.createObjectURL(new Blob([data.buffer]));
-
-  const player = document.getElementById("player");
-  player.src = url;
-  player.style.display = "block";
-
-  const dl = document.getElementById("downloadBtn");
-  dl.style.display = "inline-block";
-  dl.onclick = () => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = outputName;
-    a.click();
-  };
+/* ===== PWA: service worker kaydı ===== */
+if('serviceWorker' in navigator&&(location.protocol==='https:'||location.hostname==='localhost')){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(e){console.warn('SW kaydı başarısız',e);});});
 }
 </script>
 </body>
