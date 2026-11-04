@@ -614,7 +614,33 @@ window.scrollTo(0,0);
 if(id==='pdf')renderCatGrid('pdf','pdfTools');
 if(id==='img')renderCatGrid('img','imgTools');
 if(id==='txt')renderCatGrid('txt','txtTools');
+if(!_navSilent)setHash(id);
 }
+
+/* ===== HASH ROUTING (#pdf, #pdf-merge gibi paylaşılabilir bağlantılar) ===== */
+var _navSilent=false;
+function setHash(h){
+  var want=h?'#'+h:location.pathname+location.search;
+  if(location.hash.replace(/^#/,'')===h)return;
+  // pushState: geri tuşu boş ana sayfaya değil önceki araca dönsün
+  try{history.pushState(null,'',want);}catch(e){location.hash=h;}
+}
+function routeFromHash(){
+  var h=location.hash.replace(/^#/,'');
+  if(!h)return false;
+  // 'tool/<id>' ön eki de kabul edilir
+  h=h.replace(/^tool\//,'');
+  var t=TOOLS.find(function(x){return x.id===h;});
+  _navSilent=true;
+  try{
+    if(t){openTool(t.id);}
+    else if(ge('page-'+h)){sp(h);}
+    else{return false;}
+  }finally{_navSilent=false;}
+  return true;
+}
+window.addEventListener('hashchange',function(){routeFromHash();});
+window.addEventListener('popstate',function(){if(!routeFromHash())sp('home');});
 
 function renderCatGrid(cat,containerId){
 var html='';
@@ -2737,6 +2763,12 @@ function acDL(){if(!AC.blob)return toast('İndirilecek sonuç yok','warn');downl
   ge('acfi').addEventListener('change',function(){acSetFile(this.files[0]);});
   setupDrop('acdz','acfi',function(files){acSetFile(files[0]);});
   ge('ac-format').addEventListener('change',acSyncOpts);acSyncOpts();
+})();
+
+/* ===== Başlangıç: hash varsa o sayfayı aç ===== */
+(function(){
+  var s=document.getElementById('homeSearch');if(s){s.value='';filterTools('');}
+  routeFromHash();
 })();
 
 /* ===== PWA: service worker kaydı ===== */
