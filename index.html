@@ -543,11 +543,16 @@ function fmtB(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'
 function toast(msg,type){var t=document.createElement('div');t.className='toast'+(type==='ok'?' tok':type==='err'?' ter':type==='warn'?' twn':'');t.textContent=msg;ge('tw').appendChild(t);setTimeout(function(){t.remove();},type==='err'?4500:3000);}
 function showErr(id,msg){var el=ge(id);if(!el)return;el.textContent=msg;el.classList.toggle('show',!!msg);}
 function load(on,msg){ge('ldo').classList.toggle('show',on);if(msg)ge('ldm').textContent=msg;else ge('ldm').textContent='İşleniyor...';}
-function downloadBlob(blob,name){var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},10000);}
+function downloadBlob(blob,name){var u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=name;a.style.display='none';document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(u);},60000);}
 function downloadDataUrl(dataUrl,name){var a=document.createElement('a');a.href=dataUrl;a.download=name;a.click();}
 
 /* ===== TOOL DEFINITIONS ===== */
 var TOOLS=[
+{cat:'rsvp',id:'rsvp-reader',name:'Hızlı Okuma (RSVP)',desc:'Metni kelime kelime, ayarlanabilir hızda okuyun.',icon:'👁️',page:'rsvp'},
+{cat:'rsvp',id:'text-to-speech',name:'Sesli Okuma (TTS)',desc:'Metni tarayıcı sesiyle yüksek sesle dinleyin.',icon:'🔊',page:'rsvp'},
+{cat:'audio',id:'audio-convert',name:'Ses Dönüştürücü',desc:'MP3, M4A, OGG, OPUS, WAV, FLAC arasında dönüştürün.',icon:'🎧',page:'audio'},
+{cat:'conv',id:'file-convert',name:'Dosya Çevirici',desc:'PDF, DOCX, RTF, ODT, XLSX, XML, YAML, TSV → metin.',icon:'🔃',page:'conv'},
+{cat:'cv',id:'cv-builder',name:'CV Oluşturucu',desc:'ATS uyumlu, tarayıcıda çalışan CV hazırlayın.',icon:'📑',page:'cv'},
 {cat:'pdf',id:'pdf-merge',name:'PDF Birleştir',desc:'Birden fazla PDF dosyasını tek dosyada birleştirin.',icon:'📄'},
 {cat:'pdf',id:'pdf-split',name:'PDF Böl',desc:'PDF dosyasını sayfa aralığına göre ayırın.',icon:'✂️'},
 {cat:'pdf',id:'pdf-compress',name:'PDF Sıkıştır',desc:'PDF dosya boyutunu küçültün.',icon:'📦'},
@@ -586,6 +591,10 @@ var TOOLS=[
 ];
 
 var CATS={
+rsvp:{name:'Okuma Araçları',icon:'👁️'},
+audio:{name:'Ses Araçları',icon:'🎧'},
+conv:{name:'Çevirici',icon:'🔃'},
+cv:{name:'CV Araçları',icon:'📑'},
 pdf:{name:'PDF Araçları',icon:'📄'},
 img:{name:'Görüntü Araçları',icon:'🖼️'},
 txt:{name:'Metin Araçları',icon:'📝'}
@@ -644,6 +653,7 @@ ge('homeTools').innerHTML=html;
 function openTool(id){
 var tool=TOOLS.find(function(t){return t.id===id;});
 if(!tool)return;
+if(tool.page){sp(tool.page);return;}
 ge('toolPageTitle').textContent=tool.name;
 ge('toolPageDesc').textContent=tool.desc;
 ge('toolBackBtn').onclick=function(){sp(tool.cat);};
