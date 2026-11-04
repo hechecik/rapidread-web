@@ -1,7 +1,7 @@
 /* hechecik — service worker (çevrimdışı kullanım)
    Sürüm değiştiğinde VERSION'ı artırın; eski önbellek silinir. */
-const VERSION = 'hechecik-v8';
-const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const VERSION = 'hechecik-v9';
+const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './stt-worker.js'];
 const LIBS = [
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',

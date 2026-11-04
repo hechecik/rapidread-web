@@ -13,7 +13,7 @@
 <meta property="og:type" content="website"/>
 <title>hechecik — Oku, Oluştur, Çevir</title>
 <meta name="description" content="Tarayıcıda çalışan ücretsiz araçlar: RSVP hızlı okuma, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici ve metin araçları. Sunucu yok, veri kaydedilmez."/>
-<meta name="keywords" content="hızlı okuma, RSVP, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici, metin araçları, çevrimdışı"/>
+<meta name="keywords" content="ses yazıya dökme, sesten metne, transkripsiyon, hızlı okuma, RSVP, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici, metin araçları, çevrimdışı"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
@@ -228,6 +228,7 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 <button class="nav-tab" onclick="sp('txt')">Metin</button>
 <button class="nav-tab" onclick="sp('conv')">Çevirici</button>
 <button class="nav-tab" onclick="sp('rsvp')">Okuma</button>
+<button class="nav-tab" onclick="sp('stt')">Yazıya Dök</button>
 <button class="nav-tab" onclick="sp('audio')">Ses</button>
 <button class="nav-tab" onclick="sp('cv')">CV</button>
 </div>
@@ -398,6 +399,70 @@ kbd{background:var(--surface2);border:1px solid var(--border2);border-radius:4px
 </div>
 
 
+<!-- SPEECH TO TEXT -->
+<div class="page" id="page-stt">
+<button class="back-btn" onclick="sp('home')">← Geri</button>
+<div class="fb2" style="margin-bottom:14px;">
+<div>
+<div style="font-size:15px;font-weight:700;letter-spacing:-.3px;">Sesi Yazıya Dök</div>
+<div class="txs mt8">Ses kaydını zaman damgalı metne çevirir · Whisper yapay zekâ modeli tarayıcınızda çalışır · Ses sunucuya gönderilmez</div>
+</div>
+<span class="pvb">🔒 Ses tarayıcıdan çıkmaz</span>
+</div>
+<div class="cgrid">
+<div class="card">
+<div class="ctitle">1 · Ses Kaynağı</div>
+<div class="dz" id="sttdz" onclick="document.getElementById('sttfi').click()">
+<div style="font-size:26px;margin-bottom:8px;">🎙️</div>
+<div style="font-size:13px;font-weight:500;color:var(--text2);">Ses / video dosyasını sürükleyin veya tıklayın</div>
+<div style="font-size:11px;color:var(--text3);margin-top:3px;">MP3 · M4A · WAV · OGG/OPUS (WhatsApp) · WEBM · FLAC · AAC · MP4 · WMA · AIFF · 3GP</div>
+</div>
+<input type="file" id="sttfi" accept="audio/*,video/*,.m4a,.opus,.amr,.3gp,.wma,.aac,.flac,.aiff,.aif,.caf" style="display:none"/>
+<div style="text-align:center;margin:8px 0;font-size:11px;color:var(--text3);">— ya da —</div>
+<div class="fg2">
+<button class="btn btn-g" id="sttRecBtn" onclick="sttRecToggle()" style="flex:1;">⏺ Mikrofonla Kaydet</button>
+<span id="sttRecTime" class="rstat" style="display:none;"><strong>00:00:00</strong></span>
+</div>
+<div id="sttFileInfo" class="txs mt8"></div>
+<audio id="sttPlayer" controls style="width:100%;display:none;margin-top:8px;"></audio>
+<div id="sttErr" class="err"></div>
+</div>
+<div class="card">
+<div class="ctitle">2 · Ayarlar</div>
+<div class="fg"><label class="fl">Dil</label><select class="fse" id="sttLang">
+<option value="turkish" selected>Türkçe</option><option value="english">İngilizce</option>
+<option value="german">Almanca</option><option value="arabic">Arapça</option><option value="russian">Rusça</option>
+<option value="">Otomatik algıla</option></select></div>
+<div class="fg"><label class="fl">Model (doğruluk ↔ hız)</label><select class="fse" id="sttModel">
+<option value="Xenova/whisper-tiny">Hızlı — tiny (~40 MB indirme, düşük doğruluk)</option>
+<option value="Xenova/whisper-base" selected>Dengeli — base (~80 MB)</option>
+<option value="Xenova/whisper-small">En doğru — small (~250 MB, yavaş)</option></select></div>
+<div class="txs">Model ilk kullanımda bir kez indirilir, sonra tarayıcıda saklanır. Uzun kayıtlarda “Dengeli” önerilir; tıbbi terimler ve isimler için “En doğru” seçin.</div>
+<div class="pb mt14" id="sttProgWrap" style="display:none;"><div class="pf" id="sttProg" style="width:0%"></div></div>
+<div id="sttStatus" class="txs mt8"></div>
+<div class="fg2 mt14">
+<button class="btn btn-p" id="sttBtn" onclick="sttStart()" disabled style="flex:1;">📝 Yazıya Dök</button>
+<button class="btn btn-d" id="sttStop" onclick="sttCancel()" style="display:none;">■ Durdur</button>
+</div>
+</div>
+</div>
+<div class="card mt14" id="sttOutCard" style="display:none;">
+<div class="fb2" style="margin-bottom:10px;">
+<div class="ctitle" style="margin:0;">Metin <span id="sttMeta" class="txs" style="text-transform:none;letter-spacing:0;font-weight:400;"></span></div>
+<div class="fg2">
+<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer;"><input type="checkbox" id="sttShowTs" checked onchange="sttRender()"/> Zaman damgası</label>
+<button class="btn btn-g btn-sm" onclick="sttCopy()">📋 Kopyala</button>
+<button class="btn btn-g btn-sm" onclick="sttExport('txt')">⬇ TXT</button>
+<button class="btn btn-g btn-sm" onclick="sttExport('srt')">⬇ SRT</button>
+<button class="btn btn-g btn-sm" onclick="sttExport('vtt')">⬇ VTT</button>
+<button class="btn btn-g btn-sm" onclick="sttExport('docx')">⬇ Word</button>
+</div>
+</div>
+<div class="txs" style="margin-bottom:8px;">Zaman damgası biçimi <strong>[saat:dakika:saniye]</strong> — ör. [00:02:15] = 2. dakikanın 15. saniyesi. Damgaya tıklayınca kayıt o noktadan çalar.</div>
+<div id="sttOut" class="cout" style="white-space:normal;max-height:520px;overflow-y:auto;"></div>
+</div>
+</div>
+
 <!-- CONVERTER -->
 <div class="page" id="page-conv">
 <button class="back-btn" onclick="sp('home')">← Geri</button>
@@ -550,6 +615,7 @@ function downloadDataUrl(dataUrl,name){var a=document.createElement('a');a.href=
 var TOOLS=[
 {cat:'rsvp',id:'rsvp-reader',name:'Hızlı Okuma (RSVP)',desc:'Metni kelime kelime, ayarlanabilir hızda okuyun.',icon:'👁️',page:'rsvp'},
 {cat:'rsvp',id:'text-to-speech',name:'Sesli Okuma (TTS)',desc:'Metni tarayıcı sesiyle yüksek sesle dinleyin.',icon:'🔊',page:'rsvp'},
+{cat:'audio',id:'speech-to-text',name:'Sesi Yazıya Dök',desc:'Ses kaydını zaman damgalı metne çevirin (TXT, SRT, Word).',icon:'🎙️',page:'stt'},
 {cat:'audio',id:'audio-convert',name:'Ses Dönüştürücü',desc:'MP3, M4A, OGG, OPUS, WAV, FLAC arasında dönüştürün.',icon:'🎧',page:'audio'},
 {cat:'conv',id:'file-convert',name:'Dosya Çevirici',desc:'PDF, DOCX, RTF, ODT, XLSX, XML, YAML, TSV → metin.',icon:'🔃',page:'conv'},
 {cat:'cv',id:'cv-builder',name:'CV Oluşturucu',desc:'ATS uyumlu, tarayıcıda çalışan CV hazırlayın.',icon:'📑',page:'cv'},
@@ -2774,6 +2840,176 @@ function acDL(){if(!AC.blob)return toast('İndirilecek sonuç yok','warn');downl
 (function(){
   var s=document.getElementById('homeSearch');if(s){s.value='';filterTools('');}
   routeFromHash();
+})();
+
+/* ===== SPEECH TO TEXT (Whisper, stt-worker.js) ===== */
+var STT={worker:null,file:null,chunks:[],dur:0,busy:false,rec:null,recParts:[],recTimer:null,recStart:0,url:null,t0:0,files:{}};
+function sttHms(t,sep){ // sep: undefined → 00:00:00 ; ',' → SRT ; '.' → VTT
+  t=Math.max(0,t||0);var h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=Math.floor(t%60);
+  var r=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  if(sep)r+=sep+String(Math.floor((t%1)*1000)).padStart(3,'0');
+  return r;
+}
+function sttDurText(t){t=Math.round(t||0);var h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;
+  return (h?h+' sa ':'')+(h||m?m+' dk ':'')+s+' sn';}
+function sttStatus(t){ge('sttStatus').textContent=t||'';}
+function sttProg(p){ge('sttProgWrap').style.display=p==null?'none':'block';ge('sttProg').style.width=Math.round((p||0)*100)+'%';}
+
+function sttSetFile(f){
+  if(!f)return;
+  STT.file=f;STT.chunks=[];showErr('sttErr','');ge('sttOutCard').style.display='none';
+  if(STT.url)URL.revokeObjectURL(STT.url);
+  STT.url=URL.createObjectURL(f);
+  var pl=ge('sttPlayer');pl.src=STT.url;pl.style.display='block';
+  ge('sttFileInfo').textContent=f.name+' · '+fmtB(f.size)+' · süre ölçülüyor...';
+  pl.onloadedmetadata=function(){if(isFinite(pl.duration))ge('sttFileInfo').textContent=f.name+' · '+fmtB(f.size)+' · süre: '+sttHms(pl.duration)+' ('+sttDurText(pl.duration)+')';};
+  pl.onerror=function(){ge('sttFileInfo').textContent=f.name+' · '+fmtB(f.size)+' · (tarayıcı bu formatı çalamıyor, yine de yazıya dökülebilir)';};
+  ge('sttBtn').disabled=false;
+}
+
+/* Sesi 16 kHz mono Float32'ye çevir. Önce tarayıcının kendi çözücüsü, olmazsa ffmpeg (WMA, AMR, 3GP vb.) */
+async function sttDecode(file){
+  async function viaBrowser(buf){
+    var AC=window.AudioContext||window.webkitAudioContext;
+    var ctx=new AC({sampleRate:16000});
+    try{var ab=await ctx.decodeAudioData(buf);}finally{try{ctx.close();}catch(e){}}
+    var d=ab.getChannelData(0);
+    if(ab.numberOfChannels>1){var m=new Float32Array(d.length),c=ab.numberOfChannels;
+      for(var ch=0;ch<c;ch++){var x=ab.getChannelData(ch);for(var i=0;i<m.length;i++)m[i]+=x[i]/c;}d=m;}
+    return d;
+  }
+  try{return await viaBrowser(await file.arrayBuffer());}
+  catch(e){
+    sttStatus('Format tarayıcıda açılamadı, ffmpeg ile çözülüyor...');
+    try{
+      var ff=await acEngine();
+      var ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'')||'bin';
+      ff.FS('writeFile','stt_in.'+ext,await FFmpeg.fetchFile(file));
+      await ff.run('-i','stt_in.'+ext,'-vn','-ac','1','-ar','16000','-c:a','pcm_s16le','stt_out.wav');
+      var out;try{out=ff.FS('readFile','stt_out.wav');}catch(e2){throw new Error('Bu dosya okunamadı (bozuk veya desteklenmeyen format).');}
+      return await viaBrowser(out.buffer.slice(out.byteOffset,out.byteOffset+out.byteLength));
+    }finally{acReset();}
+  }
+}
+
+function sttGetWorker(){
+  if(!STT.worker){
+    STT.worker=new Worker('stt-worker.js',{type:'module'});
+    STT.worker.onerror=function(e){sttFail('İşçi başlatılamadı: '+(e.message||'tarayıcınız modül worker desteklemiyor olabilir'));};
+  }
+  return STT.worker;
+}
+function sttFail(msg){
+  STT.busy=false;sttProg(null);sttStatus('');showErr('sttErr',msg);
+  ge('sttBtn').disabled=!STT.file;ge('sttStop').style.display='none';
+  toast('Yazıya dökme başarısız','err');
+}
+
+async function sttStart(){
+  if(!STT.file||STT.busy)return;
+  if(ge('sttModel').value.indexOf('tiny')>=0&&ge('sttLang').value==='turkish')toast('Uyarı: “Hızlı (tiny)” model Türkçede çok hata yapar. Dengeli veya En doğru önerilir.','warn');
+  STT.busy=true;STT.chunks=[];STT.files={};showErr('sttErr','');
+  ge('sttBtn').disabled=true;ge('sttStop').style.display='';
+  ge('sttOutCard').style.display='block';ge('sttOut').innerHTML='<span class="txs">Hazırlanıyor...</span>';
+  try{
+    sttStatus('Ses çözülüyor...');sttProg(0);
+    var audio=await sttDecode(STT.file);
+    STT.dur=audio.length/16000;
+    if(STT.dur>3*3600)throw new Error('Kayıt 3 saatten uzun; parçalara bölüp tekrar deneyin.');
+    ge('sttMeta').textContent='· süre '+sttHms(STT.dur);
+    var w=sttGetWorker();
+    w.onmessage=sttOnMsg;
+    STT.t0=Date.now();
+    w.postMessage({type:'transcribe',model:ge('sttModel').value,language:ge('sttLang').value,audio:audio},[audio.buffer]);
+  }catch(e){sttFail(e.message||String(e));}
+}
+function sttOnMsg(ev){
+  var m=ev.data;
+  if(m.type==='status')sttStatus(m.text);
+  else if(m.type==='load'){
+    var p=m.p||{};
+    if(p.status==='progress'&&p.file){STT.files[p.file]={l:p.loaded||0,t:p.total||0};
+      var L=0,T=0;for(var k in STT.files){L+=STT.files[k].l;T+=STT.files[k].t;}
+      if(T){sttProg(L/T);sttStatus('Model indiriliyor (yalnız ilk sefer): '+fmtB(L)+' / '+fmtB(T));}}
+    else if(p.status==='ready')sttStatus('Model hazır.');
+  }
+  else if(m.type==='start'){sttProg(0);sttStatus('Yazıya dökülüyor... 0/'+m.n+' bölüm');ge('sttOut').innerHTML='';}
+  else if(m.type==='segment'){
+    STT.chunks=STT.chunks.concat(m.chunks);
+    var done=m.i+1,el=(Date.now()-STT.t0)/1000,eta=el/done*(m.n-done);
+    sttProg(done/m.n);
+    sttStatus('Yazıya dökülüyor... '+done+'/'+m.n+' bölüm'+(done<m.n?' · kalan ~'+sttDurText(eta):''));
+    sttRender();
+  }
+  else if(m.type==='done'){
+    STT.busy=false;sttProg(null);ge('sttBtn').disabled=false;ge('sttStop').style.display='none';
+    var el=(Date.now()-STT.t0)/1000;
+    sttStatus('Tamamlandı ✓ · '+STT.chunks.length+' bölüm · işlem süresi '+sttDurText(el));
+    if(!STT.chunks.length)ge('sttOut').innerHTML='<span class="txs">Konuşma algılanmadı.</span>';
+    toast('Yazıya döküldü ✓','ok');
+  }
+  else if(m.type==='error')sttFail('Hata: '+m.message);
+}
+function sttCancel(){
+  if(STT.worker){STT.worker.terminate();STT.worker=null;}
+  STT.busy=false;sttProg(null);ge('sttBtn').disabled=!STT.file;ge('sttStop').style.display='none';
+  sttStatus('Durduruldu. '+(STT.chunks.length?'Şimdiye kadarki metin aşağıda.':''));
+}
+function sttRender(){
+  var ts=ge('sttShowTs').checked;
+  ge('sttOut').innerHTML=STT.chunks.map(function(c){
+    return '<div style="margin-bottom:6px;">'+(ts?'<a href="#" style="font-family:var(--mono);font-size:12px;color:var(--blue);margin-right:6px;" onclick="sttSeek('+c.start.toFixed(2)+');return false;">['+sttHms(c.start)+']</a>':'')+esc(c.text)+'</div>';
+  }).join('');
+}
+function sttSeek(t){var p=ge('sttPlayer');p.currentTime=t;p.play().catch(function(){});}
+function sttText(ts){return STT.chunks.map(function(c){return (ts?'['+sttHms(c.start)+'] ':'')+c.text;}).join('\n');}
+function sttCopy(){if(!STT.chunks.length)return;navigator.clipboard.writeText(sttText(ge('sttShowTs').checked)).then(function(){toast('Kopyalandı ✓','ok');});}
+function sttExport(kind){
+  if(!STT.chunks.length)return toast('Önce yazıya dökün','warn');
+  var base=(STT.file&&STT.file.name||'kayit').replace(/\.[^.]+$/,''),body,mime='text/plain;charset=utf-8',ext=kind;
+  if(kind==='txt'){
+    body='Dosya: '+(STT.file?STT.file.name:'')+'\nSüre: '+sttHms(STT.dur)+'\nTarih: '+new Date().toLocaleString('tr-TR')+'\n\n'+sttText(ge('sttShowTs').checked)+'\n';
+  }else if(kind==='srt'){
+    body=STT.chunks.map(function(c,i){return (i+1)+'\n'+sttHms(c.start,',')+' --> '+sttHms(c.end,',')+'\n'+c.text+'\n';}).join('\n');
+  }else if(kind==='vtt'){
+    body='WEBVTT\n\n'+STT.chunks.map(function(c){return sttHms(c.start,'.')+' --> '+sttHms(c.end,'.')+'\n'+c.text+'\n';}).join('\n');mime='text/vtt;charset=utf-8';
+  }else if(kind==='docx'){ // Word HTML'i .doc olarak açar
+    var ts=ge('sttShowTs').checked;
+    body='<html><head><meta charset="utf-8"><title>'+esc(base)+'</title></head><body style="font-family:Calibri,Arial;font-size:11pt;">'
+      +'<h2>'+esc(base)+'</h2><p style="color:#666">Süre: '+sttHms(STT.dur)+' · '+new Date().toLocaleString('tr-TR')+'</p>'
+      +STT.chunks.map(function(c){return '<p>'+(ts?'<span style="color:#888;font-family:Consolas">['+sttHms(c.start)+']</span> ':'')+esc(c.text)+'</p>';}).join('')
+      +'</body></html>';
+    mime='application/msword';ext='doc';
+  }
+  downloadBlob(new Blob(['﻿'+body],{type:mime}),base+'.'+ext);
+}
+
+/* Mikrofon kaydı */
+async function sttRecToggle(){
+  var btn=ge('sttRecBtn');
+  if(STT.rec&&STT.rec.state==='recording'){STT.rec.stop();return;}
+  try{
+    var stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true}});
+    var mime=['audio/webm;codecs=opus','audio/ogg;codecs=opus','audio/mp4'].find(function(t){return window.MediaRecorder&&MediaRecorder.isTypeSupported(t);})||'';
+    STT.rec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);STT.recParts=[];
+    STT.rec.ondataavailable=function(e){if(e.data.size)STT.recParts.push(e.data);};
+    STT.rec.onstop=function(){
+      stream.getTracks().forEach(function(t){t.stop();});clearInterval(STT.recTimer);
+      btn.textContent='⏺ Mikrofonla Kaydet';btn.classList.remove('btn-d');btn.classList.add('btn-g');
+      var type=STT.rec.mimeType||'audio/webm',ext=type.indexOf('mp4')>=0?'m4a':type.indexOf('ogg')>=0?'ogg':'webm';
+      var d=new Date(),stamp=d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(d.getHours()).padStart(2,'0')+String(d.getMinutes()).padStart(2,'0');
+      sttSetFile(new File(STT.recParts,'kayit-'+stamp+'.'+ext,{type:type}));
+      toast('Kayıt hazır — “Yazıya Dök”e basın','ok');
+    };
+    STT.rec.start(1000);STT.recStart=Date.now();
+    btn.textContent='■ Kaydı Bitir';btn.classList.remove('btn-g');btn.classList.add('btn-d');
+    ge('sttRecTime').style.display='';
+    STT.recTimer=setInterval(function(){ge('sttRecTime').innerHTML='<strong>🔴 '+sttHms((Date.now()-STT.recStart)/1000)+'</strong>';},500);
+  }catch(e){showErr('sttErr','Mikrofona erişilemedi: '+(e.message||e)+' (tarayıcı izni gerekli, site https üzerinden açılmalı)');}
+}
+(function(){
+  ge('sttfi').addEventListener('change',function(){sttSetFile(this.files[0]);});
+  setupDrop('sttdz','sttfi',function(files){sttSetFile(files[0]);});
 })();
 
 /* ===== PWA: service worker kaydı ===== */
