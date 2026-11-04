@@ -16,7 +16,7 @@
 <meta name="keywords" content="hızlı okuma, RSVP, CV oluşturucu, dosya çevirici, PDF araçları, görsel düzenleyici, metin araçları, çevrimdışı"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -2465,13 +2465,17 @@ if(!cF||!cFmt)return;load(true,'Dönüştürülüyor...');showErr('cferr','');
 try{
 var ext=cF.name.split('.').pop().toLowerCase();var r='';
 var raw=await exText(cF);
+// XLSX ikili dosya: 'raw' ondalık virgül içeren metin olabilir — tablo okumaları için ikili arabellek şart
+var isXlsSrc=(ext==='xlsx'||ext==='xls');
+var _xsBuf=null;
+async function xlsWB(){if(!_xsBuf)_xsBuf=await cF.arrayBuffer();return XLSX.read(_xsBuf,{type:'array'});}
 
 if(cFmt==='txt'){r=raw;}
 else if(cFmt==='html'){
 if(ext==='docx'){var ab=await cF.arrayBuffer();var res=await mammoth.convertToHtml({arrayBuffer:ab});r='<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>Converted</title><style>body{font-family:sans-serif;max-width:800px;margin:2em auto;line-height:1.7;}</style></head><body>'+res.value+'</body></html>';}
 else if(ext==='md')r=mdHTML(raw);
 else if(ext==='csv'||ext==='tsv'){r=csvTable(raw,cFmt==='tsv'?'\t':',');}
-else if(ext==='xlsx'||ext==='xls'){var wb=XLSX.read(await cF.arrayBuffer(),{type:'array'});r=xlsxToHtmlTable(wb);}
+else if(isXlsSrc){r=xlsxToHtmlTable(await xlsWB());}
 else if(ext==='json'){r=jsonToHtmlTable(JSON.parse(raw));}
 else r='<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><pre style="white-space:pre-wrap;">'+esc(raw)+'</pre></body></html>';
 }
@@ -2486,14 +2490,14 @@ else r=raw;
 }
 else if(cFmt==='json'){
 if(['csv','tsv'].indexOf(ext)>=0)r=csvJSON(raw,cFmt==='tsv'?'\t':',');
-else if(ext==='xlsx'||ext==='xls'){var wb2=XLSX.read(await cF.arrayBuffer(),{type:'array'});var sheet=wb2.Sheets[wb2.SheetNames[0]];r=JSON.stringify(XLSX.utils.sheet_to_json(sheet),null,2);}
+else if(isXlsSrc){var wb2=await xlsWB();var sheet=wb2.Sheets[wb2.SheetNames[0]];r=JSON.stringify(XLSX.utils.sheet_to_json(sheet),null,2);}
 else if(ext==='xml'){r=xmlToJson(raw);}
 else r=JSON.stringify({content:raw},null,2);
 }
 else if(cFmt==='xml'){
 if(['csv','tsv'].indexOf(ext)>=0)r=csvToXml(raw,cFmt==='tsv'?'\t':',');
 else if(ext==='json'){r=jsonToXml(JSON.parse(raw));}
-else if(ext==='xlsx'||ext==='xls'){var wb3=XLSX.read(await cF.arrayBuffer(),{type:'array'});var sheet3=wb3.Sheets[wb3.SheetNames[0]];var csv3=XLSX.utils.sheet_to_csv(sheet3);r=csvToXml(csv3,',');}
+else if(isXlsSrc){var wb3=await xlsWB();var sheet3=wb3.Sheets[wb3.SheetNames[0]];var csv3=XLSX.utils.sheet_to_csv(sheet3);r=csvToXml(csv3,',');}
 else r='<?xml version="1.0" encoding="UTF-8"?>\n<root>\n<content>'+esc(raw)+'</content>\n</root>';
 }
 else if(cFmt==='yaml'){
