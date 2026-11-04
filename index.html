@@ -1996,7 +1996,8 @@ html=html.replace(/\*(.+?)\*/g,'<em>$1</em>');
 html=html.replace(/`(.+?)`/g,'<code>$1</code>');
 html=html.replace(/^\- (.+)$/gm,'<li>$1</li>');
 html=html.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');
-html=html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+// Yalnizca guvenli semalar: javascript:/data: enjeksiyonunu engeller
+html=html.replace(/\[([^\]]+)\]\(([^)]+)\)/g,function(m0,txt,url){url=(url||'').trim().replace(/^&quot;|&quot;$/g,'');if(!/^(https?:|mailto:|tel:|#|\/|\.)/i.test(url)&&url!=='')return txt;return '<a href="'+url+'" target="_blank" rel="noopener noreferrer">'+txt+'</a>';});
 html=html.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
 html=html.replace(/^---$/gm,'<hr>');
 html=html.replace(/(?:<li>.*<\/li>\n?)+/g,function(m){return '<ul>'+m+'</ul>';});
